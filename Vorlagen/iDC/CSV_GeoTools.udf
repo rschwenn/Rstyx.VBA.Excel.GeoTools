@@ -1,0 +1,147 @@
+# jEdit: :mode=ini:
+
+[ALLGEMEIN]
+EXT=.CSV
+ELEMTYP=P
+
+[KOPF]
+@GEOTOOLS_BEGIN
+ # CSV-Datei für den Import in eine Excel-Tabellenvorlage mit Add-In Geotools
+
+ @CSV-Settings
+   # Einstellungen zur Interpretation der CSV-Daten
+   TrimFields = false
+
+ @DataImportOptions
+   # Einstellungen zur Datenbearbeitung beim Import
+   EditData = false
+
+ @Metadata
+   # Beschreibende Daten für den Tabellenkopf
+   x.Statistik.Programm = MicroStation/iDataCenter
+
+ @ExcelTableProps
+   # Einstellungen für Excel-Tabelle
+   Class    = tabKV_iDataCenter
+   AutoSave = false
+
+@GEOTOOLS_END
+Pkt.Nr,GK.Y..m,GK.X..m,GK.Z..m,elm:scale_x_w,elm:scale_y_h,elm:Rotation,Obj.OS,Obj.Beschreibung,Pkt.Erl.L,iAtt1,iAtt2,iAtt3,iAtt4,iAtt5,iAtt6,iAtt7,iAtt8,iAtt9,sys:stand,sys:ber,sys:fp,sys:ml,sys:mh,sys:objektart,sys:os,sys:qualitaet,sys:erstellt,sys:geaendert,sys:ad_os,sys:ad_bc,sys:ad_gc,sys:ad_dim,xcf:dialogprompt,xcf:status,xcf:quality,xcf:dgn,xcf:dgndescr,xcf:classname,elm:z,elm:cellname_key,elm:level,elm:ftnr 
+[SPALTEN]
+# UserData (Punktfolge)
+#Punktnummer
+#sys:pktnr Punktnummer 22 %21s
+sys:pktnr;;"%s",;;1
+#elm:x_r Koordinate X/R 13 %12.3lf
+elm:x_r;;%.4lf,
+#elm:y_h Koordinate Y/H 13 %12.3lf
+elm:y_h;;%.4lf,                                   
+#sys:pktht Punkthöhe (als Dezimalzahl) 10 %9.3lf
+sys:pktht;;%.4lf,;NaN,  
+#elm:scale_x_w Zell-Skalierung x oder Textbreite(Skalierung XCF-Objekt berücksichtigt) 7 %6.2lf
+elm:scale_x_w;;%.2lf,
+#elm:scale_y_h Zell-Skalierung y oder Texthöhe(Skalierung XCF-Objekt berücksichtigt) 7 %6.2lf
+elm:scale_y_h;;%.2lf,
+#elm:rotation Rotation(Rotation XCF-Objekt berücksichtigt) 8 %7.3lf
+elm:Rotation;;%.3lf,
+#xcf:os OS (Objektschlüssel) 7 %6s
+xcf:os;;"%6s",;"",
+#xcf:helpstring Helpstring 0 %s
+xcf:helpstring;;"%s",;"",
+#Element-Attribute
+InfoText;;"%s",;"",
+iAtt1;;"%s",;"",
+iAtt2;;"%s",;"",
+iAtt3;;"%s",;"",
+iAtt4;;"%s",;"",
+iAtt5;;"%s",;"",
+iAtt6;;"%s",;"",
+iAtt7;;"%s",;"",
+iAtt8;;"%s",;"",
+iAtt9;;"%s",;"",
+#-------Sonstige----------------------------
+#UserData (Punktfolge)
+#sys:pktnr Punktnummer 22 %21s
+#
+#sys:pktht Punkthöhe (als Dezimalzahl) 10 %9.3lf
+#
+##sys:stand Stand 11 %10lu
+sys:stand;;%lu,;,
+#sys:ber Bereich 11 %10s
+sys:ber;;"%s",;"",
+##sys:fp FP 3 %2s
+sys:fp;;"%s",;"",
+##sys:ml Lagegenauigkeit 8 %7s
+sys:ml;;%.5lf,;,
+##sys:mh Höhengenauigkeit 8 %7s
+sys:mh;;%.5lf,;,
+#-------------------------------------------
+##UserData (Objektinfo)
+##sys:objektart Objektart 3 %2s
+sys:objektart;;"%s",;"",
+##sys:os Objektschlüssel 7 %6s
+sys:os;;"%s",;"",
+##sys:qualitaet Qualität 33 %-32s
+sys:qualitaet;;"%s",;"",
+##sys:erstellt Erstellt-Datum 15
+sys:erstellt;;15
+all:text;;,
+##sys:geaendert Geändert-Datum 15
+sys:geaendert;;15,
+all:text;;,
+##-------------------------------------------
+##UserData (Außendienstcode)
+##sys:ad_os Objektschlüssel 3 %2s
+sys:ad_os;;"%s",;"",
+##sys:ad_bc Berechnungscode 7 %6s
+sys:ad_bc;;"%s",;"",
+##sys:ad_gc Grafikcode 3 %2s
+sys:ad_gc;;"%s",;"",
+##sys:ad_dim Dimension 6 %5s
+sys:ad_dim;;"%s",;"",
+##-------------------------------------------
+##Element-Attribute
+##UserData (Freie Attribute)
+##[Name] Wert des freien Attributs [Name] 26 %25s                                     
+##-------------------------------------------
+##XCF-Attribute
+##xcf:os OS (Objektschlüssel) 7 %6s
+##
+##xcf:dialogprompt Dialogprompt 0 %s
+xcf:dialogprompt;;"%s",;"",
+##xcf:helpstring Helpstring 0 %s
+##
+##xcf:status Status 11 %10s
+xcf:status;;"%s",;"",
+##xcf:quality Quality 11 %10s
+xcf:quality;;"%s",;"",
+##xcf:dgn DGN 3 %2s
+xcf:dgn;;"%s",;"",
+##xcf:dgndescr DGN-Beschreibung 0 %s
+xcf:dgndescr;;"%s",;"",
+##xcf:classname Klassen-Name 0 %s
+xcf:classname;;"%s",;"",
+##-------------------------------------------
+##Element-Attribute
+##elm:x_r Koordinate X/R 13 %12.3lf
+##
+##elm:y_h Koordinate Y/H 13 %12.3lf
+##
+##elm:z Koordinate Z 10 %9.3lf
+elm:z;;%.3lf,
+##elm:cellname_key Zellname oder Symbol-Key 7 %-6s
+elm:cellname_key;;"%s",;"",
+all:text;;,
+##elm:scale_x_w Zell-Skalierung x oder Textbreite(Skalierung XCF-Objekt berücksichtigt) 7 %6.2lf
+##
+##elm:scale_y_h Zell-Skalierung y oder Texthöhe(Skalierung XCF-Objekt berücksichtigt) 7 %6.2lf
+##
+##elm:rotation Rotation(Rotation XCF-Objekt berücksichtigt) 8 %7.3lf
+##
+##elm:level Ebene 5 %4lu
+elm:level;;%lu,;,
+##elm:ftnr Font-Nummer 4 %3d
+elm:ftnr;;%d,;,
+##-------------------------------------------
+##Allgemeine Elemente
+##all:text 0

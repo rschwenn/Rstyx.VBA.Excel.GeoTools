@@ -1,0 +1,48 @@
+Kenner	Beschreibung	Standard-Spaltenbreite	Standard-Formatstring
+
+UserData	(Punktfolge)
+sys:pktnr	Punktnummer	22	%21s
+sys:pktht	Punkthöhe (als Dezimalzahl)	10	%9.3lf
+sys:stand	Stand	11	%10lu
+sys:ber	Bereich	11	%10s
+sys:fp	FP	3	%2s
+sys:ml	Lagegenauigkeit	8	%7s
+sys:mh	Höhengenauigkeit	8	%7s
+UserData	(Objektinfo)
+sys:objektart	Objektart	3	%2s
+sys:os	Objektschlüssel	7	%6s
+sys:qualitaet	Qualität	33	%-32s
+sys:erstellt	Erstellt-Datum	15
+sys:geaendert	Geändert-Datum	15
+
+UserData	(Außendienstcode)
+sys:ad_os	Objektschlüssel	3	%2s
+sys:ad_bc	Berechnungscode	7	%6s
+sys:ad_gc	Grafikcode	3	%2s
+sys:ad_dim	Dimension	6	%5s
+
+UserData	(Freie Attribute)
+[Name]	Wert des freien Attributs [Name]	26	%25s
+
+XCF-Attribute
+xcf:os	OS (Objektschlüssel)	7	%6s
+xcf:dialogprompt	Dialogprompt	0	%s
+xcf:helpstring	Helpstring	0	%s
+xcf:status	Status	11	%10s
+xcf:quality	Quality	11	%10s
+xcf:dgn	DGN	3	%2s
+xcf:dgndescr	DGN-Beschreibung	0	%s
+xcf:classname	Klassen-Name	0	%s
+
+Element-Attribute
+elm:x_r	Koordinate X/R	13	%12.3lf
+elm:y_h	Koordinate Y/H	13	%12.3lf
+elm:z	Koordinate Z	10	%9.3lf
+elm:cellname_key	Zellname oder Symbol-Key	7	%-6s
+elm:scale_x_w	Zell-Skalierung x oder Textbreite (Skalierung XCF-Objekt berücksichtigt)	7	%6.2lf
+elm:scale_y_h	Zell-Skalierung y oder Texthöhe (Skalierung XCF-Objekt berücksichtigt)	7	%6.2lf
+elm:rotation	Rotation (Rotation XCF-Objekt berücksichtigt)	8	%7.3lf
+elm:level	Ebene	5	%4lu
+elm:ftnr	Font-Nummer	4	%3d
+Allgemeine	Elemente
+all:text	0

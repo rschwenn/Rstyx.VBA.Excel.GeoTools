@@ -956,7 +956,7 @@ Sub GeoTools_Info()
   Titel = "Info über " & ProgName
   Meldung = ProgName & ": Excel-Werkzeuge (nicht nur) für Geodäten." & vbLf & vbLf & _
             "Version"   & vbTab & vbTab & VersionNr & "  (" & VersionDate & ")" & vbLf & vbLf & _
-            "Lizenz"    & vbTab & vbTab & "GNU General Public License (GPL)" & vbLf & _
+            "Lizenz"    & vbTab & vbTab & "The MIT License" & vbLf & _
             "Copyright" & vbTab & vbTab & Copyright & "  (" & eMail & ")"
   Call MsgBox(Meldung, vbOKOnly, Titel)
   Exit Sub

@@ -1,0 +1,19 @@
+/*
+ Menü für GeoTools-Online-Dokumentation
+*/
+
+
+body {
+	background-color : #ebeeee;
+  /*font-size: 1.0em;*/
+  font-family: Arial, Tahoma, Sans-Serif;
+}
+
+a {
+  color: maroon;
+  /*color: #900;*/
+  
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: none;
+}

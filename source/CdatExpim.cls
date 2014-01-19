@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2013  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -49,6 +49,8 @@ Attribute VB_Exposed = False
  '  - GL Meldung_Titel                   ... Schlussmeldung
 '
 'Historie:
+ '31.12.2013  Anpassungen für Excel 2010:
+ '            - Speichern der Arbeitsmappe im aktuellen Standardformat.
  '09.11.2008  - Methoden zum Speichern und Wiederherstellen von Einstellungen (nur Datenquelle)
  '30.05.2004  - Formeln in Zellen werden erhalten beim Import/Export:
  '              - Bezüge auf Zellen im Tabellenkopf bleiben unverändert.
@@ -491,7 +493,7 @@ Sub AktionsManager()
               'Projekt- und ExtraDaten übernehmen
               oMetadaten.Update oPrjLocal:=oCSV.Quelle_Projektdaten, oExtraLocal:=oCSV.Quelle_DatenExtra
               
-              NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) & ".xls"
+              NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) '& ".xls"
               Me.Ziel_XLMappeSpeichern = oCSV.Ziel_XLMappeSpeichern
               
               AktionErfolgreich = oCSV.AktionErfolgreich
@@ -512,7 +514,7 @@ Sub AktionsManager()
           DatenImPuffer = True
           MappeAngelegt = False
           AktionErfolgreich = True
-          NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) & ".xls"
+          NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) '& ".xls"
           
           
       Case io_Typ_AsciiSpezial
@@ -557,7 +559,7 @@ Sub AktionsManager()
             'Extradaten übernehmen (unabhängig vom Ziel der eigentlichen Daten)
             oMetadaten.Update oPrjLocal:=Nothing, oExtraLocal:=oImportobjekt.Quelle_DatenExtra
             
-            NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) & ".xls"
+            NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) '& ".xls"
             
             AktionErfolgreich = oImportobjekt.AktionErfolgreich
             Fehlerniveau = oImportobjekt.Fehlerniveau
@@ -653,12 +655,17 @@ Sub AktionsManager()
                 'Neue Arbeitsmappe speichern (bei Bedarf).
                 If (Me.Ziel_XLMappeSpeichern) Then
                   On Error Resume Next
-                  Application.ActiveWorkbook.SaveAs FileName:=NameExcelDatei, AddToMru:=True
+                  ' NOTE: Aktuelles Speicherformat wird verwendet (kann also per Vorlagenmakro gesteuert werden)
+                  'Application.ActiveWorkbook.SaveAs FileName:=NameExcelDatei, AddToMru:=True
+                  Application.ActiveWorkbook.SaveAs FileFormat:=Application.DefaultSaveFormat, FileName:=NameExcelDatei, AddToMru:=True
                   If (Err) Then
-                    NameExcelDatei = Application.GetSaveAsFilename(InitialFilename:=NameExcelDatei, FileFilter:=DateiFilterXLS, Title:="Arbeitsmappe speichern")
-                    If ((NameExcelDatei <> "False") And (NameExcelDatei <> "Falsch")) Then
-                      Application.ActiveWorkbook.SaveAs FileName:=NameExcelDatei, AddToMru:=True
-                    End If
+                    ' Zielformat und Extension in jeder Hinsicht unsicher => Speichern dem Nutzer überlassen!
+                    'NameExcelDatei = Application.GetSaveAsFilename(InitialFilename:=NameExcelDatei, FileFilter:=DateiFilterXLS, Title:="Arbeitsmappe speichern")
+                    'If ((NameExcelDatei <> "False") And (NameExcelDatei <> "Falsch")) Then
+                    '  'Application.ActiveWorkbook.SaveAs FileName:=NameExcelDatei, AddToMru:=True
+                    '  Application.ActiveWorkbook.SaveAs FileFormat:=Application.DefaultSaveFormat, FileName:=NameExcelDatei, AddToMru:=True
+                    'End If
+                    MsgBox "Neu erstellte Datei konnte nicht gespeichert werden als '" & NameExcelDatei & ".xls*'." & vbNewLine & vbNewLine & " => Ist eine Datei gleichen Namens vielleicht bereits geöffnet?"
                   End If
                   On Error GoTo Fehler
                 End If

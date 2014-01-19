@@ -39,6 +39,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'31.12.2013 v2.6.1  Anpassungen für Excel 2010:
+'                   - CdatExpim          - Dateifilter für Vorlagensuche erweitert um .xltx und .xltm.
+'                                        - Speichern der Arbeitsmappe im aktuellen Standardformat.
 '05.12.2013 v2.6.0  - Lizenz geändert. GeoTools unterliegen jetzt der "The MIT License"
 '10.11.2013 v2.5.1  - CimpTrassenkoo     - Anpassung für iGeo Version 11/2013 (Gleisprofilbereich)
 '15.09.2013 v2.5.0  - CimpTrassenkoo     - Anpassung an iTrassePC 2.0.2 (A1-Kennung ohne Kommas)

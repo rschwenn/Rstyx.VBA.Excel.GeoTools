@@ -1,9 +1,9 @@
 # Files that shouldn't go into the repository
 
 # Build and Object Folders
-_bin/
-bin/
-obj/
+#_bin/
+#bin/
+#obj/
 
 # temporary backup
 *.bak

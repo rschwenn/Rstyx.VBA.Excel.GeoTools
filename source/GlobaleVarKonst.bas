@@ -15,7 +15,7 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
-Public Const VersionNr    As String = "2.6.0"
+Public Const VersionNr    As String = "2.6.1"
 Public Const VersionDate  As String = "Dezember 2013"
 Public Const Copyright    As String = "© 2003 - 2013  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
@@ -65,8 +65,8 @@ Public Const Allg_unbekannt                  As String = "unbekannt"
 
 'Dateifilter.
 Public Const DateiFilterXLS                  As String = "Exceldateien (*.xls), *.xls"
-Public Const DateiFilterXLT                  As String = "Exceldateien (*.xlt), *.xlt"
-Public Const DateiMaskeXLT                   As String = "*.xlt"
+'Public Const DateiFilterXLT                  As String = "Exceldateien (*.xlt), *.xlt"
+Public Const DateiMaskeXLT                   As String = "*.xlt;*.xltm;*.xltx"
 
 'Allgemeines Verhalten
 Public Const StatusBarClearDelay             As Integer = 7  'Verzögerung in Sekunden

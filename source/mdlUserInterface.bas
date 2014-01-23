@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlUserInterface"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2010  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -140,7 +140,7 @@ Sub MenuesErzeugen()
   'Kontextmenü für Zellen
   Set cb_KM_Zelle = Application.CommandBars("cell")
   '"Bedingte Formatierung"
-  Set cbb = cb_KM_Zelle.Controls.Add(Type:=msoControlButton, Id:=3058, Temporary:=True, before:=cb_KM_Zelle.Controls.Count - 1)
+  'Set cbb = cb_KM_Zelle.Controls.Add(Type:=msoControlButton, Id:=3058, Temporary:=True, before:=cb_KM_Zelle.Controls.Count - 1)
   
   'temporäre Symbolleisten und Menüstruktur erzeugen
   On Error Resume Next
@@ -386,7 +386,7 @@ Sub MenuesErzeugen()
   'cbcb.Caption = TagFormatDatenNKStellenAnzahl
   'cbcb.TooltipText = "Anzahl der Nachkommastellen"
   cbcb.OnAction = TagFormatDatenNKStellenAnzahl
-  cbcb.Width = 35
+  cbcb.Width = 15
   cbcb.DropDownWidth = -1
   For i = 0 To 9
     cbcb.AddItem i
@@ -540,24 +540,26 @@ End Sub
 
 
 Sub MenuesEntfernen()
-  'Alle erzeugten Symbolleisten und Menüeinträge entfernen.
+  'Alle erzeugten Kontextmenüeinträge entfernen.
   'Wird aufgerufen von wbk_GeoTools\Workbook_BeforeClose().
   
   On Error Resume Next
   
-  msgbox "MenuesEntfernen"
+  'msgbox "MenuesEntfernen"
   'Toolboxen nicht löschen, damit sich Excel die Position merken kann;
   'aber deaktivieren, damit bei Excel-Start ohne dieses Add-In die leere
   'Toolbox für den Benutzer nicht verfügbar ist im "Anpassen"-Dialog.
-  Application.CommandBars(Name_TB_Datenbereich).Enabled = False
-  Application.CommandBars(Name_TB_Werkzeuge).Enabled = False
+  ' Application.CommandBars(Name_TB_Datenbereich).Enabled = False
+  ' Application.CommandBars(Name_TB_Werkzeuge).Enabled = False
   
   'Einträge im Hauptmenü entfernen
-  Application.CommandBars("Worksheet Menu Bar").Controls(Name_M1_Tools).Delete
+  '(Nicht nötig, nur temporär erzeugt)
+  'Application.CommandBars("Worksheet Menu Bar").Controls(Name_M1_Tools).Delete
   
   'Einträge im Kontextmenü entfernen
   Application.CommandBars("cell").Controls("Datenbereich formatieren").Delete
   Application.CommandBars("cell").Controls("Bedingte Formatierung...").Delete
+  Application.CommandBars("cell").Controls("Datei öffnen (Name in Zelle)").Delete
   
   'neues Kontextmenü entfernen
   'Application.CommandBars("newpopup").Delete

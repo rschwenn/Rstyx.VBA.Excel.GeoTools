@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2013 Robert Schwenn
+' Copyright (c) 2003-2014 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'23.01.2014 v2.6.2  - Bugfix: Nicht alle Kontextmenü-Einträge wurden beim Beenden entfernt.
+'                   - Bedingte Formatierung aus Kontextmenü entfernt (evtl. via Hooks.xlam)
 '31.12.2013 v2.6.1  Anpassungen für Excel 2010:
 '                   - CdatExpim          - Dateifilter für Vorlagensuche erweitert um .xltx und .xltm.
 '                                        - Speichern der Arbeitsmappe im aktuellen Standardformat.

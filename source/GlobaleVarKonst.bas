@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2013  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
-Public Const VersionNr    As String = "2.6.1"
-Public Const VersionDate  As String = "Dezember 2013"
-Public Const Copyright    As String = "© 2003 - 2013  Robert Schwenn"
+Public Const VersionNr    As String = "2.6.2"
+Public Const VersionDate  As String = "Januar 2014"
+Public Const Copyright    As String = "© 2003 - 2014  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 

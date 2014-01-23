@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -116,6 +116,7 @@ End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
   'MsgBox "Workbook_BeforeClose()"
+  Call MenuesEntfernen()
   Set oRegExp = Nothing
   Set oKonfig = Nothing
   Set oMetadaten = Nothing

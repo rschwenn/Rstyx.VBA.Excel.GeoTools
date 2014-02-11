@@ -15,8 +15,8 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
-Public Const VersionNr    As String = "2.6.2"
-Public Const VersionDate  As String = "Januar 2014"
+Public Const VersionNr    As String = "2.7.0"
+Public Const VersionDate  As String = "Februar 2014"
 Public Const Copyright    As String = "© 2003 - 2014  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
@@ -184,7 +184,7 @@ Public Const SpN_DGM_NameDGM                 As String = "DGM.NameDGM"
 
 'Objekte
 Public oMenuTypPrefixe                       As Collection   'alle Prefixe für Menütypen
-Public oBasisTags                            As Collection   'alle Basistags für Controls
+'Public oBasisTags                            As Collection   'alle Basistags für Controls
 
 Public oKonfig                               As CdatKonfig
 Public oMetadaten                            As CdatMetaDaten

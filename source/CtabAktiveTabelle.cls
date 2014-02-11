@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -437,6 +437,8 @@ Property Let FormatDatenMitStreifen(inpFormatDatenMitStreifen As Boolean)
   
   'Mit Streifen heißt auch: ohne Füllung.
   If (blnFormatDatenMitStreifen) Then Me.FormatDatenOhneFuellung = True
+  
+  Call UpdateRibbon
 End Property
 
 
@@ -470,6 +472,8 @@ Property Let FormatDatenOhneFuellung(inpFormatDatenOhneFuellung As Boolean)
   
   'Mit Füllung heißt auch: ohne Streifen.
   If (Not blnFormatDatenOhneFuellung) Then Me.FormatDatenMitStreifen = False
+  
+  Call UpdateRibbon
 End Property
 
 
@@ -499,6 +503,8 @@ Property Let FormatDatenNKStellenAnzahl(inpFormatDatenNKStellenAnzahl As Integer
     
     'NK-Anzahl einstellen heißt auch: "Setzen der NachkommaStellen" einschalten!
     Me.FormatDatenNKStellenSetzen = True
+    
+    Call UpdateRibbon
   End If
 End Property
 
@@ -531,6 +537,7 @@ Property Let FormatDatenNKStellenSetzen(inpFormatDatenNKStellenSetzen As Boolean
   Next
   Set cbb = Nothing
 
+  Call UpdateRibbon
 End Property
 
 
@@ -586,6 +593,8 @@ Property Let ModOpt_VorhWerteUeberschreiben(inp_VorhWerteUeberschreiben As Boole
     End If
   Next
   Set cbb = Nothing
+  
+  Call UpdateRibbon
 End Property
 
 
@@ -615,6 +624,8 @@ Property Let ModOpt_FormelnErhalten(inp_FormelnErhalten As Boolean)
     End If
   Next
   Set cbb = Nothing
+  
+  Call UpdateRibbon
 End Property
 
 
@@ -628,7 +639,7 @@ End Property
 
 
 
-Private Function ExistsLokalerZellname(ByVal Name As String) As Boolean
+Public Function ExistsLokalerZellname(ByVal Name As String) As Boolean
   'Überprüft, ob der benannte Zellbereich "Name" existiert und sich
   'auf Zellen der aktiven Tabelle bezieht.
   On Error GoTo Fehler
@@ -1069,7 +1080,7 @@ Sub Selection2Infotraeger()
   ActiveSheet.Select True
   
   Call SetInfotraeger(Selection)
-  Call BefehleAktualisieren
+  Call UpdateRibbon
   Exit Sub
   
 Fehler:
@@ -1162,7 +1173,7 @@ Sub Selection2Fliesskomma()
   strBezug = "=" & Union(Selection, Selection).Address(RowAbsolute:=True, ColumnAbsolute:=True, ReferenceStyle:=xlA1, External:=True)
   benannteZellen.Add Name:=Feldname, RefersTo:=strBezug
   Set benannteZellen = Nothing
-  Call BefehleAktualisieren
+  Call UpdateRibbon
   Exit Sub
   
 Fehler:
@@ -1195,7 +1206,7 @@ Sub Selection2Spaltenname(ByVal SpName As String, Optional ByVal Einheit As Stri
   
   'Eigenschaften dieser Klasse mit der geänderten aktiven Tabelle abgleichen.
   Call Me.Syncronisieren
-  'Call BefehleAktualisieren
+  'Call UpdateRibbon
   Exit Sub
   
 Fehler:
@@ -1464,7 +1475,7 @@ Sub Selection2Formel()
   strBezug = "=" & Union(Selection, Selection).Address(RowAbsolute:=True, ColumnAbsolute:=True, ReferenceStyle:=xlA1, External:=True)
   benannteZellen.Add Name:=Feldname, RefersTo:=strBezug
   Set benannteZellen = Nothing
-  Call BefehleAktualisieren
+  Call UpdateRibbon
   Exit Sub
 
 Fehler:
@@ -1874,82 +1885,6 @@ End Sub
 
 
 
-Private Sub BefehleAktualisieren(Optional ByVal keinAktivesBlatt As Boolean = False)
-  'Aktivieren/Deaktivieren von Methoden dieser Klasse, die als Befehle in Menüs und Toolboxen erscheinen.
-  '==> Wird von Ereignisroutinen dieser Klasse jedesmal aufgerufen, wenn das
-  '    Arbeitsblatt wechselt. Letzteres muß keine Tabelle sein!
-  '    Löschen des Infoträgers o.ä. wird bisher noch nicht abgefangen.
-  'Parameter "keinAktivesBlatt" ist true, wenn gerade die letzte Arbeitsmappe geschlossen wird.
-  
-  If (keinAktivesBlatt Or (ActiveCell Is Nothing)) Then
-    'Alle Controls deaktivieren, die davon abhängig sind, daß ein aktives Blatt existiert.
-    BefehlsStatusSetzen oBasisTagsFormel, False
-    BefehlsStatusSetzen oBasisTagsFliesskomma, False
-    BefehlsStatusSetzen oBasisTagsInfotraeger, False
-    BefehlsStatusSetzen oBasisTagsTabelle, False
-  Else
-    If (Not (Selection Is Nothing)) Then
-      If (TypeOf Selection Is Range) Then
-        'aktives Blatt ist Tabelle
-        'Controls aktivieren, die nur davon abhängig sind, daß das aktive Blatt eine Tabelle ist.
-        BefehlsStatusSetzen oBasisTagsTabelle, True
-        If (ExistsLokalerZellname(strInfoTraeger)) Then
-          'Formatierungsbefehle bzw. -Optionen aktivieren (außer Nachkomma..)
-          BefehlsStatusSetzen oBasisTagsInfotraeger, True
-          If (ExistsLokalerZellname(strFliesskomma)) Then
-            'Auch Nachkomma-Optionen aktivieren.
-            BefehlsStatusSetzen oBasisTagsFliesskomma, True
-          Else
-            'Nachkomma-Optionen deaktivieren.
-            BefehlsStatusSetzen oBasisTagsFliesskomma, False
-          End If
-          If (ExistsLokalerZellname(strFormel)) Then
-            'Auch "Formel übertragen" aktivieren.
-            BefehlsStatusSetzen oBasisTagsFormel, True
-          Else
-            '"Formel übertragen" deaktivieren.
-            BefehlsStatusSetzen oBasisTagsFormel, False
-          End If
-        Else
-          'Alle Formatierungsbefehle bzw. -Optionen deaktivieren
-          BefehlsStatusSetzen oBasisTagsFormel, False
-          BefehlsStatusSetzen oBasisTagsFliesskomma, False
-          BefehlsStatusSetzen oBasisTagsInfotraeger, False
-        End If
-      Else
-        'Alle Controls deaktivieren, die davon abhängig sind, daß das aktive Blatt eine Tabelle ist.
-        BefehlsStatusSetzen oBasisTagsFormel, False
-        BefehlsStatusSetzen oBasisTagsFliesskomma, False
-        BefehlsStatusSetzen oBasisTagsInfotraeger, False
-        BefehlsStatusSetzen oBasisTagsTabelle, False
-      End If
-    End If
-  End If
-
-End Sub
-
-
-
-Private Sub BefehlsStatusSetzen(oTags As Collection, ByVal aktiv As Boolean)
-  'Setzt alle Steuerfelder mit den in "oTags" enthaltenen Basistags in allen
-  'Menütypen, deren Prefixe in "oMenuTypPrefixe" gelistet sind auf den Status "aktiv".
-  'Parameter "aktiv" gibt den Zielstatus an.
-  On Error Resume Next
-  Dim cbc    As CommandBarControl
-  Dim Prefix As Variant
-  Dim cTag   As Variant
-  For Each cTag In oTags
-    For Each Prefix In oMenuTypPrefixe
-      Set cbc = Application.CommandBars.FindControl(Tag:=Prefix & cTag)
-      If ((Not (cbc Is Nothing)) And (Not (Err))) Then
-        cbc.Enabled = aktiv
-      End If
-    Next
-  Next
-  Set cbc = Nothing
-End Sub
-
-
 Private Sub BestimmeDatenbereich()
   '------------------------------------------------------------------------------------------------
   'Position und Ausdehnung des Datenbereiches der aktiven Tabelle wird bestimmt
@@ -2043,7 +1978,7 @@ Public Sub Syncronisieren()
   strKategorien = GetKategorien()
   
   '4. Verfügbarkeit von Methoden
-  Call BefehleAktualisieren
+  Call UpdateRibbon
   
   Call Me.ZeigeSpalten()
   Exit Sub
@@ -2187,8 +2122,8 @@ Private Sub App_SheetActivate(ByVal Sh As Object)
   'Wird aufgerufen beim Aktivieren eines Arbeitsblattes in (hoffentlich) jeder Situation.
   strNeuesBlatt = Sh.Parent.Name & "!" & Sh.Name
   strAltesBlatt = strNeuesBlatt
-  Echo "Neues Arbeitsblatt aktiviert: " & strNeuesBlatt
-  'Call BefehleAktualisieren
+  DebugEcho "Neues Arbeitsblatt aktiviert: " & strNeuesBlatt
+  'Call UpdateRibbon
   Call Me.Syncronisieren
 End Sub
 
@@ -2211,9 +2146,9 @@ Private Sub App_WorkbookDeactivate(ByVal Wb As Excel.Workbook)
   'wird geschlossen und danach (!) ist also kein Arbeitsblatt mehr aktiv.
   If (Application.Workbooks.Count = 1) Then
     strAltesBlatt = ""
-    Call BefehleAktualisieren(keinAktivesBlatt:=True)
+    Call UpdateRibbon(keinAktivesBlatt:=True)
     'MsgBox "Gleich gibt's keine aktive Mappe mehr!"
-    Echo "Kein Arbeitsblatt mehr aktiv."
+    DebugEcho "Kein Arbeitsblatt mehr aktiv."
   End If
 End Sub
 

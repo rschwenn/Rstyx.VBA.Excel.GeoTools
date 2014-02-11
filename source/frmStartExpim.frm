@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmStartExpim 
    Caption         =   "Import / Export"
-   ClientHeight    =   6432
-   ClientLeft      =   36
-   ClientTop       =   336
-   ClientWidth     =   8808
+   ClientHeight    =   6132
+   ClientLeft      =   40
+   ClientTop       =   340
+   ClientWidth     =   9800
    OleObjectBlob   =   "frmStartExpim.frx":0000
    StartUpPosition =   1  'Fenstermitte
 End
@@ -135,7 +135,7 @@ Private Sub UserForm_Initialize()
   'Anfangswerte setzen
   Call SetzeAnfangswerte
   
-  ClearStatusBarDelayed(3)
+  ClearStatusBarDelayed (3)
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -409,7 +409,7 @@ End Sub
   '    Me.optZiel_AsciiDatei_Ueberschreiben.Enabled = True
   '    Me.optZiel_AsciiDatei_Anhaengen.Enabled = True
   '    Me.optZiel_AsciiDatei_Neu.Enabled = False
-  '    
+  '
   '    'If (oExpimGlobal.Ziel_AsciiDatei_Name = Ziel_LetzterDateiName) Then
   '      If (Ziel_LetzterDateiModusVorhanden = io_Datei_Modus_Anhaengen) Then
   '        Me.optZiel_AsciiDatei_Anhaengen.value = True
@@ -438,7 +438,7 @@ End Sub
   '    Me.optZiel_AsciiDatei_Ueberschreiben.Enabled = False
   '    Me.optZiel_AsciiDatei_Anhaengen.Enabled = False
   '  End If
-  '  
+  '
   'Else
   '  'Verzeichnis ist nicht vorhanden.
   '  oExpimGlobal.Ziel_AsciiDatei_Name = ""
@@ -944,8 +944,8 @@ Private Function GetXLVorlagen(DateiMaske As String) As String
   If (Application.TemplatesPath <> "") Then VerzListe = VerzListe & ";" & Application.TemplatesPath
   VerzListe = Mid(VerzListe, 2)
   Set oVorlagenListe = oSysTools.FindFiles(DateiMaske, VerzListe, True)
-  call SortDictionary(oVorlagenListe, 1, 1, false)
-  VorlagenListe = VorlagenListe & ";" & join(oVorlagenListe.keys, ";")
+  Call SortDictionary(oVorlagenListe, 1, 1, False)
+  VorlagenListe = VorlagenListe & ";" & Join(oVorlagenListe.Keys, ";")
   DebugEcho "GetXLVorlagen='" & VorlagenListe & "'"
   
   ''XL-Startverzeichnisse:
@@ -1118,8 +1118,8 @@ Private Function GetQuellDateinameAusDialog() As String
   
   'Dateidialog starten.
   Err.Clear
-  DateiPfadName = Application.GetOpenFilename(oExpimGlobal.Quelle_AsciiDatei_DialogFilter, , "Quelldatei wählen:")
-  If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFilename("", , "Quelldatei wählen:")
+  DateiPfadName = Application.GetOpenFileName(oExpimGlobal.Quelle_AsciiDatei_DialogFilter, , "Quelldatei wählen:")
+  If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName("", , "Quelldatei wählen:")
   
   If (oSysTools.isDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Eingabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
@@ -1153,7 +1153,7 @@ Private Function GetZielDateinameAusDialog() As String
   'Dateidialog starten.
   Err.Clear
   DateiPfadName = Application.GetSaveAsFilename(NameExt(oExpimGlobal.Ziel_AsciiDatei_Name, "mitext"), oExpimGlobal.Ziel_AsciiDatei_DialogFilter, , "Zieldatei wählen:")
-  If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFilename(, "", , "Zieldatei wählen:")
+  If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName(, "", , "Zieldatei wählen:")
   
   If (oSysTools.isDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Ausgabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
@@ -1386,7 +1386,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Formatliste = GetXLVorlagen(DateiMaskeXLT)
     NF = SplitDelim(Formatliste, FormatPfadName, ";")
     DebugEcho "Anzahl verfügbarer XL-Vorlagen = " & CStr(NF)
-    call WriteStatusBar("Anzahl verfügbarer XL-Vorlagen = " & CStr(NF))
+    Call WriteStatusBar("Anzahl verfügbarer XL-Vorlagen = " & CStr(NF))
     
     'Feststellen, auf welche der in Frage kommenden Verzeichnisse die gefundenen Vorlagen verteilt sind.
     'Dabei zählen nur die Stammverzeichnisse (keine Unterverz.!).
@@ -1406,9 +1406,9 @@ Private Sub GetFormatliste_XlVorlagen()
     For i = LBound(XltCachePfad) To UBound(XltCachePfad)
       If (XltCachePfad(i) <> "") Then
         PfadNameXltCache = XltCachePfad(i) & "\" & NameXltCache
-        if (not oSysTools.isDatei(PfadNameXltCache)) then
+        If (Not oSysTools.isDatei(PfadNameXltCache)) Then
           DebugEcho vbNewLine & "Cache existiert nicht im Verzeichnis: '" & XltCachePfad(i) & "'"
-        else
+        Else
           DebugEcho vbNewLine & "Cache lesen aus Verzeichnis: '" & XltCachePfad(i) & "'"
           Set oTS_XltCache = oSysTools.OpenTextFile(PfadNameXltCache, ForReading, NewFileIfNotExist_no, OpenAsSystemDefault)
           If (Not oTS_XltCache Is Nothing) Then
@@ -1479,7 +1479,7 @@ Private Sub GetFormatliste_XlVorlagen()
         'Verhindern, dass die zu öffnende Datei selbständig tätig wird.
         Application.EnableEvents = False
         Application.Workbooks.Add AktFormatPfadName
-        Application.EnableEvents = true
+        Application.EnableEvents = True
         
         oAktiveTabelle.Syncronisieren
         Titel = oAktiveTabelle.TabTitel
@@ -1960,7 +1960,7 @@ Private Function FilternFormatliste(FormatlisteKomplett As Variant, FormatlisteG
     Erase FormatlisteGefiltert
   '
   'Liste filtern
-  if (CountDim(FormatlisteKomplett) > 0) then
+  If (CountDim(FormatlisteKomplett) > 0) Then
     'FormatlisteKomplett ist ein Array, d.h. es gibt mind. 1 Format.
     'Vorbereitungen
       lb1 = LBound(FormatlisteKomplett, 1)
@@ -2158,4 +2158,5 @@ Fehler:
 End Sub
 
 ' Für jEdit:  :collapseFolds=1:mode=vbscript:
+
 

@@ -55,13 +55,13 @@ Private Sub Workbook_Open()
   '3. diverse Menüs erzeugen
   '   ==> muß vor Initialisierung von "CtabAktiveTabelle" erfolgen, damit das
   '       Setzen dessen Eigenschaften Auswirkungen auf die Buttons hat.
-  Call MenuesErzeugen
+  'Call MenuesErzeugen
   
   
   '----------------------------------------------------------------------------------
   '4. Initialisieren von TabellenInfo, Konfiguration, Systemwerkzeuge, Metadaten.
   
-  ErrMessage = "Fehler beim Initialisiern der TabellenInfo"
+  'ErrMessage = "Fehler beim Initialisiern der TabellenInfo"
   Set oAktiveTabelle = New CtabAktiveTabelle
   
   ErrMessage = "Fehler beim Initialisiern der Konfiguration"
@@ -75,14 +75,6 @@ Private Sub Workbook_Open()
   Set oMetadaten = New CdatMetaDaten
   
   ErrMessage = ""
-  
-  '----------------------------------------------------------------------------------
-  '5. Benachrichtigung über Zurücksetzen des Projektes durch VBE ausschalten.
-  '   Registrywert setzen ist sinnlos, da dieser offenbar nur bei Programmstart gelesen wird.
-  'If (oSysTools.RegValueExists(VBE_Notify_RegValue)) Then
-  '  VBE_Notify_StatusSave = oSysTools.RegRead(VBE_Notify_RegValue)
-  '  If (VBE_Notify_StatusSave <> 0) Then VBE_Notify_Off
-  'End If
   
   
   '----------------------------------------------------------------------------------
@@ -123,37 +115,6 @@ Private Sub Workbook_BeforeClose(Cancel As Boolean)
   Set oAktiveTabelle = Nothing
   Set oSysTools = Nothing
   Set oConsole = Nothing
-End Sub
-
-
-Private Sub VBE_Notify_Off()
-  'Benachrichtigung über Zurücksetzen des Projektes durch VBE ausschalten.
-  'Diese Meldung erscheint sonst beim Einfügen oder Kopieren von Tabellen,
-  'wenn die Arbeitsmappen VB-Code enthalten.
-  Dim bolVBEVisible As Boolean
-  bolVBEVisible = True
-  With Application.VBE
-    If (Not .MainWindow.Visible) Then
-      bolVBEVisible = False
-      .MainWindow.Visible = True
-    End If
-    .MainWindow.SetFocus
-    SendKeys "+{TAB}{RIGHT 2}%{z}{-}{ENTER}"
-    .CommandBars("Menüleiste").Controls("E&xtras"). _
-        Controls("&Optionen...").Execute
-    If (Not bolVBEVisible) Then
-      .MainWindow.Visible = False
-    Else
-      SendKeys "%{F11}"
-    End If
-  End With
-End Sub
-
-Private Sub VBE_Notify_Restore()
-  'Benachrichtigung über Zurücksetzen des Projektes durch VBE auf alten Wert setzen.
-  If (VBE_Notify_StatusSave <> 0) Then
-    oSysTools.RegistriereWert VBE_Notify_RegValue, VBE_Notify_StatusSave, VBE_Notify_RegTyp
-  End If
 End Sub
 
 

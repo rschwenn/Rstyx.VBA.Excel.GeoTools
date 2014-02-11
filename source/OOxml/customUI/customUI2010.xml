@@ -1,0 +1,114 @@
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="OnGeoToolsRibbonLoad">
+  <!-- ACHTUNG: "commands" muss vor "ribbon" stehen!!! -->
+  
+  <!--<commands>
+    <command idMso="FileNewDefault" onAction="FromFileNewDefault"/>
+  </commands>-->
+  
+  <ribbon>
+    <tabs>
+      <tab id="GeoToolsTab" label="GeoTools">
+        
+        <group id="GeneralGroup" label="Allgemein">
+          <box id="box1" boxStyle="vertical">
+            <button id="InfoButton"
+                    label="Info"
+                    size="normal"
+                    screentip="Über GeoTools"
+                    onAction="InfoButtonAction"
+                    imageMso="TaskSuggestionsShow" />
+            
+            <button id="HelpButton"
+                    label="Hilfe"
+                    size="normal"
+                    screentip="GeoTools-Hilfe"
+                    onAction="HelpButtonAction"
+                    imageMso="Help" />
+            
+            <button id="LogButton"
+                    label="Protokoll"
+                    size="normal"
+                    screentip="GeoTools-Protokoll"
+                    onAction="LogButtonAction"
+                    imageMso="GroupCreateOther" />
+          </box>
+          
+          <separator id="GeneralSeparator" />
+          
+          <button id="ImportExportButton"
+                  label="Import Export"
+                  size="large"
+                  screentip="Import / Export von Tabellendaten"
+                  supertip="Es wird eine neue Datei anhand einer Vorlage erzeugt. Die dorthin geschriebenen Daten stammen aus einer Spezial-ASCII/CSV-Datei oder aus der aktiven Tabelle"
+                  onAction="ImportExportButtonAction"
+                  imageMso="SyncTool" />
+          
+          <button id="TableStructureButton"
+                  label="Tabellen- Struktur"
+                  size="large"
+                  screentip="Verwaltung der GeoTools-Tabellenstruktur"
+                  supertip="Für die Nutzung der meisten GeoTools-Funktionen wird eine GeoTools-interne Strukturierung der Tabelle benötigt. Diese kann hiermit erzeugt und verwaltet werden."
+                  onAction="TableStructureButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="CatalogMergeCreateList" />
+        </group>
+        
+        <group id="DataRegionGroup" label="Datenbereich">
+          
+          <toggleButton id="FmtOptStripesButton"
+                  label="Option: Mit Streifen"
+                  showLabel="false"
+                  size="normal"
+                  screentip="Formatierungsoption: Mit Streifen"
+                  supertip="Wenn aktiviert, wird jede zweite Zeile grau eingefärbt. Eventuell vorhandene Hintergrundfarben der ersten Datenzeile werden gelöscht."
+                  onAction="FmtOptStripesButtonAction"
+                  getEnabled="GetEnabledGeoToolsTable"
+                  getPressed="FmtOptStripesButtonGetPressed"
+                  imageMso="AlignJustify" />
+          
+          <toggleButton id="FmtOptBackground"
+                  label="Option: Ohne Hintergrundfarbe"
+                  showLabel="false"
+                  size="normal"
+                  screentip="Formatierungsoption: Ohne Hintergrundfarbe"
+                  supertip="Wenn aktiviert, werden eventuell vorhandene Hintergrundfarben der ersten Datenzeile gelöscht, bevor deren Format auf alle anderen Zeilen übertragen wird."
+                  onAction="FmtOptBackgroundButtonAction"
+                  getEnabled="GetEnabledGeoToolsTable"
+                  getPressed="FmtOptBackgroundButtonGetPressed"
+                  imageMso="BlackAndWhiteDontShow" />
+          
+          <toggleButton id="FmtOptPrecision"
+                  label="Option: Änderung der NK-Stellen"
+                  showLabel="false"
+                  size="normal"
+                  screentip="Formatierungsoption: Änderung der NK-Stellen"
+                  supertip="Wenn aktiviert, werden die laut Tabellenstruktur dafür vorgesehenen Spalten mit der angegebenen Anzahl Nachkommastellen formatiert."
+                  onAction="FmtOptPrecisionButtonAction"
+                  getEnabled="GetEnabledFloatingPoint"
+                  getPressed="FmtOptPrecisionButtonGetPressed"
+                  imageMso="CalculatedNumber" />
+          
+          <button id="FormatButton"
+                  label="Format"
+                  size="large"
+                  screentip="Datenbereich formatieren"
+                  supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
+                  onAction="FormatButtonAction"
+                  getEnabled="GetEnabledGeoToolsTable"
+                  imageMso="Bold" />
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+  
+  <!--<contextMenus>
+    <contextMenu idMso="ContextMenuCell">
+      <menuSeparator id="MySeparator" />
+      <button idMso="ConditionalFormattingsManage"
+              getVisible="getVisibleConditionalFormat"
+              label="Bedingte Formatierung"
+              insertBeforeMso="FormatCellsDialog" />
+    </contextMenu>
+  </contextMenus>-->
+  
+</customUI>

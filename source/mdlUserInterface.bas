@@ -18,38 +18,6 @@ Option Explicit
 
 
 
-Sub Erzeuge_InfoKeineKonfig()
- '  'Erzeugt Button im GeoTools-Hauptmenü "==> Keine Konfiguration verfügbar!"
- '  'Wird aufgerufen von CdatKonfig\LeseKonfiguration().
- '  
- '  Dim cbc_M1_Tools    As CommandBarControl
- '  Dim cbb             As CommandBarButton
- '  Dim sTag            As String
- '  
- '  'Hauptmenu "GeoTools" finden.
- '  On Error Resume Next
- '  sTag = PrefixHauptmenue & TagHauptmenu_GeoTools
- '  Set cbc_M1_Tools = Application.CommandBars.FindControl(Tag:=sTag, Type:=msoControlPopup)
- '  
- '  'Neuen Menüpunkt einrichten.
- '  If ((Not (cbc_M1_Tools Is Nothing)) And (Not (Err))) Then
- '    'On Error GoTo 0
- '    On Error GoTo Fehler
- '    Set cbb = cbc_M1_Tools.Controls.Add(Type:=msoControlButton, Temporary:=True)
- '    cbb.Caption = "==> Keine &Konfiguration verfügbar!"
- '    cbb.OnAction = TagInfoKeineKonfig
- '    'cbIcons.Controls.Item(TagHilfe_GeoTools).CopyFace
- '    'cbb.PasteFace
- '    cbb.Tag = PrefixHauptmenue & TagInfoKeineKonfig
- '    cbb.BeginGroup = True
- '  End If
- '  
- '  Exit Sub
- 'Fehler:
- ' FehlerNachricht "mdlUserInterface.Erzeuge_InfoKeineKonfig()"
-End Sub
-
-
 Sub MenuesEntfernen()
   ' Altlasten aus Vorgängerversionen entfernen.
   'Wird aufgerufen von wbk_GeoTools\Workbook_BeforeClose().
@@ -67,41 +35,6 @@ Sub SetSilent_AktiveTabelle(inpSilent As Boolean)
   'Setzt den aktuellen Modus für "Silent" im Objekt oAktiveTabelle.
   On Error GoTo 0
   oAktiveTabelle.Silent = inpSilent
-End Sub
-
-' TODO: entfernen!
-Sub FormatDatenMitStreifen()
-  'Reaktion auf Buttonklick "FormatDatenMitStreifen"
-  'Änderung von Tooltip und Status des Buttons übernimmt "Property Let FormatDatenMitStreifen"
-  oAktiveTabelle.FormatDatenMitStreifen = Not oAktiveTabelle.FormatDatenMitStreifen
-End Sub
-
-
-' TODO: entfernen!
-Sub FormatDatenOhneFuellung()
-  'Reaktion auf Buttonklick "FormatDatenOhneFuellung"
-  'Änderung von Tooltip und Status des Buttons übernimmt "Property Let FormatDatenOhneFuellung"
-  oAktiveTabelle.FormatDatenOhneFuellung = Not oAktiveTabelle.FormatDatenOhneFuellung
-End Sub
-
-
-' TODO: entfernen!
-Sub FormatDatenNKStellenSetzen()
-  'Reaktion auf Buttonklick "FormatDatenNKStellenSetzen"
-  'Änderung von Tooltip und Status des Buttons übernimmt "Property Let FormatDatenNKStellenSetzen"
-  oAktiveTabelle.FormatDatenNKStellenSetzen = Not oAktiveTabelle.FormatDatenNKStellenSetzen
-End Sub
-
-
-' TODO: entfernen!
-Sub FormatDatenNKStellenAnzahl()
-  ''Reaktion auf Auswahl in der Combobox "FormatDatenNKStellenAnzahl"
-  'On Error Resume Next
-  'Dim cbcb As CommandBarComboBox
-  'Set cbcb = CommandBars.FindControl(Type:=msoControlDropdown, Tag:=PrefixToolbox & TagFormatDatenNKStellenAnzahl)
-  'If ((Not (cbcb Is Nothing)) And (Not (Err))) Then
-  '  oAktiveTabelle.FormatDatenNKStellenAnzahl = CInt(cbcb.text)
-  'End If
 End Sub
 
 
@@ -168,20 +101,6 @@ Sub UebertragenFormeln()
   Exit Sub
 Fehler:
   FehlerNachricht "mdlUserInterface.UebertragenFormeln()"
-End Sub
-
-
-Sub ModOpt_VorhWerteUeberschreiben()
-  'Reaktion auf Buttonklick "ModOpt_VorhWerteUeberschreiben"
-  'Änderung von Caption und Status des Buttons übernimmt "Property Let ModOpt_VorhWerteUeberschreiben"
-  oAktiveTabelle.ModOpt_VorhWerteUeberschreiben = Not oAktiveTabelle.ModOpt_VorhWerteUeberschreiben
-End Sub
-
-
-Sub ModOpt_FormelnErhalten()
-  'Reaktion auf Buttonklick "ModOpt_FormelnErhalten"
-  'Änderung von Caption und Status des Buttons übernimmt "Property Let ModOpt_FormelnErhalten"
-  oAktiveTabelle.ModOpt_FormelnErhalten = Not oAktiveTabelle.ModOpt_FormelnErhalten
 End Sub
 
 
@@ -432,21 +351,23 @@ End Sub
 Sub InfoKeineKonfig()
   'Anzeige von Informationen zum Fehlen der Konfigurationsdatei.
   On Error GoTo Fehler
-  Dim Titel       As String
-  Dim Meldung     As String
-  Dim cfg         As String
-  cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xls"
+  Dim Titel As String
   Titel = "Keine Konfiguration für " & ProgName & " verfügbar."
-  Meldung = "Konfigurationsdatei '" & cfg & "' wurde beim Start nicht gelesen." & vbLf & vbLf & _
-            "Mögliche Ursachen:." & vbLf & _
-            "  1. Die Datei existiert nicht." & vbLf & _
-            "  2. Excel wurde ferngesteuert gestartet." & vbLf & vbLf & _
-            "==> Die Funktionalität des Programmes steht dadurch nur eingeschränkt zur Verfügung."
-  Call MsgBox(Meldung, vbExclamation, Titel)
+  Call MsgBox(GetInfoKeineKonfig(), vbExclamation, Titel)
   Exit Sub
 Fehler:
   FehlerNachricht "mdlUserInterface.InfoKeineKonfig()"
 End Sub
+
+Function GetInfoKeineKonfig() As String
+    Dim cfg As String
+    cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
+    GetInfoKeineKonfig = "Konfigurationsdatei '" & cfg & "' wurde beim Start nicht gelesen." & vbLf & vbLf & _
+                         "Mögliche Ursachen:." & vbLf & _
+                         "  1. Die Datei existiert nicht." & vbLf & _
+                         "  2. Excel wurde ferngesteuert gestartet." & vbLf & vbLf & _
+                         "==> Die Funktionalität des Programmes steht dadurch nur eingeschränkt zur Verfügung."
+End Function
 
 
 'für jEdit:  :folding=indent::collapseFolds=1:

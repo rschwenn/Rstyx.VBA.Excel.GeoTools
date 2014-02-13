@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -101,7 +101,7 @@ Private Sub Class_Initialize()
   DebugEcho "CdatKonfig.Class_Initialize(): Initialisierung beginnt."
   
   'Name der CFG_Datei = iXLTools_cfg.xls (eine Verzeichnisebene höher als iXLTools.xla).
-  cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xls"
+  cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -563,7 +563,6 @@ Fehler:
   Application.ScreenUpdating = StatusScreen
   'FehlerNachricht "CdatKonfig.LeseKonfiguration()"
   DebugEcho "CdatKonfig.LeseKonfiguration(): *** mit Fehler beendet ***."
-  Call Erzeuge_InfoKeineKonfig
 End Sub
 
 

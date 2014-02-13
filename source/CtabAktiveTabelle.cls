@@ -71,11 +71,6 @@ Dim WithEvents App                 As Application
 Dim strAltesBlatt                  As String
 Dim strNeuesBlatt                  As String
 
-Dim oBasisTagsInfotraeger          As Collection
-Dim oBasisTagsFliesskomma          As Collection
-Dim oBasisTagsFormel               As Collection
-Dim oBasisTagsTabelle              As Collection
-
 'Spaltenanalyse für oExpim.
 Dim oSpaltenErsteZellen            As Scripting.Dictionary       '1. Zelle als Range
 Dim oSpaltenEinheiten              As Scripting.Dictionary       'Name der Einheit
@@ -187,40 +182,6 @@ Private Sub Class_Initialize()
   Set App = Application
   ErrMessage = ""
   
-  'Gruppierung der Control-Tags mit Befehlen dieser Klasse (CtabAktiveTabelle) zwecks späteren
-  'Aktivierens bzw. Deaktivierens (Die Tags sind globale Konstanten):
-  'Befehle, die verfügbar sind, wenn der Infotraeger definiert ist.
-  Set oBasisTagsInfotraeger = New Collection
-  oBasisTagsInfotraeger.Add TagFormatDaten
-  oBasisTagsInfotraeger.Add TagFormatDatenMitStreifen
-  oBasisTagsInfotraeger.Add TagFormatDatenOhneFuellung
-  oBasisTagsInfotraeger.Add TagLoeschenDaten
-  oBasisTagsInfotraeger.Add TagModOpt_VorhWerteUeberschreiben
-  oBasisTagsInfotraeger.Add TagModOpt_FormelnErhalten
-  oBasisTagsInfotraeger.Add TagMod_UeberhoehungAusBemerkung
-  oBasisTagsInfotraeger.Add TagMod_FehlerVerbesserung
-  oBasisTagsInfotraeger.Add TagMod_Transfo_Tk2Gls
-  oBasisTagsInfotraeger.Add TagMod_Transfo_Gls2Tk
-  
-  'Befehle, die verfügbar sind, wenn der Fliesskommabereich definiert ist.
-  Set oBasisTagsFliesskomma = New Collection
-  oBasisTagsFliesskomma.Add TagFormatDatenNKStellenSetzen
-  oBasisTagsFliesskomma.Add TagFormatDatenNKStellenAnzahl
-  
-  'Befehle, die verfügbar sind, wenn der Formelbereich definiert ist.
-  Set oBasisTagsFormel = New Collection
-  oBasisTagsFormel.Add TagUebertragenFormeln
-  
-  'Befehle, die verfügbar sind, wenn das aktive Blatt eine Tabelle ist.
-  Set oBasisTagsTabelle = New Collection
-  oBasisTagsTabelle.Add TagSchreibeProjektDaten
-  oBasisTagsTabelle.Add TagSchreibeFusszeile_1
-  oBasisTagsTabelle.Add TagTabellenStruktur
-  oBasisTagsTabelle.Add TagSelection2Interpolationsformel
-  oBasisTagsTabelle.Add TagSelection2MarkDoppelteWerte
-  oBasisTagsTabelle.Add TagInsertLines
-  oBasisTagsTabelle.Add TagDateiBearbeiten
-  
   Set oSpaltenErsteZellen = New Scripting.Dictionary
   Set oSpaltenEinheiten = New Scripting.Dictionary
   Set oSpaltenBuchst2Name = New Scripting.Dictionary
@@ -229,9 +190,6 @@ Private Sub Class_Initialize()
   
 Fehler:
   Set App = Nothing
-  Set oBasisTagsInfotraeger = Nothing
-  Set oBasisTagsFliesskomma = Nothing
-  Set oBasisTagsTabelle = Nothing
   Set oSpaltenErsteZellen = Nothing
   Set oSpaltenEinheiten = Nothing
   Set oSpaltenBuchst2Name = Nothing
@@ -243,9 +201,6 @@ End Sub
 
 Private Sub Class_Terminate()
   Set App = Nothing
-  Set oBasisTagsInfotraeger = Nothing
-  Set oBasisTagsFliesskomma = Nothing
-  Set oBasisTagsTabelle = Nothing
   Set oSpaltenErsteZellen = Nothing
   Set oSpaltenEinheiten = Nothing
   Set oSpaltenBuchst2Name = Nothing
@@ -259,7 +214,7 @@ Sub FormatDatenOptionenReset()
   'Setzt alle Optionen zur Formatierung des Datenbereiches auf die Standardwerte zurück.
   'Diese bewirken beim Formatieren eine unveränderte Übernahme des "Infoträgers".
   '==> Wertzuweisung erfolgt per "Me.Eigenschaft", damit die in den Eigenschafts-
-  '    Routinen enthaltenen Manipulationen an den CommandBars durchgeführt werden!
+  '    Routinen enthaltenen Ribbon-Updates durchgeführt werden!
   
   On Error GoTo Fehler
   
@@ -418,23 +373,6 @@ Property Let FormatDatenMitStreifen(inpFormatDatenMitStreifen As Boolean)
   
   blnFormatDatenMitStreifen = inpFormatDatenMitStreifen
   
-  On Error Resume Next
-  Dim cbb    As CommandBarButton
-  Dim Prefix As Variant
-  For Each Prefix In oMenuTypPrefixe
-    Set cbb = Application.CommandBars.FindControl(Type:=msoControlButton, Tag:=Prefix & TagFormatDatenMitStreifen)
-    If ((Not (cbb Is Nothing)) And (Not (Err))) Then
-      If (blnFormatDatenMitStreifen) Then
-        cbb.Caption = "Formatierung mit Streifen"
-        cbb.State = msoButtonDown
-      Else
-        cbb.Caption = "Formatierung ohne Streifen"
-        cbb.State = msoButtonUp
-      End If
-    End If
-  Next
-  Set cbb = Nothing
-  
   'Mit Streifen heißt auch: ohne Füllung.
   If (blnFormatDatenMitStreifen) Then Me.FormatDatenOhneFuellung = True
   
@@ -453,23 +391,6 @@ Property Let FormatDatenOhneFuellung(inpFormatDatenOhneFuellung As Boolean)
   'True: Füllung der Zellen des Formatträgers wird vor der Formatübertragung gelöscht.
   blnFormatDatenOhneFuellung = inpFormatDatenOhneFuellung
   
-  On Error Resume Next
-  Dim cbb    As CommandBarButton
-  Dim Prefix As Variant
-  For Each Prefix In oMenuTypPrefixe
-    Set cbb = Application.CommandBars.FindControl(Type:=msoControlButton, Tag:=Prefix & TagFormatDatenOhneFuellung)
-    If ((Not (cbb Is Nothing)) And (Not (Err))) Then
-      If (blnFormatDatenOhneFuellung) Then
-        cbb.Caption = "Formatierung mit Löschen der Füllung"
-        cbb.State = msoButtonDown
-      Else
-        cbb.Caption = "Formatierung ohne Löschen der Füllung"
-        cbb.State = msoButtonUp
-      End If
-    End If
-  Next
-  Set cbb = Nothing
-  
   'Mit Füllung heißt auch: ohne Streifen.
   If (Not blnFormatDatenOhneFuellung) Then Me.FormatDatenMitStreifen = False
   
@@ -486,20 +407,6 @@ Property Let FormatDatenNKStellenAnzahl(inpFormatDatenNKStellenAnzahl As Integer
   'Setzt die Anzahl der NachkommaStellenAnzahl für die 'Fliesskomma'-Spalten des Datenbereiches.
   If ((inpFormatDatenNKStellenAnzahl >= 0) And (inpFormatDatenNKStellenAnzahl < 9)) Then
     intFormatDatenNKStellenAnzahl = inpFormatDatenNKStellenAnzahl
-  
-    On Error Resume Next
-    Dim i    As Integer
-    Dim cbcb As CommandBarComboBox
-    Set cbcb = CommandBars.FindControl(Type:=msoControlDropdown, Tag:=PrefixToolbox & TagFormatDatenNKStellenAnzahl)
-    If ((Not (cbcb Is Nothing)) And (Not (Err))) Then
-      For i = 1 To cbcb.ListCount
-        If cbcb.List(i) = CStr(intFormatDatenNKStellenAnzahl) Then
-          cbcb.ListIndex = i
-          Exit For
-        End If
-      Next
-    End If
-    Set cbcb = Nothing
     
     'NK-Anzahl einstellen heißt auch: "Setzen der NachkommaStellen" einschalten!
     Me.FormatDatenNKStellenSetzen = True
@@ -516,27 +423,8 @@ End Property
 
 Property Let FormatDatenNKStellenSetzen(inpFormatDatenNKStellenSetzen As Boolean)
   'Setzt die Schalterstellung "Setzen der NachkommaStellen"
-    blnFormatDatenNKStellenSetzen = inpFormatDatenNKStellenSetzen
+  blnFormatDatenNKStellenSetzen = inpFormatDatenNKStellenSetzen
   
-  On Error Resume Next
-  Dim cbb  As CommandBarButton
-  Dim Prefix As Variant
-  For Each Prefix In oMenuTypPrefixe
-    Set cbb = Application.CommandBars.FindControl(Type:=msoControlButton, Tag:=Prefix & TagFormatDatenNKStellenSetzen)
-    If ((Not (cbb Is Nothing)) And (Not (Err))) Then
-      If (blnFormatDatenNKStellenSetzen) Then
-        cbb.Caption = "Formatierung mit Setzen von " & Me.FormatDatenNKStellenAnzahl & " NK-Stellen"
-        cbb.TooltipText = "Formatierung mit Setzen von " & Me.FormatDatenNKStellenAnzahl & " Nachkommastellen in den 'Fliesskomma'-Spalten"
-        cbb.State = msoButtonDown
-      Else
-        cbb.Caption = "Formatierung ohne Änderung der NK-Stellen"
-        cbb.TooltipText = "Formatierung ohne Ändern der Nachkommastellen in den 'Fliesskomma'-Spalten"
-        cbb.State = msoButtonUp
-      End If
-    End If
-  Next
-  Set cbb = Nothing
-
   Call UpdateRibbon
 End Property
 
@@ -574,25 +462,7 @@ End Property
 
 Property Let ModOpt_VorhWerteUeberschreiben(inp_VorhWerteUeberschreiben As Boolean)
   'Setzt die Option "Vorhandene Werte überschreiben".
-
   bln_VorhWerteUeberschreiben = inp_VorhWerteUeberschreiben
-
-  On Error Resume Next
-  Dim cbb    As CommandBarButton
-  Dim Prefix As Variant
-  For Each Prefix In oMenuTypPrefixe
-    Set cbb = Application.CommandBars.FindControl(Type:=msoControlButton, Tag:=Prefix & TagModOpt_VorhWerteUeberschreiben)
-    If ((Not (cbb Is Nothing)) And (Not (Err))) Then
-      If (bln_VorhWerteUeberschreiben) Then
-        cbb.Caption = "Schalter: Vorhandene Werte überschreiben!"
-        cbb.State = msoButtonDown
-      Else
-        cbb.Caption = "Schalter: Vorhandene Werte nicht überschreiben."
-        cbb.State = msoButtonUp
-      End If
-    End If
-  Next
-  Set cbb = Nothing
   
   Call UpdateRibbon
 End Property
@@ -605,25 +475,7 @@ End Property
 
 Property Let ModOpt_FormelnErhalten(inp_FormelnErhalten As Boolean)
   'Setzt die Option "Formeln erhalten".
-
   bln_FormelnErhalten = inp_FormelnErhalten
-
-  On Error Resume Next
-  Dim cbb    As CommandBarButton
-  Dim Prefix As Variant
-  For Each Prefix In oMenuTypPrefixe
-    Set cbb = Application.CommandBars.FindControl(Type:=msoControlButton, Tag:=Prefix & TagModOpt_FormelnErhalten)
-    If ((Not (cbb Is Nothing)) And (Not (Err))) Then
-      If (bln_FormelnErhalten) Then
-        cbb.Caption = "Schalter: Formeln erhalten."
-        cbb.State = msoButtonDown
-      Else
-        cbb.Caption = "Schalter: Formeln durch Werte ersetzen."
-        cbb.State = msoButtonUp
-      End If
-    End If
-  Next
-  Set cbb = Nothing
   
   Call UpdateRibbon
 End Property
@@ -935,7 +787,7 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
 
   If (oMetadaten.Ort_Fusszeile_Excel_1 = "") Then
     ErrMessage = "Keine Fusszeile verfügbar. Mögliche Fehlerursachen:" & vbNewLine & vbNewLine & _
-                 "1. Die Datei '" & oKonfig.Ort_Dateiname & "' ist nicht vorhanden." & vbNewLine & vbNewLine & _
+                 "1. Die Datei mit Standortinformationen (" & oKonfig.Ort_Dateiname & ") ist nicht vorhanden." & vbNewLine & vbNewLine & _
                  "2. In dieser Datei existiert kein Eintrag 'Fusszeile_Excel_1'."
     Err.Raise vbObjectError + ErrNumFuss1NichtGeschr, , "Fusszeile konnten nicht geschrieben werden."
   Else

@@ -6,9 +6,6 @@ Attribute VB_Name = "mdlRibbon"
 Option Explicit
 
 
-'Public Const EnableSyncWorkDirDefault       As Boolean = True
-
-
 Public oRibbon As IRibbonUI
 
 ' Region "Referenz auf das Ribbon-Objekt"
@@ -63,9 +60,40 @@ Public oRibbon As IRibbonUI
         Set getAktiveTabelle = oAktiveTabelle
     End Function
     
+    Function getKonfig() As CdatKonfig
+        If (oKonfig Is Nothing) Then
+            Set oKonfig = New CdatKonfig
+        End If
+        Set getKonfig = oKonfig
+    End Function
+    
 ' End Region
 
-' Region "Actions"
+
+' Region "No Config Button"
+    
+    Sub GetVisibleNoConfigButton(control As IRibbonControl, ByRef returnedVal)
+        returnedVal = True
+        On Error Resume Next
+        returnedVal = (Not getKonfig().EinstellungenGelesen)
+        On Error Goto 0
+    End Sub
+    
+    Sub GetSupertipNoConfigButton(control As IRibbonControl, ByRef returnedVal)
+        Dim cfg As String
+        cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
+        returnedVal = GetInfoKeineKonfig()
+    End Sub
+    
+    Sub NoConfigButtonAction(ByVal control As IRibbonControl)
+        Call InfoKeineKonfig
+    End Sub
+    
+' End Region
+
+
+
+' Region "Action Buttons"
     
     Sub LogButtonAction(ByVal control As IRibbonControl)
         Call Protokoll
@@ -91,32 +119,113 @@ Public oRibbon As IRibbonUI
         Call FormatDaten
     End Sub
     
-    Sub FmtOptStripesButtonAction(control As IRibbonControl, pressed As Boolean)
-        getAktiveTabelle().FormatDatenMitStreifen = pressed
+    Sub FormulaButtonAction(ByVal control As IRibbonControl)
+        Call UebertragenFormeln
     End Sub
     
-    Sub FmtOptBackgroundButtonAction(control As IRibbonControl, pressed As Boolean)
-        getAktiveTabelle().FormatDatenOhneFuellung = pressed
+    Sub DeleteButtonAction(ByVal control As IRibbonControl)
+        Call LoeschenDaten
     End Sub
     
-    Sub FmtOptPrecisionButtonAction(control As IRibbonControl, pressed As Boolean)
-        getAktiveTabelle().FormatDatenNKStellenSetzen = pressed
+    Sub CalcDiffsButtonAction(ByVal control As IRibbonControl)
+        Call Mod_FehlerVerbesserung
+    End Sub
+    
+    Sub CalcCantButtonAction(ByVal control As IRibbonControl)
+        Call Mod_UeberhoehungAusBemerkung
+    End Sub
+    
+    Sub CalcHorizontalToCantedButtonAction(ByVal control As IRibbonControl)
+        Call Mod_Transfo_Tk2Gls
+    End Sub
+    
+    Sub CalcCantedToHorizontalButtonAction(ByVal control As IRibbonControl)
+        Call Mod_Transfo_Gls2Tk
+    End Sub
+    
+    Sub InterpolButtonAction(ByVal control As IRibbonControl)
+        Call Selection2Interpolationsformel
+    End Sub
+    
+    Sub DuplicatesButtonAction(ByVal control As IRibbonControl)
+        Call Selection2MarkDoppelteWerte
+    End Sub
+    
+    Sub BlankLinesButtonAction(ByVal control As IRibbonControl)
+        Call insertLines
+    End Sub
+    
+    Sub EditFileButtonAction(ByVal control As IRibbonControl)
+        Call DateiBearbeiten
+    End Sub
+    
+    Sub SetFooterButtonAction(ByVal control As IRibbonControl)
+        Call SchreibeFusszeile_1
     End Sub
     
 ' End Region
 
-' Region "ToggleButton Pressed / Not Pressed"
+' Region "Toggle Buttons"
+    
+    Sub FmtOptStripesButtonAction(control As IRibbonControl, pressed As Boolean)
+        On Error Resume Next
+        getAktiveTabelle().FormatDatenMitStreifen = pressed
+        On Error Goto 0
+    End Sub
+    
+    Sub FmtOptBackgroundButtonAction(control As IRibbonControl, pressed As Boolean)
+        On Error Resume Next
+        getAktiveTabelle().FormatDatenOhneFuellung = pressed
+        On Error Goto 0
+    End Sub
+    
+    Sub FmtOptPrecisionButtonAction(control As IRibbonControl, pressed As Boolean)
+        On Error Resume Next
+        getAktiveTabelle().FormatDatenNKStellenSetzen = pressed
+        On Error Goto 0
+    End Sub
+    
+    Sub CalcOptOverrideButtonAction(control As IRibbonControl, pressed As Boolean)
+        On Error Resume Next
+        getAktiveTabelle().ModOpt_VorhWerteUeberschreiben = pressed
+        On Error Goto 0
+    End Sub
+    
+    Sub CalcOptKeepFormulasButtonAction(control As IRibbonControl, pressed As Boolean)
+        On Error Resume Next
+        getAktiveTabelle().ModOpt_FormelnErhalten = pressed
+        On Error Goto 0
+    End Sub
+    
     
     Sub FmtOptStripesButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
         returnedVal = getAktiveTabelle().FormatDatenMitStreifen
+        On Error Goto 0
     End Sub
     
     Sub FmtOptBackgroundButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
         returnedVal = getAktiveTabelle().FormatDatenOhneFuellung
+        On Error Goto 0
     End Sub
     
     Sub FmtOptPrecisionButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
         returnedVal = getAktiveTabelle().FormatDatenNKStellenSetzen
+        On Error Goto 0
+    End Sub
+    
+    Sub CalcOptOverrideButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
+        returnedVal = getAktiveTabelle().ModOpt_VorhWerteUeberschreiben
+        On Error Goto 0
+    End Sub
+    
+    Sub CalcOptKeepFormulasButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
+        returnedVal = getAktiveTabelle().ModOpt_FormelnErhalten
+        On Error Goto 0
     End Sub
     
 ' End Region
@@ -180,6 +289,20 @@ Public oRibbon As IRibbonUI
     End Sub
     
 ' End Region
+
+' Anzahl NK-Stellen wurde via GUI geändert.
+Sub FmtOptPrecisionNumberChange(control As IRibbonControl, text As String)
+    On Error Resume Next
+    getAktiveTabelle().FormatDatenNKStellenAnzahl = cInt(text)
+    On Error Goto 0
+End Sub
+
+'Callback for FmtOptPrecisionNumber getLabel
+Sub GetTextFmtOptPrecisionNumber(control As IRibbonControl, ByRef returnedVal)
+    On Error Resume Next
+    returnedVal = getAktiveTabelle().FormatDatenNKStellenAnzahl
+    On Error Goto 0
+End Sub
 
 
 ' for jEdit:  :collapseFolds=1::tabSize=4::indentSize=4:

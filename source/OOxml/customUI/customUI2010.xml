@@ -9,8 +9,21 @@
     <tabs>
       <tab id="GeoToolsTab" label="GeoTools">
         
-        <group id="GeneralGroup" label="Allgemein">
-          <box id="box1" boxStyle="vertical">
+        <group id="GeneralGroup" label="Allgemein" imageMso="GroupTaskListTags" >
+          
+          <button id="NoConfigButton"
+                  label="Keine Konfig."
+                  size="large"
+                  screentip="Keine Konfiguration verfügbar!"
+                  getSupertip="GetSupertipNoConfigButton"
+                  getVisible="GetVisibleNoConfigButton"
+                  onAction="NoConfigButtonAction"
+                  imageMso="MacroSecurity" />
+          
+          <separator id="NoConfigSeparator" getVisible="GetVisibleNoConfigButton" />
+          
+          <box id="GeneralBox" boxStyle="vertical">
+            
             <button id="InfoButton"
                     label="Info"
                     size="normal"
@@ -53,10 +66,19 @@
                   imageMso="CatalogMergeCreateList" />
         </group>
         
-        <group id="DataRegionGroup" label="Datenbereich">
+        <group id="DataRegionGroup" label="Datenbereich" imageMso="TableStyleClear" >
+          
+          <button id="FormatButton"
+                  label="Format"
+                  size="large"
+                  screentip="Datenbereich formatieren"
+                  supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
+                  onAction="FormatButtonAction"
+                  getEnabled="GetEnabledGeoToolsTable"
+                  imageMso="FormatPainter" />
           
           <toggleButton id="FmtOptStripesButton"
-                  label="Option: Mit Streifen"
+                  label="Mit Streifen"
                   showLabel="false"
                   size="normal"
                   screentip="Formatierungsoption: Mit Streifen"
@@ -66,8 +88,8 @@
                   getPressed="FmtOptStripesButtonGetPressed"
                   imageMso="AlignJustify" />
           
-          <toggleButton id="FmtOptBackground"
-                  label="Option: Ohne Hintergrundfarbe"
+          <toggleButton id="FmtOptBackgroundButton"
+                  label="Ohne Hintergrundfarbe"
                   showLabel="false"
                   size="normal"
                   screentip="Formatierungsoption: Ohne Hintergrundfarbe"
@@ -76,39 +98,195 @@
                   getEnabled="GetEnabledGeoToolsTable"
                   getPressed="FmtOptBackgroundButtonGetPressed"
                   imageMso="BlackAndWhiteDontShow" />
+                  
+          <box id="FmtOptPrecisionBox" boxStyle="horizontal">
+            
+            <toggleButton id="FmtOptPrecisionButton"
+                    label="Änderung der NK-Stellen"
+                    showLabel="false"
+                    size="normal"
+                    screentip="Formatierungsoption: Änderung der NK-Stellen"
+                    supertip="Wenn aktiviert, werden die laut Tabellenstruktur dafür vorgesehenen Spalten mit der angegebenen Anzahl Nachkommastellen formatiert."
+                    onAction="FmtOptPrecisionButtonAction"
+                    getEnabled="GetEnabledFloatingPoint"
+                    getPressed="FmtOptPrecisionButtonGetPressed"
+                    imageMso="CalculatedNumber" />
+            
+            <comboBox id="FmtOptPrecisionNumber"
+                    label="Anzahl der NK-Stellen"
+                    showLabel="false"
+                    sizeString="auto"
+                    screentip="Formatierungsoption: Anzahl der NK-Stellen"
+                    supertip="Einstellung für Formatierungsoption 'Änderung der NK-Stellen'."
+                    onChange="FmtOptPrecisionNumberChange"
+                    getText="GetTextFmtOptPrecisionNumber"
+                    getEnabled="GetEnabledFloatingPoint"
+                    >
+                      <item id="FmtOptPrecision0" label="0"/>
+                      <item id="FmtOptPrecision1" label="1"/>
+                      <item id="FmtOptPrecision2" label="2"/>
+                      <item id="FmtOptPrecision3" label="3"/>
+                      <item id="FmtOptPrecision4" label="4"/>
+                      <item id="FmtOptPrecision5" label="5"/>
+                      <item id="FmtOptPrecision6" label="6"/>
+                      <item id="FmtOptPrecision7" label="7"/>
+                      <item id="FmtOptPrecision8" label="8"/>
+                      <item id="FmtOptPrecision9" label="9"/>
+            </comboBox>
+          </box>
           
-          <toggleButton id="FmtOptPrecision"
-                  label="Option: Änderung der NK-Stellen"
-                  showLabel="false"
-                  size="normal"
-                  screentip="Formatierungsoption: Änderung der NK-Stellen"
-                  supertip="Wenn aktiviert, werden die laut Tabellenstruktur dafür vorgesehenen Spalten mit der angegebenen Anzahl Nachkommastellen formatiert."
-                  onAction="FmtOptPrecisionButtonAction"
-                  getEnabled="GetEnabledFloatingPoint"
-                  getPressed="FmtOptPrecisionButtonGetPressed"
-                  imageMso="CalculatedNumber" />
+          <separator id="DataRegionSeparator1" />
           
-          <button id="FormatButton"
-                  label="Format"
+          <menu id="CalcMenu"
+                  label="Berechnung"
                   size="large"
-                  screentip="Datenbereich formatieren"
-                  supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
-                  onAction="FormatButtonAction"
+                  screentip="verschiedene Berechnungen"
+                  supertip="Funktionsprinzip: Falls die gewählte Berechnung erfolgreich war, werden die Ergebnisse in die dafür vorgesehenen Spalten (falls vorhanden) eingetragen. Dabei werden die aktiven Optionen berücksichtigt. Es werden keine Fehlermeldungen angezeigt (evtl. enthält das Protokoll Hinweise)."
                   getEnabled="GetEnabledGeoToolsTable"
-                  imageMso="Bold" />
+                  imageMso="EquationEdit"
+                  >
+                  <button id="CalcDiffsButton"
+                          label="Fehler und Verbesserungen"
+                          screentip="Fehler und Verbesserungen berechnen"
+                          supertip="Für Größen, die mit Soll- und Istwerten in der Tabelle vertreten sind, werden Fehler und Verbesserungen berechnet."
+                          onAction="CalcDiffsButtonAction"
+                          getEnabled="GetEnabledGeoToolsTable"
+                          />
+                  <button id="CalcCantButton"
+                          label="Ist-Überhöhung aus Bemerkung"
+                          screentip="Ist-Überhöhung aus Bemerkung extrahieren"
+                          supertip="Enthält die Bemerkung (Punktinfo') Angaben der Form 'u=xxx', dann wird 'xxx' als Ist-Überhöhung interpretiert. Ist 'Überschreiben' aktiviert, wird die genannte Angabe aus der Bemerkung entfernt."
+                          onAction="CalcCantButtonAction"
+                          getEnabled="GetEnabledGeoToolsTable"
+                          />
+                  <button id="CalcHorizontalToCantedButton"
+                          label="Trassenkoo' => Gleissystem"
+                          screentip="Transformation: Trassensystem => Gleissystem (gedreht)"
+                          supertip="Trassenkoordinaten (Q, HSOK) werden ins Gleissystem (QG, HG) transformiert."
+                          onAction="CalcHorizontalToCantedButtonAction"
+                          getEnabled="GetEnabledGeoToolsTable"
+                          />
+                  <button id="CalcCantedToHorizontalButton"
+                          label="Gleissystem => Trassenkoo'"
+                          screentip="Transformation: Gleissystem (gedreht) => Trassensystem"
+                          supertip="Koordinaten im Gleissystem (QG, HG) werden ins Trassensystem (Q, HSOK) transformiert."
+                          onAction="CalcCantedToHorizontalButtonAction"
+                          getEnabled="GetEnabledGeoToolsTable"
+                          />
+          </menu>
+          
+          <box id="CalcOptionsBox" boxStyle="vertical">
+            
+            <toggleButton id="CalcOptOverrideButton"
+                    label="Überschreiben"
+                    showLabel="false"
+                    size="normal"
+                    screentip="Berechnungsoption: Überschreiben"
+                    supertip="Wenn aktiviert, werden vorhandene Werte überschrieben, andernfalls bleiben sie erhalten."
+                    onAction="CalcOptOverrideButtonAction"
+                    getEnabled="GetEnabledGeoToolsTable"
+                    getPressed="CalcOptOverrideButtonGetPressed"
+                    imageMso="Delete" />
+            
+            <toggleButton id="CalcOptKeepFormulasButton"
+                    label="Formeln erhalten"
+                    showLabel="false"
+                    size="normal"
+                    screentip="Berechnungsoption: Formeln erhalten"
+                    supertip="Wenn aktiviert, werden vorhandene Formeln durch komplexere Formeln ersetzt, andernfalls durch Werte."
+                    onAction="CalcOptKeepFormulasButtonAction"
+                    getEnabled="GetEnabledGeoToolsTable"
+                    getPressed="CalcOptKeepFormulasButtonGetPressed"
+                    imageMso="FunctionLookup" />
+          </box>
+          
+          <separator id="DataRegionSeparator2" />
+          
+          <button id="FormulaButton"
+                  label="Formeln ausfüllen"
+                  size="large"
+                  screentip="Formeln übertragen"
+                  supertip="Die Formeln des 'Formelbereiches' der ersten Datenzeile (laut Tabellenstruktur) werden auf alle weiteren Zeilen übertragen."
+                  onAction="FormulaButtonAction"
+                  getEnabled="GetEnabledFormula"
+                  imageMso="Formula" />
+          
+          <button id="DeleteButton"
+                  label="Löschen"
+                  size="large"
+                  screentip="Datenbereich löschen"
+                  supertip="Die Inhalte der ersten Zeile des Datenbereiches (laut Tabellenstruktur) werden gelöscht. Alle weiteren Zeilen werden komplett entfernt."
+                  onAction="DeleteButtonAction"
+                  getEnabled="GetEnabledGeoToolsTable"
+                  imageMso="DeleteTable" />
+          
         </group>
+        
+        <group id="ToolsGroup" label="Werkzeuge" imageMso="ToolboxGallery" >
+          
+          <button id="InterpolButton"
+                  label="Inter- polation"
+                  size="large"
+                  screentip="Interpolationsformel erstellen"
+                  supertip="Wenn 3 Zellen markiert sind, zwei davon in der gleichen Spalte (x-Werte), dann wird in die dritte Zelle die Interpolationsformel eingetragen (Spalte mit Funktionswerten)."
+                  onAction="InterpolButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="ZIndex" />
+          
+          <button id="DuplicatesButton"
+                  label="Duplikate"
+                  size="large"
+                  screentip="Duplikate markieren"
+                  supertip="Ab der markierten Zelle werden alle wiederholt auftretenden Werte hervorgehoben (mit Hilfe der Bedingten Formatierung)."
+                  onAction="DuplicatesButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="QuickStylesSets" />
+          
+          <button id="BlankLinesButton"
+                  label="Leer- zeilen"
+                  size="large"
+                  screentip="Leerzeilen im Intervall einfügen"
+                  supertip="In einem per Dialog festzulegenden Intervall werden Leerzeilen eingefügt."
+                  onAction="BlankLinesButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="SpacingDouble" />
+          
+          
+          <separator id="ToolsSeparator" />
+          
+          <button id="EditFileButton"
+                  label="Editor"
+                  size="normal"
+                  screentip="Datei editieren"
+                  supertip="Wenn die aktive Zelle einen vollständigen Dateinamen enthält, wird diese Datei im Editor geöffnet."
+                  onAction="EditFileButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="EditDocument" />
+          
+          <button id="SetFooterButton"
+                  label="Fußzeile"
+                  size="normal"
+                  screentip="Fußzeile einrichten"
+                  supertip="Die Fußzeile wird mit Standardeinträgen belegt. Der mittlere Teil wird aus dem Eintrag “FUSSZEILE_EXCEL_1” aus der Ini-Datei mit Ortsdaten gelesen (siehe Konfiguration)."
+                  onAction="SetFooterButtonAction"
+                  getEnabled="GetEnabledTable"
+                  imageMso="FooterInsertGallery" />
+         </group>
       </tab>
     </tabs>
   </ribbon>
   
-  <!--<contextMenus>
+  <contextMenus>
     <contextMenu idMso="ContextMenuCell">
-      <menuSeparator id="MySeparator" />
-      <button idMso="ConditionalFormattingsManage"
-              getVisible="getVisibleConditionalFormat"
-              label="Bedingte Formatierung"
-              insertBeforeMso="FormatCellsDialog" />
+      <menuSeparator id="GeoToolsContextMenuSeparator" />
+      <button id="FormatContextMenuButton"
+              label="Format (GeoTools-Tabelle)"
+              screentip="Datenbereich formatieren"
+              supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
+              onAction="FormatButtonAction"
+              getEnabled="GetEnabledGeoToolsTable"
+              imageMso="FormatPainter" />
     </contextMenu>
-  </contextMenus>-->
+  </contextMenus>
   
 </customUI>

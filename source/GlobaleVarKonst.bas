@@ -64,7 +64,7 @@ Public Const SpTitel_unbekannt               As String = "< unbekannt >"
 Public Const Allg_unbekannt                  As String = "unbekannt"
 
 'Dateifilter.
-Public Const DateiFilterXLS                  As String = "Exceldateien (*.xls), *.xls"
+Public Const DateiFilterXLS                  As String = "Exceldateien (*.xlsx), *.xlsx"
 'Public Const DateiFilterXLT                  As String = "Exceldateien (*.xlt), *.xlt"
 Public Const DateiMaskeXLT                   As String = "*.xlt;*.xltm;*.xltx"
 
@@ -183,9 +183,6 @@ Public Const SpN_DGM_NameDGM                 As String = "DGM.NameDGM"
 
 
 'Objekte
-Public oMenuTypPrefixe                       As Collection   'alle Prefixe für Menütypen
-'Public oBasisTags                            As Collection   'alle Basistags für Controls
-
 Public oKonfig                               As CdatKonfig
 Public oMetadaten                            As CdatMetaDaten
 Public oAktiveTabelle                        As CtabAktiveTabelle
@@ -199,44 +196,6 @@ Public oRegExp                               As VBScript_RegExp_55.RegExp    'Wi
 Public CfgNichtGelesen                       As Boolean      'zeigt an, ob die Konfig.datei gelesen wurde.
 Public ErrMessage                            As String       'zusätzliche Fehlerhinweise
 
-                                             
-                                             
-'=== Menüs und Toolboxen ======================================================
-'Prefixe für Menütypen
-Public Const PrefixToolbox                   As String = "TB_"     'Toolbox
-Public Const PrefixHauptmenue                As String = "HM_"     'Hauptmenüleiste
-Public Const PrefixKontextZelle              As String = "KZ_"     'Kontextmenü Zellen
-
-'Basistags für Controls. Diese bilden zusammen mit den Prefixen die Tags.
-Public Const TagHauptmenu_GeoTools                As String = "Hauptmenu_GeoTools"
-Public Const TagInfoKeineKonfig                   As String = "InfoKeineKonfig"
-Public Const TagInfo_GeoTools                     As String = "GeoTools_Info"
-Public Const TagHilfe_GeoTools                    As String = "Hilfe_Komplett"
-Public Const TagProtokoll                         As String = "Protokoll"
-Public Const TagFormatDaten                       As String = "FormatDaten"
-Public Const TagFormatDatenMitStreifen            As String = "FormatDatenMitStreifen"
-Public Const TagFormatDatenOhneFuellung           As String = "FormatDatenOhneFuellung"
-Public Const TagLoeschenDaten                     As String = "LoeschenDaten"
-Public Const TagFormatDatenNKStellenSetzen        As String = "FormatDatenNKStellenSetzen"
-Public Const TagFormatDatenNKStellenAnzahl        As String = "FormatDatenNKStellenAnzahl"
-Public Const TagSchreibeProjektDaten              As String = "SchreibeProjektDaten"
-Public Const TagSchreibeFusszeile_1               As String = "SchreibeFusszeile_1"
-Public Const TagTabellenStruktur                  As String = "TabellenStruktur"
-Public Const TagUebertragenFormeln                As String = "UebertragenFormeln"
-Public Const TagSelection2Interpolationsformel    As String = "Selection2Interpolationsformel"
-Public Const TagSelection2MarkDoppelteWerte       As String = "Selection2MarkDoppelteWerte"
-Public Const TagInsertLines                       As String = "InsertLines"
-Public Const TagDateiBearbeiten                   As String = "DateiBearbeiten"
-Public Const TagImport_Pktpaare                   As String = "Import_Pktpaare"
-Public Const TagImport_NivLinien                  As String = "Import_NivLinien"
-Public Const TagModOpt_VorhWerteUeberschreiben    As String = "ModOpt_VorhWerteUeberschreiben"
-Public Const TagModOpt_FormelnErhalten            As String = "ModOpt_FormelnErhalten"
-Public Const TagMod_Transfo_Tk2Gls                As String = "Mod_Transfo_Tk2Gls"
-Public Const TagMod_Transfo_Gls2Tk                As String = "Mod_Transfo_Gls2Tk"
-Public Const TagMod_UeberhoehungAusBemerkung      As String = "Mod_UeberhoehungAusBemerkung"
-Public Const TagMod_FehlerVerbesserung            As String = "Mod_FehlerVerbesserung"
-Public Const TagExpimManager                      As String = "ExpimManager"
-
 
 '=== Emulierte Scripting-Konstanten  ==================================================
 'WshShell.Run
@@ -246,7 +205,7 @@ Public Const WindowStyle_minimized                As Long = 2
 Public Const WindowStyle_maximized                As Long = 3
 Public Const WaitOnReturn_yes                     As Boolean = true
 Public Const WaitOnReturn_no                      As Boolean = false
-  
+
 'Dateioperationen
 Public Const NewFileIfNotExist_yes                As Boolean = true
 Public Const NewFileIfNotExist_no                 As Boolean = false

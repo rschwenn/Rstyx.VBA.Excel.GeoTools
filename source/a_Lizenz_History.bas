@@ -41,6 +41,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '=================
 '   02.2014 v2.7.0  - Umstellung der Oberfläche von Controls/2003 auf Ribbon/2010
 '                   - Umstellung der Konfigurationsdatei auf .xlx
+'                   - Umstellung globaler Objekte auf Eigenschaften von ThisWorkbook, damit
+'                     Excel nicht neu gestartet weden muss, wenn AddIn wegen Fehler gestoppt wurde.
+'                   - mdlUserInterface umbenannt in mdlBefehle, da es keinen UI-kode mehr enthält.
 '23.01.2014 v2.6.2  - Bugfix: Nicht alle Kontextmenü-Einträge wurden beim Beenden entfernt.
 '                   - Bedingte Formatierung aus Kontextmenü entfernt (evtl. via Hooks.xlam)
 '31.12.2013 v2.6.1  Anpassungen für Excel 2010:

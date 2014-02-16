@@ -380,7 +380,7 @@ Private Sub test_vb()
       End If
     End With
   Next
-  oConsole.Show vbModeless
+  ThisWorkbook.LogConsole.Show vbModeless
 
 End Sub
 

@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -150,8 +150,8 @@ Private Sub UserForm_Initialize()
   Call GetListe_Ziel_Struktur
   Call GetListe_Spalten_XlTab
   
-  'Eigenschaften von oAktiveTabelle mit realer Tabelle abgleichen.
-  'oAktiveTabelle.Syncronisieren
+  'Eigenschaften von ThisWorkbook.AktiveTabelle mit realer Tabelle abgleichen.
+  'ThisWorkbook.AktiveTabelle.Syncronisieren
   
   'Dropdownfeld "Kategorien" belegen => Ereignisse erledigen den Rest.
   Call GetListe_Kategorien
@@ -204,9 +204,9 @@ Private Sub btnAktion_Click()
   If (Status.Kategorie = strKategorie_TabStruktur) Then
     'Stukturelement einfügen/ändern.
     Select Case Status.QuellName
-      Case strInfoTraeger:  Call oAktiveTabelle.Selection2Infotraeger
-      Case strFliesskomma:  Call oAktiveTabelle.Selection2Fliesskomma
-      Case strFormel:       Call oAktiveTabelle.Selection2Formel
+      Case strInfoTraeger:  Call ThisWorkbook.AktiveTabelle.Selection2Infotraeger
+      Case strFliesskomma:  Call ThisWorkbook.AktiveTabelle.Selection2Fliesskomma
+      Case strFormel:       Call ThisWorkbook.AktiveTabelle.Selection2Formel
     End Select
   Else
     If (Status.QuellName = strOhneQuellName) Then
@@ -216,11 +216,11 @@ Private Sub btnAktion_Click()
     End If
     If ((Status.Kategorie = strKategorie_PrjDat) or (Status.Kategorie = strKategorie_OrtDat)) Then
       'Orts- oder Projektdatenfeld
-      Call oAktiveTabelle.Selection2Feldname(Name)
+      Call ThisWorkbook.AktiveTabelle.Selection2Feldname(Name)
     Else
       'Spaltenbezeichnung...
       If (Status.QuellEinheit = strOhneEinheit) Then Einheit = "" Else Einheit = Status.QuellEinheit
-      Call oAktiveTabelle.Selection2Spaltenname(Name, Einheit)
+      Call ThisWorkbook.AktiveTabelle.Selection2Spaltenname(Name, Einheit)
     End If
   End If
   Call Syncronisieren
@@ -240,7 +240,7 @@ Private Sub btnQuelleZeigen_Click()
     Adresse = Me.LblHinweis2.Caption
     'Adresse = GetLokalerZellname(Status.QuellName)
   Else
-    Adresse = oAktiveTabelle.SpaltenErsteZellen(Status.QuellName).Address
+    Adresse = ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Status.QuellName).Address
   End If
   Range(Adresse).Select
 End Sub
@@ -332,7 +332,7 @@ Private Sub LstSpaltennamen_Change()
         Me.btnQuelleZeigen.Enabled = False
       Else
         
-        If (oAktiveTabelle.Infotraeger Is Nothing) Then
+        If (ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
           If (Status.QuellName = strInfoTraeger) Then
             Me.cboZiel.ListIndex = 2
           Else
@@ -344,29 +344,29 @@ Private Sub LstSpaltennamen_Change()
         'Anzeige des vom gewählten Strukturelement aktuell belegten Zellbereich.
         If (Status.QuellName = strInfoTraeger) Then
           strHilfeAktiv = strHilfeInfotraeger
-          If (oAktiveTabelle.Infotraeger Is Nothing) Then
+          If (ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
             Me.LblHinweis2.Caption = "(keiner)"
             Me.btnQuelleZeigen.Enabled = False
           Else
-            Me.LblHinweis2.Caption = oAktiveTabelle.Infotraeger.Address(False, False)
+            Me.LblHinweis2.Caption = ThisWorkbook.AktiveTabelle.Infotraeger.Address(False, False)
             Me.btnQuelleZeigen.Enabled = True
           End If
         ElseIf (Status.QuellName = strFliesskomma) Then
           strHilfeAktiv = strHilfeFliesskomma
-          If (oAktiveTabelle.Fliesskomma Is Nothing) Then
+          If (ThisWorkbook.AktiveTabelle.Fliesskomma Is Nothing) Then
             Me.LblHinweis2.Caption = "(keiner)"
             Me.btnQuelleZeigen.Enabled = False
           Else
-            Me.LblHinweis2.Caption = oAktiveTabelle.Fliesskomma.Address(False, False)
+            Me.LblHinweis2.Caption = ThisWorkbook.AktiveTabelle.Fliesskomma.Address(False, False)
             Me.btnQuelleZeigen.Enabled = True
           End If
         ElseIf (Status.QuellName = strFormel) Then
           strHilfeAktiv = strHilfeFormel
-          If (oAktiveTabelle.Formel Is Nothing) Then
+          If (ThisWorkbook.AktiveTabelle.Formel Is Nothing) Then
             Me.LblHinweis2.Caption = "(keiner)"
             Me.btnQuelleZeigen.Enabled = False
           Else
-            Me.LblHinweis2.Caption = oAktiveTabelle.Formel.Address(False, False)
+            Me.LblHinweis2.Caption = ThisWorkbook.AktiveTabelle.Formel.Address(False, False)
             Me.btnQuelleZeigen.Enabled = True
           End If
         End If
@@ -408,8 +408,8 @@ Private Sub Check_QuellNameExists()
   'Anzeige der mit dem gewählten SpaltenNamen aktuell belegten Spalte.
   If (Not (keinAktivesBlatt Or (ActiveCell Is Nothing))) Then
     Me.LblHinweis1.Caption = "Derzeitiger Bereich von '" & Status.QuellName & "':"
-    If (oAktiveTabelle.SpaltenErsteZellen.Exists(Status.QuellName)) Then
-      Me.LblHinweis2.Caption = "Spalte " & MidStr(oAktiveTabelle.SpaltenErsteZellen(Status.QuellName).Address, "$", "$", False)
+    If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(Status.QuellName)) Then
+      Me.LblHinweis2.Caption = "Spalte " & MidStr(ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Status.QuellName).Address, "$", "$", False)
       Me.btnQuelleZeigen.Enabled = True
     Else
       Me.LblHinweis2.Caption = "keine Spalte"
@@ -461,7 +461,7 @@ Private Sub cboStatus_Change()
       If (Status.WertStatus = strOhneStatus) Then
         Status.WertStatusPrefix = ""
       Else
-        Status.WertStatusPrefix = oKonfig.StatusPrefix(Status.WertStatus)
+        Status.WertStatusPrefix = ThisWorkbook.Konfig.StatusPrefix(Status.WertStatus)
       End If
     End If
     Status.LetzerWertStatus = Status.WertStatus
@@ -584,11 +584,11 @@ Private Sub GetListe_Kategorien()
   Liste_Kategorien_Konfig(2) = strKategorie_OrtDat
   Liste_Kategorien_Konfig(3) = strKategorie_AlleSpalten
   
-  If (Not oKonfig.Kategorien Is Nothing) Then
-    If (oKonfig.Kategorien.Count > 0) Then
-      ReDim Preserve Liste_Kategorien_Konfig(0 To oKonfig.Kategorien.Count + AnzExtraEintraege - 1)
+  If (Not ThisWorkbook.Konfig.Kategorien Is Nothing) Then
+    If (ThisWorkbook.Konfig.Kategorien.Count > 0) Then
+      ReDim Preserve Liste_Kategorien_Konfig(0 To ThisWorkbook.Konfig.Kategorien.Count + AnzExtraEintraege - 1)
       i = AnzExtraEintraege
-      For Each Kategorie In oKonfig.Kategorien.Keys
+      For Each Kategorie In ThisWorkbook.Konfig.Kategorien.Keys
         Liste_Kategorien_Konfig(i) = Kategorie
         i = i + 1
       Next
@@ -638,15 +638,15 @@ Private Sub GetListe_Namen_Konfig()
     Liste_Strukturelemente(2, idxSpTitel) = "Formelübertragung beim Formatieren."
   
   'Feldnamen von Projektdaten (nur solche, die mit "Prj." beginnen.
-    If (Not oMetadaten.AlleProjektDaten Is Nothing) Then
+    If (Not ThisWorkbook.Metadaten.AlleProjektDaten Is Nothing) Then
       i = -1
-      For Each FeldName In oMetadaten.AlleProjektDaten
+      For Each FeldName In ThisWorkbook.Metadaten.AlleProjektDaten
         If (Left(FeldName, 4) = "Prj.") Then
           i = i + 1
           ReDim Preserve PrjFeldNamen(0 To i)
           ReDim Preserve PrjFeldTitel(0 To i)
           PrjFeldNamen(i) = FeldName
-          PrjFeldTitel(i) = oMetadaten.TitelDerProjektDaten(FeldName)
+          PrjFeldTitel(i) = ThisWorkbook.Metadaten.TitelDerProjektDaten(FeldName)
         End If
       Next
     End If
@@ -665,15 +665,15 @@ Private Sub GetListe_Namen_Konfig()
     Next
   
   'Feldnamen von Ortsdaten (nur solche, die mit "Ort." beginnen.
-    If (Not oMetadaten.AlleProjektDaten Is Nothing) Then
+    If (Not ThisWorkbook.Metadaten.AlleProjektDaten Is Nothing) Then
       i = -1
-      For Each FeldName In oMetadaten.AlleProjektDaten
+      For Each FeldName In ThisWorkbook.Metadaten.AlleProjektDaten
         If (Left(FeldName, 4) = "Ort.") Then
           i = i + 1
           ReDim Preserve OrtFeldNamen(0 To i)
           ReDim Preserve OrtFeldTitel(0 To i)
           OrtFeldNamen(i) = FeldName
-          OrtFeldTitel(i) = oMetadaten.TitelDerProjektDaten(FeldName)
+          OrtFeldTitel(i) = ThisWorkbook.Metadaten.TitelDerProjektDaten(FeldName)
         End If
       Next
     End If
@@ -693,19 +693,19 @@ Private Sub GetListe_Namen_Konfig()
   
   'Konfigurierte Spaltennamen.
     AnzExtraEintraege = 1
-    If (Not oKonfig.SpaltenBeschreibung Is Nothing) Then
-      If (oKonfig.SpaltenBeschreibung.Count = 0) Then
+    If (Not ThisWorkbook.Konfig.SpaltenBeschreibung Is Nothing) Then
+      If (ThisWorkbook.Konfig.SpaltenBeschreibung.Count = 0) Then
         ReDim Liste_Namen_Konfig(0 To AnzExtraEintraege - 1, 0 To 5)
       Else
-        ReDim Liste_Namen_Konfig(0 To oKonfig.SpaltenBeschreibung.Count + AnzExtraEintraege - 1, 0 To 5)
+        ReDim Liste_Namen_Konfig(0 To ThisWorkbook.Konfig.SpaltenBeschreibung.Count + AnzExtraEintraege - 1, 0 To 5)
         i = AnzExtraEintraege
-        For Each Spalte In oKonfig.SpaltenBeschreibung.Keys
+        For Each Spalte In ThisWorkbook.Konfig.SpaltenBeschreibung.Keys
           Liste_Namen_Konfig(i, idxSpName) = Spalte
-          Liste_Namen_Konfig(i, idxSpTitel) = oKonfig.SpaltenBeschreibung(Spalte)
-          Liste_Namen_Konfig(i, idxQuelle_Groesse) = oKonfig.SpaltenMathGroesse(Spalte)
-          Liste_Namen_Konfig(i, idxSpKategorie) = oKonfig.SpaltenKategorie(Spalte)
+          Liste_Namen_Konfig(i, idxSpTitel) = ThisWorkbook.Konfig.SpaltenBeschreibung(Spalte)
+          Liste_Namen_Konfig(i, idxQuelle_Groesse) = ThisWorkbook.Konfig.SpaltenMathGroesse(Spalte)
+          Liste_Namen_Konfig(i, idxSpKategorie) = ThisWorkbook.Konfig.SpaltenKategorie(Spalte)
           Liste_Namen_Konfig(i, idxQuelle_Dummy_0) = ""
-          Liste_Namen_Konfig(i, idxQuelle_Format) = oAktiveTabelle.SpaltenFormate(Spalte)
+          Liste_Namen_Konfig(i, idxQuelle_Format) = ThisWorkbook.AktiveTabelle.SpaltenFormate(Spalte)
           i = i + 1
         Next
       End If
@@ -851,14 +851,14 @@ Private Sub GetListe_Einheiten()
   AktGroesse = Me.LstSpaltennamen.List(Me.LstSpaltennamen.ListIndex, idxQuelle_Groesse)
   Me.LblEinheiten2.Caption = AktGroesse
   
-  If (Not oKonfig.Einheiten Is Nothing) Then
-    If (oKonfig.Einheiten.Exists(AktGroesse)) Then
-      If (oKonfig.Einheiten(AktGroesse).Count > 0) Then
-        ReDim Preserve Liste_Einheiten(0 To oKonfig.Einheiten(AktGroesse).Count)
+  If (Not ThisWorkbook.Konfig.Einheiten Is Nothing) Then
+    If (ThisWorkbook.Konfig.Einheiten.Exists(AktGroesse)) Then
+      If (ThisWorkbook.Konfig.Einheiten(AktGroesse).Count > 0) Then
+        ReDim Preserve Liste_Einheiten(0 To ThisWorkbook.Konfig.Einheiten(AktGroesse).Count)
         i = 1
-        For Each Einheit In oKonfig.Einheiten(AktGroesse).Keys
+        For Each Einheit In ThisWorkbook.Konfig.Einheiten(AktGroesse).Keys
           Liste_Einheiten(i) = Einheit
-          If (oKonfig.Einheiten(AktGroesse)(Einheit) = "1") Then idxAuswahl = i
+          If (ThisWorkbook.Konfig.Einheiten(AktGroesse)(Einheit) = "1") Then idxAuswahl = i
           i = i + 1
         Next
       End If
@@ -896,11 +896,11 @@ Private Sub GetListe_Status()
     ReDim Liste_Status(0 To 0)
     Liste_Status(0) = strOhneStatus
   Else
-    If (Not oKonfig.StatusPrefix Is Nothing) Then
-      If (oKonfig.StatusPrefix.Count > 0) Then
-        ReDim Liste_Status(0 To oKonfig.StatusPrefix.Count - 1)
+    If (Not ThisWorkbook.Konfig.StatusPrefix Is Nothing) Then
+      If (ThisWorkbook.Konfig.StatusPrefix.Count > 0) Then
+        ReDim Liste_Status(0 To ThisWorkbook.Konfig.StatusPrefix.Count - 1)
         i = 0
-        For Each WertStatus In oKonfig.StatusPrefix.Keys
+        For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
           Liste_Status(i) = WertStatus
           If (WertStatus = Status.LetzerWertStatus) Then idxAuswahl = i
           i = i + 1
@@ -939,25 +939,25 @@ Private Sub GetListe_Spalten_XlTab()
   
   Erase Liste_Spalten_XlTab
   
-  oAktiveTabelle.Syncronisieren
+  ThisWorkbook.AktiveTabelle.Syncronisieren
   
   If (keinAktivesBlatt Or (ActiveCell Is Nothing)) Then
     ReDim Liste_Spalten_XlTab(0 To 0, 0 To 5)
     Liste_Spalten_XlTab(0, idxZiel_Zeile) = strKeineAktiveTabelle
     Liste_Spalten_XlTab(0, idxSpKategorie) = strJedeKategorie
   
-  ElseIf (oAktiveTabelle.Infotraeger Is Nothing) Then
+  ElseIf (ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
     ReDim Liste_Spalten_XlTab(0 To 0, 0 To 5)
     Liste_Spalten_XlTab(0, idxZiel_Zeile) = strKeinInfotraeger
     Liste_Spalten_XlTab(0, idxSpKategorie) = strJedeKategorie
   
   Else
     'Festwerte des Datenbereiches ermitteln
-    ZeAnf = oAktiveTabelle.ErsteDatenZeile
+    ZeAnf = ThisWorkbook.AktiveTabelle.ErsteDatenZeile
     'If (Err) Then GoTo Fehler
-    SpAnf = oAktiveTabelle.ErsteDatenSpalte
+    SpAnf = ThisWorkbook.AktiveTabelle.ErsteDatenSpalte
     'If (Err) Then GoTo Fehler
-    SpEnd = oAktiveTabelle.LetzteDatenSpalte
+    SpEnd = ThisWorkbook.AktiveTabelle.LetzteDatenSpalte
     'If (Err) Then GoTo Fehler
     SpAnz = SpEnd - SpAnf + 1
     ReDim Liste_Spalten_XlTab(0 To SpAnz - 1, 0 To 5)
@@ -971,11 +971,11 @@ Private Sub GetListe_Spalten_XlTab()
       Liste_Spalten_XlTab(i, idxSpTitel) = strOhneZielName_Titel
       Liste_Spalten_XlTab(i, idxZiel_Einheit) = " "
       Liste_Spalten_XlTab(i, idxSpKategorie) = strJedeKategorie
-      For Each Spalte In oAktiveTabelle.SpaltenErsteZellen.Keys
-        If (Zelle.Column = oAktiveTabelle.SpaltenErsteZellen(Spalte).Column) Then
+      For Each Spalte In ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Keys
+        If (Zelle.Column = ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Spalte).Column) Then
           Liste_Spalten_XlTab(i, idxSpName) = Spalte
-          Liste_Spalten_XlTab(i, idxZiel_Einheit) = oAktiveTabelle.SpaltenEinheiten(Spalte)
-          Set oSpNameAttr = oKonfig.SpNameAttr(Spalte)
+          Liste_Spalten_XlTab(i, idxZiel_Einheit) = ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte)
+          Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(Spalte)
           If (oSpNameAttr("Titel") <> SpTitel_unbekannt) Then
             'Liste_Spalten_XlTab(i, idxSpTitel) = oSpNameAttr("StatusBez") & ": " & oSpNameAttr("Titel")
             Liste_Spalten_XlTab(i, idxSpTitel) = oSpNameAttr("Titel")
@@ -1081,8 +1081,8 @@ Private Function GetSpaltenNr(ByVal SpaltenName As String) As Long
   'Gibt die Nummer der Spalte zurück, die den "Spaltenname" trägt.
   On Error GoTo Fehler
   GetSpaltenNr = 0
-  If (oAktiveTabelle.SpaltenErsteZellen.Exists(SpaltenName)) Then
-    GetSpaltenNr = oAktiveTabelle.SpaltenErsteZellen(SpaltenName).Column
+  If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(SpaltenName)) Then
+    GetSpaltenNr = ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(SpaltenName).Column
   End If
   Exit Function
   
@@ -1132,11 +1132,11 @@ Public Function Check_DialogAktion() As Boolean
         'Strukturelement einfügen/ändern.
         blnEleVorh = False
         If (Status.QuellName = strInfoTraeger) Then
-          If (Not oAktiveTabelle.Infotraeger Is Nothing) Then blnEleVorh = True
+          If (Not ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then blnEleVorh = True
         ElseIf (Status.QuellName = strFliesskomma) Then
-          If (Not oAktiveTabelle.Fliesskomma Is Nothing) Then blnEleVorh = True
+          If (Not ThisWorkbook.AktiveTabelle.Fliesskomma Is Nothing) Then blnEleVorh = True
         ElseIf (Status.QuellName = strFormel) Then
-          If (Not oAktiveTabelle.Formel Is Nothing) Then blnEleVorh = True
+          If (Not ThisWorkbook.AktiveTabelle.Formel Is Nothing) Then blnEleVorh = True
         End If
         If (blnEleVorh) Then Me.btnAktion.Caption = strAendern Else Me.btnAktion.Caption = strEinfuegen
       ElseIf ((Status.Kategorie = strKategorie_PrjDat) or (Status.Kategorie = strKategorie_OrtDat)) Then
@@ -1219,8 +1219,8 @@ Private Function Selection_Korrektur() As String
   If ((Status.Kategorie = strKategorie_PrjDat) or (Status.Kategorie = strKategorie_OrtDat)) Then
     ActiveCell.Select
   Else
-    If (Not oAktiveTabelle.Infotraeger Is Nothing) Then
-      Set oInfotraeger = oAktiveTabelle.Infotraeger
+    If (Not ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
+      Set oInfotraeger = ThisWorkbook.AktiveTabelle.Infotraeger
       Set ointersect = Intersect(ActiveCell.EntireColumn, oInfotraeger)
       If (ointersect Is Nothing) Then
         'Die aktive Markierung liegt in einer Spalte außerhalb des Infoträgers.
@@ -1283,8 +1283,8 @@ Private Function ZielZelleMarkieren() As String
   Dim oInfotraeger          As Range
   Dim ointersect            As Range
   
-  If (Not oAktiveTabelle.Infotraeger Is Nothing) Then
-    Set oInfotraeger = oAktiveTabelle.Infotraeger
+  If (Not ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
+    Set oInfotraeger = ThisWorkbook.AktiveTabelle.Infotraeger
     Set ointersect = Intersect(Range(Status.ZielSpalteKey & ":" & Status.ZielSpalteKey).EntireColumn, oInfotraeger)
     If (Not ointersect Is Nothing) Then
       ointersect.Select

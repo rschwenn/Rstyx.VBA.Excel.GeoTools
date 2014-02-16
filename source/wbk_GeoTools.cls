@@ -13,109 +13,182 @@ Attribute VB_Exposed = True
 '**************************************************************************************************
 
 '====================================================================================
-'Arbeitsmappe wbk_GeoTools
+' Arbeitsmappe wbk_GeoTools
 '====================================================================================
-'Stellt die Ereignisprozeduren des Add-in zur Verfügung.
-'Übernimmt die Initialisierung und die Terminierung des Add-in.
-
+' Übernimmt die Initialisierung und die Terminierung des Add-in.
+' Stellt globale Objekte als Eigenschaften zur Verfügung.
 
 Option Explicit
 
-'Benachrichtigung über Zurücksetzen des Projektes durch VBE
-'... scheint in Office 2003 an anderer Stelle gespeichert zu sein
-'    und trat bisher nicht in Erscheinung.
-Dim VBE_Notify_StatusSave   As Long
-Const VBE_Notify_RegValue   As String = "HKEY_CURRENT_USER\Software\Microsoft\VBA\Office\NotifyUserBeforeStateLoss"
-Const VBE_Notify_RegTyp     As String = "REG_DWORD"
-'
 
+Private InitMsg                 As String
+Private strVBAHostNameVersion   As String
+Private strAddInName            As String
+Private oAktiveTabelle          As CtabAktiveTabelle
+Private oConsole                As frmLoggingConsole
+Private oKonfig                 As CdatKonfig
+Private oMetadaten              As CdatMetaDaten
+Private oRegExp                 As VBScript_RegExp_55.RegExp
+Private oSysTools               As CToolsSystem
 
 
 Private Sub Workbook_Open()
-  'Initialisierung des Add-Ins ("Workbook_AddinInstall()" funktioniert nicht).
-  
-  On Error GoTo Fehler
-  
-  '----------------------------------------------------------------------------------
-  '1. Protokoll-Konsole starten.
-  On Error Resume next
-  ErrMessage = "Fehler beim Initialisieren der Protokoll-Konsole"
-  Set oConsole = GetNewConsole(ProgName & " Protokoll")
-  On Error GoTo Fehler
-  
-  '2. RegExp-Objekt initialisieren.
-  '   ==> Dies ist gleichzeitig die Prüfung, ob Windows Scripting v5.6 korrekt installiert ist.
-  ErrMessage = "Windows Scripting v5.6 ist nicht korrekt installiert, wird aber benötigt!" & vbNewLine & vbNewLine & _
-               "==> Einige Funktionen werden nicht funktionieren!"
-  Set oRegExp = New VBScript_RegExp_55.RegExp
-  
-  ErrMessage = ""
-  
-  '----------------------------------------------------------------------------------
-  '3. diverse Menüs erzeugen
-  '   ==> muß vor Initialisierung von "CtabAktiveTabelle" erfolgen, damit das
-  '       Setzen dessen Eigenschaften Auswirkungen auf die Buttons hat.
-  'Call MenuesErzeugen
-  
-  
-  '----------------------------------------------------------------------------------
-  '4. Initialisieren von TabellenInfo, Konfiguration, Systemwerkzeuge, Metadaten.
-  
-  'ErrMessage = "Fehler beim Initialisiern der TabellenInfo"
-  Set oAktiveTabelle = New CtabAktiveTabelle
-  
-  ErrMessage = "Fehler beim Initialisiern der Konfiguration"
-  Set oKonfig = New CdatKonfig
-  
-  'Systemwerkzeuge (abhängig von oKonfig!!!)
-  ErrMessage = "Fehler beim Initialisiern der Systemwerkzeuge"
-  Set oSysTools = New CToolsSystem
-  
-  ErrMessage = "Fehler beim Initialisiern der Metadaten"
-  Set oMetadaten = New CdatMetaDaten
-  
-  ErrMessage = ""
-  
-  
-  '----------------------------------------------------------------------------------
-  '6. Arbeitsverzeichnis setzen und Schlussmeldung
-  Call SetArbeitsverzeichnis
-  DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
-  Application.StatusBar = "GeoTools " & VersionNr & " aktiviert"
-  If (Not oKonfig.EinstellungenGelesen) Then Application.StatusBar = Application.StatusBar & " (Keine Konfiguration verfügbar!)"
-  If (oConsole is Nothing) Then Application.StatusBar = Application.StatusBar & " (Keine Protokollierung verfügbar!)"
-  call ClearStatusBarDelayed(StatusBarClearDelay)
-  
-  
-  '----------------------------------------------------------------------------------
-  '7. Versuch, den Fokus im Excel-Fenster zu behalten.
-  '   (Ansonsten verschwindet dieser - nach der Initialisierung! - im Nirvana)
-  oConsole.Show vbModeless
-  oConsole.Hide
-  
-  
-  Exit Sub
+    'Initialisierung des Add-Ins ("Workbook_AddinInstall()" funktioniert nicht).
+    On Error GoTo Fehler
+    
+    ' Arbeitsverzeichnis setzen und Schlussmeldung
+    Call SetArbeitsverzeichnis
+    DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
+    
+    ' Konfiguration initialisieren (und Mißerfog in Statuszeile dokumentieren)
+    If (Me.Konfig.KonfigDateiGelesen) Then
+        InitMsg = "GeoTools " & VersionNr & " aktiviert"
+    Else
+        InitMsg = "GeoTools " & VersionNr & " aktiviert (Keine Konfiguration verfügbar!)"
+    End If
+    Application.StatusBar = InitMsg
+    If (Me.LogConsole Is Nothing) Then Application.StatusBar = Application.StatusBar & " (Keine Protokollierung verfügbar!)"
+    call ClearStatusBarDelayed(StatusBarClearDelay)
+    
+    ' Versuch, den Fokus im Excel-Fenster zu behalten.
+    ' (Ansonsten verschwindet dieser - nach der Initialisierung! - im Nirvana)
+    If (Not Me.LogConsole is Nothing) Then
+        Me.LogConsole.Show vbModeless
+        Me.LogConsole.Hide
+    End If
+    
+    Exit Sub
 
 Fehler:
-  FehlerNachricht "Workbook_Open()"
-  Set oRegExp = Nothing
-  Set oKonfig = Nothing
-  Set oMetadaten = Nothing
-  Set oAktiveTabelle = Nothing
-  Set oSysTools = Nothing
-  Set oConsole = Nothing
+    FehlerNachricht "Workbook_Open()"
 End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
-  'MsgBox "Workbook_BeforeClose()"
-  Call MenuesEntfernen()
-  Set oRegExp = Nothing
-  Set oKonfig = Nothing
-  Set oMetadaten = Nothing
-  Set oAktiveTabelle = Nothing
-  Set oSysTools = Nothing
-  Set oConsole = Nothing
+    'MsgBox "Workbook_BeforeClose()"
+    
+    ' Altlasten aus Vorgängerversionen entfernen.
+    Call UIAltlastenBeseitigung()
+    
+    Set oRegExp = Nothing
+    Set oKonfig = Nothing
+    Set oMetadaten = Nothing
+    Set oAktiveTabelle = Nothing
+    Set oSysTools = Nothing
+    Set oConsole = Nothing
+End Sub
+
+Sub UIAltlastenBeseitigung()
+  ' GUI-Altlasten aus Vorgängerversionen entfernen (Kontextmenü-Einträge und Icon-Container).
+  On Error Resume Next
+  Application.CommandBars("cell").Controls("Datenbereich formatieren").Delete
+  Application.CommandBars("cell").Controls("Bedingte Formatierung...").Delete
+  Application.CommandBars("cell").Controls("Datei öffnen (Name in Zelle)").Delete
+  Application.CommandBars("gtDummy_Icons").Delete
+  On Error Goto 0
 End Sub
 
 
-'für jEdit:  :folding=indent::collapseFolds=1:
+' Region "Add-In Umgebung"
+    
+    '(Toleranz gegenüber zwischenzeitlichem Abbruch des Add-Ins)
+    
+    Public Property Get VBAHostNameVersion() As String
+        If (strVBAHostNameVersion = "") Then
+            strVBAHostNameVersion = Application.Name & " " & Application.Version
+        End If
+        VBAHostNameVersion = strVBAHostNameVersion
+    End Property
+    
+    Public Property Get AddInName() As String
+        If (strAddInName = "") Then
+            strAddInName = ThisWorkbook.Name
+        End If
+        AddInName = strAddInName
+    End Property
+'
+
+' Region "Add-In-weit verfügbare Objekte"
+    
+    '(Toleranz gegenüber zwischenzeitlichem Abbruch des Add-Ins)
+    
+    Public Property Get AktiveTabelle() As CtabAktiveTabelle
+        If (oAktiveTabelle Is Nothing) Then
+            Set oAktiveTabelle = New CtabAktiveTabelle
+        End If
+        Set AktiveTabelle = oAktiveTabelle
+    End Function
+    
+    Public Property Get LogConsole() As Object
+        'Public Property Get LogConsole() As frmLoggingConsole => geht nicht, weil "Forms" immer Private sind.
+        If (oConsole Is Nothing) Then
+            On Error Resume Next
+            ErrMessage = "Fehler beim Initialisieren der Protokoll-Konsole"
+            Set oConsole = New frmLoggingConsole
+            oConsole.WindowTitle = Me.AddInName & " Protokoll"
+            On Error GoTo Fehler
+        End If
+        Set LogConsole = oConsole
+        
+        Exit Sub
+        Fehler:
+        FehlerNachricht "LogConsole()"
+    End Property
+    
+    Public Property Get Konfig() As CdatKonfig
+        If (oKonfig Is Nothing) Then
+            Set oKonfig = New CdatKonfig
+            oKonfig.LeseKonfiguration
+            If (Not oKonfig.KonfigDateiGelesen) Then
+                WarnEcho "Keine Konfiguration verfügbar (Konfigurationsdatei nicht gelesen)."
+                Application.StatusBar = Application.StatusBar & " (Keine Konfiguration verfügbar!)"
+                Call ClearStatusBarDelayed(StatusBarClearDelay)
+            End If
+        End If
+        Set Konfig = oKonfig
+    End Function
+    
+    Public Property Get Metadaten() As CdatMetaDaten
+        If (oMetadaten Is Nothing) Then
+            On Error GoTo Fehler
+            ErrMessage = "Fehler beim Initialisiern der Metadaten"
+            Set oMetadaten = New CdatMetaDaten
+        End If
+        Set Metadaten = oMetadaten
+        
+        Exit Sub
+        Fehler:
+        FehlerNachricht "Metadaten()"
+    End Function
+    
+    Public Property Get RegExp() As VBScript_RegExp_55.RegExp
+        If (oRegExp Is Nothing) Then
+            On Error GoTo Fehler
+            ErrMessage = "Windows Scripting ist nicht korrekt installiert, wird aber benötigt!" & vbNewLine & vbNewLine & _
+                         "==> Einige Funktionen werden nicht funktionieren!"
+            Set oRegExp = New VBScript_RegExp_55.RegExp
+        End If
+        Set RegExp = oRegExp
+        
+        Exit Sub
+        Fehler:
+        FehlerNachricht "RegExp()"
+    End Function
+    
+    Public Property Get SysTools() As CToolsSystem
+        If (oSysTools Is Nothing) Then
+            On Error GoTo Fehler
+            'Systemwerkzeuge (abhängig von oKonfig!!!)
+            ErrMessage = "Fehler beim Initialisiern der Systemwerkzeuge"
+            Set oSysTools = New CToolsSystem
+        End If
+        Set SysTools = oSysTools
+        
+        Exit Sub
+        Fehler:
+        FehlerNachricht "SysTools()"
+    End Function
+    
+' End Region
+
+
+' for jEdit:  :collapseFolds=1::tabSize=4::indentSize=4:

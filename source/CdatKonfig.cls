@@ -13,13 +13,11 @@ Attribute VB_Exposed = False
 '**************************************************************************************************
 
 '====================================================================================
-'Klasse CdatKonfig
+ 'Klasse CdatKonfig
 '====================================================================================
-'==> Wird beim Laden des Add-In automatisch instanziert per Workbook_Open() und steht
-'    global zur Verfügung.
-'Für die Dauer der Excel-Sitzung verfügbare Konfigurationsdaten.
-'Diese werden gelesen aus GeoTools_cfg.xls (eine Verzeichnisebene höher als GeoTools.xla),
-'bzw. hart kodiert, wie z.B. verfügbare Einheiten mit Umrechnungsfaktoren.
+' Stellt die Konfiguration zur Verfügung.
+' Wenn möglich, wird GeoTools_cfg.xlsx gelesen (eine Verzeichnisebene höher
+' als GeoTools.xlam), wodurch einige Standardwerte überschrieben werden.
 
 
 Option Explicit
@@ -67,27 +65,25 @@ Dim ErrNumTabEinst               As Long
 Dim ErrNumTabSpalten             As Long
                                 
 '..
-Dim cfg                          As String
-Dim blnEinstellungenGelesen      As Boolean
+Private cfg                     As String
+Private strInfoKeineKonfig      As String
+Private blnKonfigDateiGelesen   As Boolean
                                 
-Dim oEinstellungen               As Scripting.Dictionary
-Dim oSpaltenBeschreibung         As Scripting.Dictionary
-Dim oSpaltenMathGroesse          As Scripting.Dictionary
-Dim oSpaltenKategorie            As Scripting.Dictionary
-Dim oSpaltenErsatzZiel           As Scripting.Dictionary
-Dim oKategorieAlsFilter          As Scripting.Dictionary
-                                
-Dim oStatusPrefix                As Scripting.Dictionary
-                                
-Dim oEinheiten                   As Scripting.Dictionary
-Dim oLaenge                      As Scripting.Dictionary
-Dim oWinkel                      As Scripting.Dictionary
-                                
-Dim oCache                       As Scripting.Dictionary
+Dim oEinstellungen              As Scripting.Dictionary
+Dim oSpaltenBeschreibung        As Scripting.Dictionary
+Dim oSpaltenMathGroesse         As Scripting.Dictionary
+Dim oSpaltenKategorie           As Scripting.Dictionary
+Dim oSpaltenErsatzZiel          As Scripting.Dictionary
+Dim oKategorieAlsFilter         As Scripting.Dictionary
+
+Dim oStatusPrefix               As Scripting.Dictionary
+
+Dim oEinheiten                  As Scripting.Dictionary
+Dim oLaenge                     As Scripting.Dictionary
+Dim oWinkel                     As Scripting.Dictionary
+
+Dim oCache                      As Scripting.Dictionary
 '
-
-
-
 
 
 Private Sub Class_Initialize()
@@ -100,8 +96,15 @@ Private Sub Class_Initialize()
   On Error GoTo 0
   DebugEcho "CdatKonfig.Class_Initialize(): Initialisierung beginnt."
   
-  'Name der CFG_Datei = iXLTools_cfg.xls (eine Verzeichnisebene höher als iXLTools.xla).
+  'Name der CFG_Datei = GeoTools_cfg.xls (eine Verzeichnisebene höher als iXLTools.xla).
   cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
+  
+  ' Meldung für den Fall, dass die Datei nicht gelesen wurde.
+  strInfoKeineKonfig = "Konfigurationsdatei '" & cfg & "' wurde nicht gelesen." & vbLf & vbLf & _
+                       "Mögliche Ursachen:." & vbLf & _
+                       "  1. Die Datei existiert nicht." & vbLf & _
+                       "  2. Excel wurde ferngesteuert gestartet." & vbLf & vbLf & _
+                       "==> Die Funktionalität des Programmes steht dadurch nur eingeschränkt zur Verfügung."
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -133,6 +136,19 @@ Private Sub Class_Initialize()
   Set oWinkel = New Scripting.Dictionary
   Set oCache = New Scripting.Dictionary
   
+  ' Hartkodierte "Standard"-Einstellungen.
+  oEinstellungen.Add Var_Anwender, "GeoTools"
+  oEinstellungen.Add Var_Ort_Dateiname, ""
+  oEinstellungen.Add Var_StdArbeitsverz, ""
+  oEinstellungen.Add Var_JEDIT_HOME, ""
+  oEinstellungen.Add Var_Expim_Modifizieren, Bool2String(Std_DatenModifizieren)
+  oEinstellungen.Add Var_Expim_Ueberschreiben, Bool2String(Std_VorhWerteUeberschreiben)
+  oEinstellungen.Add Var_Expim_FormelnErhalten, Bool2String(Std_FormelnErhalten)
+  oEinstellungen.Add Var_Expim_ErsatzSpalten, Bool2String(Std_ErsatzZielspaltenVerwenden)
+  oEinstellungen.Add Var_Expim_SchlussMeldung, Bool2String(Std_ExpimSchlussMeldung)
+  oEinstellungen.Add Var_TkBasisUeberhoehung, cStr(Std_TkBasisUeberhoehung)
+  oEinstellungen.Add Var_UebAusInfoStreng, Bool2String(Std_UebAusInfoStreng)
+  
   'Wert-Status, gilt für alle Spalten mit konfigurierter Einheit, d.h. numerische Werte.
   oStatusPrefix.Add StatusBez_Ist, ""
   oStatusPrefix.Add StatusBez_Soll, "S."
@@ -156,23 +172,14 @@ Private Sub Class_Initialize()
   'Fürs Debug-Protokoll
   Call ZeigeAlleEinheiten
 
-  blnEinstellungenGelesen = False
-  'Lesen der Konfigurations-Mappe.
-  Call LeseKonfiguration
-  call ClearStatusBarDelayed(StatusBarClearDelay)
+  blnKonfigDateiGelesen = False
+  ''Lesen der Konfigurations-Mappe.
+  'Call LeseKonfiguration
+  'Call ClearStatusBarDelayed(StatusBarClearDelay)
   DebugEcho "CdatKonfig.Class_Initialize(): Geotools-Konfiguration initialisiert." & vbNewLine
   Exit Sub
 
 Fehler:
-  'Objekte nicht löschen, um Folgefehler zu vermeiden.
-  'Set oEinstellungen = Nothing
-  'Set oSpaltenBeschreibung = Nothing
-  'Set oSpaltenMathGroesse = Nothing
-  'Set oSpaltenKategorie = Nothing
-  'Set oLaenge = Nothing
-  'Set oWinkel = Nothing
-  'Set oEinheiten = Nothing
-  'Set oCache = Nothing
   ErrMessage = "Fehler beim Initialisieren der Konfiguration"
   FehlerNachricht "CdatKonfig.Class_Initialize()"
 End Sub
@@ -321,9 +328,13 @@ Property Get Cache() As Scripting.Dictionary
 End Property
 
 
-Property Get EinstellungenGelesen() As Boolean
+Property Get KonfigDateiGelesen() As Boolean
   'Liefert die Option "Einstellungen gelesen".
-  EinstellungenGelesen = blnEinstellungenGelesen
+  KonfigDateiGelesen = blnKonfigDateiGelesen
+End Property
+
+Property Get InfoKeineKonfig() As String
+  InfoKeineKonfig = strInfoKeineKonfig
 End Property
 
 
@@ -517,7 +528,7 @@ End Function
 
 '==== interne Routinen ============================================================================
 
-Private Sub LeseKonfiguration()
+Public Sub LeseKonfiguration()
   'Lesen der Konfigurations-Arbeitsmappe.
 
   Dim StatusScreen     As Boolean
@@ -579,19 +590,6 @@ Private Sub LeseEinstellungen()
   On Error Resume Next
   DebugEcho "CdatKonfig.LeseEinstellungen(): Lese allgemeine Einstellungen aus Tabelle '" & strTabNameEinstell & "'."
   
-  '"Standard"-Einstellungen.
-  oEinstellungen.Add Var_Anwender, "GeoTools"
-  oEinstellungen.Add Var_Ort_Dateiname, ""
-  oEinstellungen.Add Var_StdArbeitsverz, ""
-  oEinstellungen.Add Var_JEDIT_HOME, ""
-  oEinstellungen.Add Var_Expim_Modifizieren, "ja"
-  oEinstellungen.Add Var_Expim_Ueberschreiben, Bool2String(Std_VorhWerteUeberschreiben)
-  oEinstellungen.Add Var_Expim_FormelnErhalten, "ja"
-  oEinstellungen.Add Var_Expim_ErsatzSpalten, "ja"
-  oEinstellungen.Add Var_Expim_SchlussMeldung, "ja"
-  oEinstellungen.Add Var_TkBasisUeberhoehung, cStr(Std_TkBasisUeberhoehung)
-  oEinstellungen.Add Var_UebAusInfoStreng, Bool2String(Std_UebAusInfoStreng)
-  
   Sheets(strTabNameEinstell).Activate
   If (Err.Number = 0) Then
     Set oExpim = New CdatExpim
@@ -611,7 +609,7 @@ Private Sub LeseEinstellungen()
   DebugEcho "CdatKonfig.LeseEinstellungen(): Folgende allgemeine Einstellungen wurden gelesen:"
   DebugEcho ListeDictionary(oEinstellungen)
   
-  blnEinstellungenGelesen = True
+  blnKonfigDateiGelesen = True
   On Error GoTo 0
   Exit Sub
 

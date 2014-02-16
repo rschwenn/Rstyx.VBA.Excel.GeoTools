@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2013  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -134,10 +134,8 @@ Private Sub Class_Initialize()
   blnDialog_OK = False
   blnMeldung_Ausgeben = True
   
-  If (Not oKonfig Is Nothing) Then
-    If (oKonfig.EinstellungenGelesen) Then
-      blnMeldung_Ausgeben = String2Bool(oKonfig.Expim_SchlussMeldung)
-    End If
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
+    blnMeldung_Ausgeben = String2Bool(ThisWorkbook.Konfig.Expim_SchlussMeldung)
   End If
   
   'Cache für Einstellungen vorbereiten
@@ -424,7 +422,7 @@ Sub AktionsManager()
     'Kontrolle der aktiven Import-/Export-Einstellungen im Protokoll.
     Call ZeigeEinstellungen
     
-    oAktiveTabelle.FormatDatenOptionenReset
+    ThisWorkbook.AktiveTabelle.FormatDatenOptionenReset
     StatusScreen = Application.ScreenUpdating
     Application.ScreenUpdating = False
     
@@ -448,7 +446,7 @@ Sub AktionsManager()
           Anzahl = GetQuelldaten_XlTabAktiv
           
           'Projekt- und ExtraDaten übernehmen
-          oMetadaten.Update oPrjLocal:=oAktiveTabelle.GetProjektDaten, oExtraLocal:=oAktiveTabelle.GetExtraDaten
+          ThisWorkbook.Metadaten.Update oPrjLocal:=ThisWorkbook.AktiveTabelle.GetProjektDaten, oExtraLocal:=ThisWorkbook.AktiveTabelle.GetExtraDaten
           
           'Importstatus festhalten.
           Meldung_Titel = "Export aus aktiver Tabelle"
@@ -456,12 +454,12 @@ Sub AktionsManager()
             DatenImPuffer = True
             MappeAngelegt = False
             AktionErfolgreich = True
-            Meldung_Inhalt = Anzahl & " Zeilen gelesen aus Tabelle '" & oAktiveTabelle.TabName & "'"
+            Meldung_Inhalt = Anzahl & " Zeilen gelesen aus Tabelle '" & ThisWorkbook.AktiveTabelle.TabName & "'"
           Else
             DatenImPuffer = False
             MappeAngelegt = False
             AktionErfolgreich = False
-            Meldung_Inhalt = "Lesen aus Tabelle '" & oAktiveTabelle.TabName & "' ist fehlgeschlagen."
+            Meldung_Inhalt = "Lesen aus Tabelle '" & ThisWorkbook.AktiveTabelle.TabName & "' ist fehlgeschlagen."
           End If
           
           
@@ -491,7 +489,7 @@ Sub AktionsManager()
               DatenImPuffer = True
               
               'Projekt- und ExtraDaten übernehmen
-              oMetadaten.Update oPrjLocal:=oCSV.Quelle_Projektdaten, oExtraLocal:=oCSV.Quelle_DatenExtra
+              ThisWorkbook.Metadaten.Update oPrjLocal:=oCSV.Quelle_Projektdaten, oExtraLocal:=oCSV.Quelle_DatenExtra
               
               NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) '& ".xls"
               Me.Ziel_XLMappeSpeichern = oCSV.Ziel_XLMappeSpeichern
@@ -557,7 +555,7 @@ Sub AktionsManager()
             End If
             
             'Extradaten übernehmen (unabhängig vom Ziel der eigentlichen Daten)
-            oMetadaten.Update oPrjLocal:=Nothing, oExtraLocal:=oImportobjekt.Quelle_DatenExtra
+            ThisWorkbook.Metadaten.Update oPrjLocal:=Nothing, oExtraLocal:=oImportobjekt.Quelle_DatenExtra
             
             NameExcelDatei = Verz(Me.Quelle_AsciiDatei_Name) & "\" & VorName(Me.Quelle_AsciiDatei_Name) '& ".xls"
             
@@ -631,26 +629,26 @@ Sub AktionsManager()
                 Anzahl = SchreibeDatenpuffer_XlTabAktiv
                 If (Anzahl > 0) Then
                   AktionErfolgreich = True
-                  Meldung_Inhalt = Meldung_Inhalt & vbNewLine & vbNewLine & Anzahl & " Spalten geschrieben nach Tabelle '" & oAktiveTabelle.TabName & "'"
+                  Meldung_Inhalt = Meldung_Inhalt & vbNewLine & vbNewLine & Anzahl & " Spalten geschrieben nach Tabelle '" & ThisWorkbook.AktiveTabelle.TabName & "'"
                 Else
                   AktionErfolgreich = False
-                  Meldung_Inhalt = Meldung_Inhalt & vbNewLine & vbNewLine & "Schreiben nach Tabelle '" & oAktiveTabelle.TabName & "' ist fehlgeschlagen."
+                  Meldung_Inhalt = Meldung_Inhalt & vbNewLine & vbNewLine & "Schreiben nach Tabelle '" & ThisWorkbook.AktiveTabelle.TabName & "' ist fehlgeschlagen."
                 End If
               End If
               
               If (AktionErfolgreich) Then
                 'Projekt- und andere Sitzungsdaten in dafür vorgesehene Felder schreiben.
-                'oMetadaten.Update wird unmittelbar nach Import gemacht (abhängig von Quelle)
-                oAktiveTabelle.SchreibeMetaDaten Silent:=True
+                'ThisWorkbook.Metadaten.Update wird unmittelbar nach Import gemacht (abhängig von Quelle)
+                ThisWorkbook.AktiveTabelle.SchreibeMetaDaten Silent:=True
                 
                 'Formatierung der 1. Datenzeile auf die gesamte Tabelle übertragen
                 'Optionen vorher zurücksetzen, damit diese auch vom Importobjekt gesetzt werden können.
-                'oAktiveTabelle.FormatDatenOptionenReset
-                oAktiveTabelle.FormatDaten
-                oAktiveTabelle.UebertragenFormeln
+                'ThisWorkbook.AktiveTabelle.FormatDatenOptionenReset
+                ThisWorkbook.AktiveTabelle.FormatDaten
+                ThisWorkbook.AktiveTabelle.UebertragenFormeln
                 'Cursor positionieren
-                oAktiveTabelle.Infotraeger.Cells(1, 1).Select
-                oAktiveTabelle.SchreibeFusszeile_1 Silent:=True
+                ThisWorkbook.AktiveTabelle.Infotraeger.Cells(1, 1).Select
+                ThisWorkbook.AktiveTabelle.SchreibeFusszeile_1 Silent:=True
                 
                 'Neue Arbeitsmappe speichern (bei Bedarf).
                 If (Me.Ziel_XLMappeSpeichern) Then
@@ -721,7 +719,7 @@ Sub AktionsManager()
   Set Dialog = Nothing
   On Error GoTo 0
   DebugEcho "CdatExpim.AktionsManager() beendet."
-  If (Not oSysTools.FileErrorsShowInJEdit(True)) Then
+  If (Not ThisWorkbook.SysTools.FileErrorsShowInJEdit(True)) Then
     Call ShowConsole
   End If
   Exit Sub
@@ -737,7 +735,7 @@ Function GetQuelldaten_XlTabAktiv() As Long
   'belegt damit den Datenpuffer und liest alle in der Tabelle enthaltenen Projektdaten.
   'Rückgabe: Anzahl der gelesenen Zeilen.
   '
-  'Diese Routine wird während der Initialisierung des Add-Ins verwendet (oKonfig.initialize).
+  'Diese Routine wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
   '=> Die Verwendung der (erst danach initialisierten) globalen Objekte vermeiden!
   
   On Error GoTo Fehler
@@ -751,12 +749,12 @@ Function GetQuelldaten_XlTabAktiv() As Long
   Dim Feld()             As String
   Dim Faktor             As Double
   
-  Set oInfotraeger = oAktiveTabelle.Infotraeger
+  Set oInfotraeger = ThisWorkbook.AktiveTabelle.Infotraeger
   If (oInfotraeger Is Nothing) Then
     ErrMessage = "Es ist kein 'InfoTraeger' vorhanden!"
     GoTo Fehler
   End If
-  ZeAnz = oAktiveTabelle.AnzahlDatenZeilen
+  ZeAnz = ThisWorkbook.AktiveTabelle.AnzahlDatenZeilen
   
   If (isTabellenSchutz) Then
     Err.Raise vbObjectError + ErrNumTabSchutz - vbObjectError, , "Aktion ist nicht möglich, Tabellenschutz ist aktiv."
@@ -770,28 +768,28 @@ Function GetQuelldaten_XlTabAktiv() As Long
   ReDim Feld(1 To ZeAnz, DP2lb To DP2ub)
   
   'Analyse der aktiven Tabelle: Ermitteln von Datenspalten, Einheiten und Faktoren der Quelldaten.
-  oAktiveTabelle.Syncronisieren
-  'oAktiveTabelle.ZeigeSpalten
+  ThisWorkbook.AktiveTabelle.Syncronisieren
+  'ThisWorkbook.AktiveTabelle.ZeigeSpalten
   
   'Benannte Spalten der Tabelle lesen und normiert in den Datenpuffer schreiben.
-  If (Not oAktiveTabelle.SpaltenErsteZellen Is Nothing) Then
-    If (oAktiveTabelle.SpaltenErsteZellen.Count > 0) Then
-      For Each Spalte In oAktiveTabelle.SpaltenErsteZellen
+  If (Not ThisWorkbook.AktiveTabelle.SpaltenErsteZellen Is Nothing) Then
+    If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Count > 0) Then
+      For Each Spalte In ThisWorkbook.AktiveTabelle.SpaltenErsteZellen
         Application.StatusBar = "Lese Spalte: " & Spalte
         For i = LBound(Feld) To UBound(Feld)
           For k = DP2lb To DP2ub
             Feld(i, k) = ""
           Next
         Next
-        '"GetQuelldaten_XlTabAktiv" wird während der Initialisierung des Add-Ins verwendet (oKonfig.initialize).
-        'Zu diesem Zeitpunkt existiert oKonfig noch nicht:
-        If (Not oKonfig Is Nothing) Then
-          Faktor = oKonfig.FaktorDerEinheit(oAktiveTabelle.SpaltenEinheiten(Spalte))
+        '"GetQuelldaten_XlTabAktiv" wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
+        'Zu diesem Zeitpunkt existiert ThisWorkbook.Konfig noch nicht:
+        If (Not ThisWorkbook.Konfig Is Nothing) Then
+          Faktor = ThisWorkbook.Konfig.FaktorDerEinheit(ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte))
         Else
           Faktor = 0
         End If
-        'MsgBox "oAktiveTabelle.SpaltenEinheiten(Spalte)=" & oAktiveTabelle.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
-        Call Spalte_XL2DP(Feld, oAktiveTabelle.SpaltenErsteZellen(Spalte), Faktor)
+        'MsgBox "ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte)=" & ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
+        Call Spalte_XL2DP(Feld, ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Spalte), Faktor)
         Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
       Next
       Anzahl = ZeAnz
@@ -837,7 +835,7 @@ Function SchreibeDatenpuffer_XlTabAktiv() As Long
   Application.ScreenUpdating = False
   ActiveSheet.EnableCalculation = False
   
-  Set oInfotraeger = oAktiveTabelle.Infotraeger
+  Set oInfotraeger = ThisWorkbook.AktiveTabelle.Infotraeger
   If (oInfotraeger Is Nothing) Then
     ErrMessage = "Es ist kein 'InfoTraeger' vorhanden!"
     GoTo Fehler
@@ -851,7 +849,7 @@ Function SchreibeDatenpuffer_XlTabAktiv() As Long
   
   
   '1. Analyse der aktiven Tabelle: Ermitteln von Datenspalten, Einheiten und Faktoren der Quelldaten.
-  oAktiveTabelle.Syncronisieren
+  ThisWorkbook.AktiveTabelle.Syncronisieren
   
   
   '2. Bei Notwendigkeit ErsatzZiele einrichten:
@@ -860,16 +858,16 @@ Function SchreibeDatenpuffer_XlTabAktiv() As Long
   '   ==> funktioniert für alle WertStati.
   If (Me.Opt_ErsatzZielspaltenVerwenden) Then
     For Each Spalte In Me.Datenpuffer.Daten
-      If (Not oAktiveTabelle.SpaltenErsteZellen.Exists(Spalte)) Then
+      If (Not ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(Spalte)) Then
         'Spalte des Datenpuffers existiert in Zieltabelle nicht.
-        Set oSpNameAttr = oKonfig.SpNameAttr(Spalte)
+        Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(Spalte)
         SpalteOhneStatus = oSpNameAttr("NamePur")
         If (SpalteOhneStatus <> SpName_unbekannt) Then
           'Für die Spalte existiert eine Konfiguration.
-          If (oKonfig.SpaltenErsatzZiel(SpalteOhneStatus) <> "") Then
+          If (ThisWorkbook.Konfig.SpaltenErsatzZiel(SpalteOhneStatus) <> "") Then
             'Für "Spalte" ist ein Ersatzziel konfiguriert.
-            SpalteErsatz = oSpNameAttr("StatusPrefix") & oKonfig.SpaltenErsatzZiel(SpalteOhneStatus)
-            If (oAktiveTabelle.SpaltenErsteZellen.Exists(SpalteErsatz)) Then
+            SpalteErsatz = oSpNameAttr("StatusPrefix") & ThisWorkbook.Konfig.SpaltenErsatzZiel(SpalteOhneStatus)
+            If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(SpalteErsatz)) Then
               'Ersatzspalte existiert in Zieldatei => Verwenden!.
               Call Me.Datenpuffer.Daten_SchreibenErsatzSpalte(Spalte)
             End If
@@ -882,20 +880,20 @@ Function SchreibeDatenpuffer_XlTabAktiv() As Long
   
   '3. Datenpuffer schreiben.
   For Each Spalte In Me.Datenpuffer.Daten
-    If (oAktiveTabelle.SpaltenErsteZellen.Exists(Spalte)) Then
+    If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(Spalte)) Then
       'Spalte des Datenpuffers existiert in Zieltabelle und wird dorthin geschrieben.
       
       'Meldung in Statuszeile ausgeben.
-      Set oSpNameAttr = oKonfig.SpNameAttr(Spalte)
+      Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(Spalte)
       If (oSpNameAttr("Titel") <> SpTitel_unbekannt) Then
         Application.StatusBar = "Schreibe Spalte: " & oSpNameAttr("StatusBez") & ": " & oSpNameAttr("Titel")
       Else
         Application.StatusBar = "Schreibe Spalte: " & Spalte
       End If
       
-      Faktor = oKonfig.FaktorDerEinheit(oAktiveTabelle.SpaltenEinheiten(Spalte))
-      'MsgBox "oAktiveTabelle.SpaltenEinheiten(Spalte)=" & oAktiveTabelle.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
-      Call Spalte_DP2XL(Me.Datenpuffer.Daten(Spalte), oAktiveTabelle.SpaltenErsteZellen(Spalte), Faktor)
+      Faktor = ThisWorkbook.Konfig.FaktorDerEinheit(ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte))
+      'MsgBox "ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte)=" & ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
+      Call Spalte_DP2XL(Me.Datenpuffer.Daten(Spalte), ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Spalte), Faktor)
       AnzSpalten = AnzSpalten + 1
     End If
   Next
@@ -923,22 +921,14 @@ Sub SetzeStandardDatenEinstellungen()
   'Alle Einstellungen auf Standardwerte zurücksetzen.
   On Error GoTo Fehler
   
-  Dim Konfig_ok As Boolean
   DebugEcho "CdatExpim.SetzeStandardDatenEinstellungen(): Einstellungen für Datenbearbeitung und -übertragung werden zurückgesetzt."
   
   'Für einige Einstellungen: Konfiguration übernehmen, falls verfügbar
-  Konfig_ok = False
-  If (Not oKonfig Is Nothing) Then
-    If (oKonfig.EinstellungenGelesen) Then
-      Konfig_ok = True
-      bln_DatenModifizieren = String2Bool(oKonfig.Expim_Modifizieren)
-      bln_ErsatzZielspaltenVerwenden = String2Bool(oKonfig.Expim_ErsatzSpalten)
-      bln_FormelnErhalten = String2Bool(oKonfig.Expim_FormelnErhalten)
-    End If
-  End If
-  
-  'Falls Konfiguration nicht verfügbar => hart kodierte Standard-Einstellungen anwenden.
-  If (Not Konfig_ok) Then
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
+    bln_DatenModifizieren = String2Bool(ThisWorkbook.Konfig.Expim_Modifizieren)
+    bln_ErsatzZielspaltenVerwenden = String2Bool(ThisWorkbook.Konfig.Expim_ErsatzSpalten)
+    bln_FormelnErhalten = String2Bool(ThisWorkbook.Konfig.Expim_FormelnErhalten)
+  Else
     DebugEcho "CdatExpim.SetzeStandardDatenEinstellungen(): Keine Konfiguration verfügbar => Setze hart kodierte Standard-Einstellungen."
     bln_DatenModifizieren = Std_DatenModifizieren
     bln_ErsatzZielspaltenVerwenden = Std_ErsatzZielspaltenVerwenden
@@ -959,15 +949,18 @@ Sub EinstellungenSpeichern()
   'Speichert einige Eigenschaften im Cache.
   On Error GoTo 0
   
+  Dim oKonfig As CdatKonfig
+  
   'Datenquelle
   oEinstellungen("Quelle_Typ") = Me.Quelle_Typ
   oEinstellungen("Quelle_FormatID") = Me.Quelle_FormatID
   oEinstellungen("Quelle_AsciiDatei_Name") = Me.Quelle_AsciiDatei_Name
   
-  If (oKonfig.Cache.Exists("Expim")) Then
+  If (ThisWorkbook.Konfig.Cache.Exists("Expim")) Then
+    Set oKonfig = ThisWorkbook.Konfig  ' hier in VBA nötig, weil es nur "Getter" gibt !?
     Set oKonfig.Cache("Expim") = oEinstellungen
   Else
-    oKonfig.Cache.Add "Expim", oEinstellungen
+    ThisWorkbook.Konfig.Cache.Add "Expim", oEinstellungen
   End If
 End Sub
 
@@ -977,10 +970,10 @@ Sub EinstellungenWiederherstellen()
   On Error GoTo 0
   
   'Datenquelle
-  If (oKonfig.Cache.Exists("Expim")) Then
-    Me.Quelle_Typ = oKonfig.Cache("Expim")("Quelle_Typ")
-    Me.Quelle_FormatID = oKonfig.Cache("Expim")("Quelle_FormatID")
-    Me.Quelle_AsciiDatei_Name = oKonfig.Cache("Expim")("Quelle_AsciiDatei_Name")
+  If (ThisWorkbook.Konfig.Cache.Exists("Expim")) Then
+    Me.Quelle_Typ = ThisWorkbook.Konfig.Cache("Expim")("Quelle_Typ")
+    Me.Quelle_FormatID = ThisWorkbook.Konfig.Cache("Expim")("Quelle_FormatID")
+    Me.Quelle_AsciiDatei_Name = ThisWorkbook.Konfig.Cache("Expim")("Quelle_AsciiDatei_Name")
   End If
 End Sub
 
@@ -1039,7 +1032,7 @@ Private Function GetQuelldaten_AsciiSpezial(oImportobjekt As Object)
   Me.Datenpuffer.Daten_LoeschenAlleSpalten
   
   For Each Spalte In oImportobjekt.Quelle_Datenpuffer
-    Faktor = oKonfig.FaktorDerEinheit(oImportobjekt.Quelle_Einheiten(Spalte))
+    Faktor = ThisWorkbook.Konfig.FaktorDerEinheit(oImportobjekt.Quelle_Einheiten(Spalte))
     'MsgBox Spalte & ": " & oImportobjekt.Quelle_Einheiten(Spalte) & "=" & CStr(Faktor)
     If ((Faktor = 0) Or (Faktor = 1)) Then
       'Kein Umrechnungsfaktor für die Einheit verfügbar oder Faktor=1.
@@ -1141,10 +1134,10 @@ Private Function TabelleStrukturieren(oCSV As CtabCSV) As Boolean
   
   If (Me.Quelle_Typ = io_Typ_CsvSpezial) Then
     'Aktive Tabelle erkunden
-    blnInfotraegerExist = (Not (oAktiveTabelle.Infotraeger Is Nothing))
+    blnInfotraegerExist = (Not (ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing))
     If (blnInfotraegerExist) Then
-      If (Not (oAktiveTabelle.SpaltenErsteZellen Is Nothing)) Then
-        If (oAktiveTabelle.SpaltenErsteZellen.Count > 0) Then blnSpaltenNamenExist = True
+      If (Not (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen Is Nothing)) Then
+        If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Count > 0) Then blnSpaltenNamenExist = True
       End If
     End If
     
@@ -1154,8 +1147,8 @@ Private Function TabelleStrukturieren(oCSV As CtabCSV) As Boolean
       'Vorbereitungen
       QuellSpaltenNamen = oCSV.Quelle_SpaltenNamen
       AnzSpalten = UBound(QuellSpaltenNamen)
-      ZSp = oAktiveTabelle.ErsteDatenSpalte
-      Zeile = oAktiveTabelle.ErsteDatenZeile
+      ZSp = ThisWorkbook.AktiveTabelle.ErsteDatenSpalte
+      Zeile = ThisWorkbook.AktiveTabelle.ErsteDatenZeile
       If (Zeile < 2) Then Zeile = 2
       'StandardFormat bestimmen
       If (oCSV.Ziel_Formate.Exists(CsvAllOtherColumns)) Then
@@ -1166,7 +1159,7 @@ Private Function TabelleStrukturieren(oCSV As CtabCSV) As Boolean
       'Infotraeger einfügen bzw. ersetzen
       DebugEcho "CdatExpim.TabelleStrukturieren: Infotraeger wird festgelegt."
       Set oRange = ActiveWorkbook.ActiveSheet.Cells(Zeile, ZSp).Resize(ColumnSize:=AnzSpalten)
-      Call oAktiveTabelle.SetInfotraeger(oRange)
+      Call ThisWorkbook.AktiveTabelle.SetInfotraeger(oRange)
       
       'Spaltennamen festlegen
       For QSp = 1 To AnzSpalten
@@ -1175,7 +1168,7 @@ Private Function TabelleStrukturieren(oCSV As CtabCSV) As Boolean
         Einheit = oCSV.Ziel_Einheiten(SpName)
         DebugEcho "CdatExpim.TabelleStrukturieren: " & CStr(QSp) & ". Spalte wird festgelegt: Name = " & SpName & "   Einheit = " & Einheit
         Set oRange = ActiveWorkbook.ActiveSheet.Cells(Zeile, ZSp)
-        Call oAktiveTabelle.SetSpaltenname(oRange, SpName, Einheit, blnTitel:=True)
+        Call ThisWorkbook.AktiveTabelle.SetSpaltenname(oRange, SpName, Einheit, blnTitel:=True)
         
         'Spalte mit Zahlenformat formatieren.
         On Error Resume Next
@@ -1204,7 +1197,7 @@ Private Function TabelleStrukturieren(oCSV As CtabCSV) As Boolean
       Next
       
       'Geänderte Tabellenstruktur reflektieren
-      Call oAktiveTabelle.Syncronisieren
+      Call ThisWorkbook.AktiveTabelle.Syncronisieren
     End If
   End If
   
@@ -1240,10 +1233,10 @@ Private Function NeueMappeAnlegen() As Boolean
   ''Tabellenklasse prüfen, falls erforderlich, sowie Tabellenschutz prüfen.
   '*** Me.Ziel_XLTabKlasse wird bisher nie gesetzt!
   '*** <Importobjekt.Ziel_XLTabKlasse> wird bisher nie verwendet!
-  'If ((Me.Ziel_XLTabKlasse <> "") And (oAktiveTabelle.TabKlasse <> Me.Ziel_XLTabKlasse)) Then
+  'If ((Me.Ziel_XLTabKlasse <> "") And (ThisWorkbook.AktiveTabelle.TabKlasse <> Me.Ziel_XLTabKlasse)) Then
   '  Application.ActiveWorkbook.Close False
   '  ErrMessage = ErrMsgTabKlasseUngueltig
-  '  Err.Raise vbObjectError + ErrNumTabKlasseUngueltig - vbObjectError, , "Ungültige Vorlage '" & oAktiveTabelle.TabKlasse & "'. Erwartet wird '" & Me.Ziel_XLTabKlasse & "'  (Vorlagenmappe='" & Me.Ziel_FormatID & "')."
+  '  Err.Raise vbObjectError + ErrNumTabKlasseUngueltig - vbObjectError, , "Ungültige Vorlage '" & ThisWorkbook.AktiveTabelle.TabKlasse & "'. Erwartet wird '" & Me.Ziel_XLTabKlasse & "'  (Vorlagenmappe='" & Me.Ziel_FormatID & "')."
   'End If
   If (isTabellenSchutz) Then
     Application.ActiveWorkbook.Close False
@@ -1421,13 +1414,13 @@ Private Function Formel_XL2DP(ByVal Formel_XL As String)
   
   If (Formel_XL <> "") Then
     'Festwerte des Datenbereiches ermitteln
-    ZeAnf = oAktiveTabelle.ErsteDatenZeile
+    ZeAnf = ThisWorkbook.AktiveTabelle.ErsteDatenZeile
     'If (Err) Then GoTo Fehler
     
-    oRegExp.Pattern = "([a-zA-Z]+)(\$?)([0-9]+)"
-    oRegExp.IgnoreCase = True
-    oRegExp.Global = True
-    Set Zellbezuege = oRegExp.Execute(Formel_XL)  'Matches-Auflistung.
+    ThisWorkbook.RegExp.Pattern = "([a-zA-Z]+)(\$?)([0-9]+)"
+    ThisWorkbook.RegExp.IgnoreCase = True
+    ThisWorkbook.RegExp.Global = True
+    Set Zellbezuege = ThisWorkbook.RegExp.Execute(Formel_XL)  'Matches-Auflistung.
     
     Meldung = "Entsprechungen gefunden:" & vbCrLf & vbCrLf
     For Each Zellbezug In Zellbezuege
@@ -1438,11 +1431,11 @@ Private Function Formel_XL2DP(ByVal Formel_XL As String)
       Meldung = Meldung & "Länge=" & Zellbezug.Length & vbTab
       Meldung = Meldung & "String='" & Zellbezug & "'" & vbCrLf
       
-      If (oAktiveTabelle.SpaltenBuchst2Name.Exists(BezugSpalte)) Then
+      If (ThisWorkbook.AktiveTabelle.SpaltenBuchst2Name.Exists(BezugSpalte)) Then
         'Spalte bezieht sich auf einen Spaltennamen im Sinne des Add-In.
         If (BezugZeile >= ZeAnf) Then
           'Zeile bezieht sich auf den Datenbereich (nicht Tabellenkopf).
-          SpNameErsatz = "@@" & oAktiveTabelle.SpaltenBuchst2Name(BezugSpalte) & "@@"
+          SpNameErsatz = "@@" & ThisWorkbook.AktiveTabelle.SpaltenBuchst2Name(BezugSpalte) & "@@"
           ZeileErsatz = CStr(CLng(BezugZeile) - ZeAnf + 1)
           BezugErsatz = SpNameErsatz & ZeilePrefix & ZeileErsatz
           Formel_DP = Replace(Formel_DP, Zellbezug, BezugErsatz)
@@ -1491,14 +1484,14 @@ Private Function Formel_DP2XL(ByVal Formel_DP As String)
   
   If (Formel_DP <> "") Then
     'Festwerte des Datenbereiches ermitteln
-    ZeAnf = oAktiveTabelle.ErsteDatenZeile
+    ZeAnf = ThisWorkbook.AktiveTabelle.ErsteDatenZeile
     'If (Err) Then GoTo Fehler
     
-    'oRegExp.Pattern = "(@@([a-zA-Z0-9\.]+)@@(\$?)([0-9]+)){1}?"
-    oRegExp.Pattern = "@@([a-zA-Z0-9\.]+)@@(\$?)([0-9]+)"
-    oRegExp.IgnoreCase = True
-    oRegExp.Global = True
-    Set Zellbezuege_DP = oRegExp.Execute(Formel_DP)  'Matches-Auflistung.
+    'ThisWorkbook.RegExp.Pattern = "(@@([a-zA-Z0-9\.]+)@@(\$?)([0-9]+)){1}?"
+    ThisWorkbook.RegExp.Pattern = "@@([a-zA-Z0-9\.]+)@@(\$?)([0-9]+)"
+    ThisWorkbook.RegExp.IgnoreCase = True
+    ThisWorkbook.RegExp.Global = True
+    Set Zellbezuege_DP = ThisWorkbook.RegExp.Execute(Formel_DP)  'Matches-Auflistung.
     
     Meldung = "Entsprechungen gefunden:" & vbCrLf & vbCrLf
     For Each Zellbezug_DP In Zellbezuege_DP
@@ -1509,10 +1502,10 @@ Private Function Formel_DP2XL(ByVal Formel_DP As String)
       Meldung = Meldung & "Länge=" & Zellbezug_DP.Length & vbTab
       Meldung = Meldung & "String='" & Zellbezug_DP & "'" & vbCrLf
       
-      If (oAktiveTabelle.SpaltenErsteZellen.Exists(BezugSpalte)) Then
+      If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Exists(BezugSpalte)) Then
         'Add-In-SpaltenName existiert in der aktiven Tabelle.
         'Zeile bezieht sich auf den Datenbereich (nicht Tabellenkopf).
-        SpNameErsatz = UCase(MidStr(oAktiveTabelle.SpaltenErsteZellen(BezugSpalte).Address, "$", "$", False))
+        SpNameErsatz = UCase(MidStr(ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(BezugSpalte).Address, "$", "$", False))
         ZeileErsatz = CStr(CLng(BezugZeile) + ZeAnf - 1)
         BezugErsatz = SpNameErsatz & ZeilePrefix & ZeileErsatz
         Formel_XL = Replace(Formel_XL, Zellbezug_DP, BezugErsatz)

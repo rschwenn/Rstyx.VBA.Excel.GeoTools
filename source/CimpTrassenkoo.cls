@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2013  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -456,10 +456,10 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ElseIf (Left(Feld(1), 1) = "#") Then
       'Reine Kommentarzeile: Durchsuchen nach Angaben von iGeo/iTrassePC
       debugecho "LeseDatei(): Kommentar in Zeile " & cStr(ZeilenNr) & " der Datei '" & Dateiname & "'"
-      oRegExp.IgnoreCase = True
-      oRegExp.Global = False
-      oRegExp.Pattern = " *([^ \t]+) *\: *(.+)[ \t]*"
-      Set oMatches = oRegExp.Execute(Zeile)
+      ThisWorkbook.RegExp.IgnoreCase = True
+      ThisWorkbook.RegExp.Global = False
+      ThisWorkbook.RegExp.Pattern = " *([^ \t]+) *\: *(.+)[ \t]*"
+      Set oMatches = ThisWorkbook.RegExp.Execute(Zeile)
       If (oMatches.Count > 0) Then
         Key = oMatches(0).SubMatches(0)
         Wert = oMatches(0).SubMatches(1)
@@ -793,11 +793,11 @@ Private Function LeseTKiTrassePC(ByVal Kanal As Integer, ByRef AnzPkt As Long, B
       Erfolg = false
       AnzErr = AnzErr + 1
       ErrEcho " *** Fehler:       Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "'."
-      call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "'.", _
-                                   "Unterstützte Formatkennungen:" & vbNewLine & _
-                                   Fmt_A1 & vbNewLine & Fmt_A5 & vbNewLine & _
-                                   "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus iTrassePC (CimpTrassenkoo.LeseTKiTrassePC())", _
-                                   blnFehlerKonsolidieren)
+      call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "'.", _
+                                  "Unterstützte Formatkennungen:" & vbNewLine & _
+                                  Fmt_A1 & vbNewLine & Fmt_A5 & vbNewLine & _
+                                  "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus iTrassePC (CimpTrassenkoo.LeseTKiTrassePC())", _
+                                  blnFehlerKonsolidieren)
   end select
   
   'Zeilen verarbeiten.
@@ -824,10 +824,10 @@ Private Function LeseTKiTrassePC(ByVal Kanal As Integer, ByRef AnzPkt As Long, B
         If (Left(Feld(1), 1) = "#") Then
           'Reine Kommentarzeile: Durchsuchen nach Angaben von iGeo/iTrassePC.
           debugecho "LeseTKiTrassePC(): Kommentar in Zeile " & cStr(ZeilenNr)
-          oRegExp.IgnoreCase = True
-          oRegExp.Global = False
-          oRegExp.Pattern = " *([^ \t]+) *\: *(.+) *"
-          Set oMatches = oRegExp.Execute(Zeile)
+          ThisWorkbook.RegExp.IgnoreCase = True
+          ThisWorkbook.RegExp.Global = False
+          ThisWorkbook.RegExp.Pattern = " *([^ \t]+) *\: *(.+) *"
+          Set oMatches = ThisWorkbook.RegExp.Execute(Zeile)
           If (oMatches.Count > 0) Then
             Key = oMatches(0).SubMatches(0)
             Wert = oMatches(0).SubMatches(1)
@@ -968,7 +968,7 @@ Private Function LeseTKiTrassePC(ByVal Kanal As Integer, ByRef AnzPkt As Long, B
               Case else
                 Erfolg = false
                 ErrEcho " *** Programmfehler: Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "' (zu spät festgestellt :-( )."
-                Call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "' (zu spät festgestellt :-( ).", _
+                Call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "' (zu spät festgestellt :-( ).", _
                                              "Unterstützte Formatkennungen:" & vbNewLine & _
                                              Fmt_A1 & vbNewLine & Fmt_A5 & vbNewLine & _
                                              "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus iGeo/iTrassePC (CimpTrassenkoo.LeseTKiTrassePC())", _
@@ -985,7 +985,7 @@ Private Function LeseTKiTrassePC(ByVal Kanal As Integer, ByRef AnzPkt As Long, B
             ErrEcho "Fehler in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: zu wenig Datenfelder (erwartet: " & MinAnzWort & ")."
             Meldung  = "Fehler: Zu wenig Datenfelder (erwartet: " & cStr(MinAnzWort) & ")."
             Meldung2 = "Format dieser Ausgabedatei von " & TkHerkunft & ": '" & TkFormat &  "'" & vbNewLine & "Quelle dieser Meldung: 'CimpTrassenkoo.LeseTKiTrassePC()'"
-            Call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+            Call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
           Else
             
             'Zähler
@@ -1312,18 +1312,18 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
       end if
     
     'Achsname ermitteln
-      oRegExp.IgnoreCase = True
-      oRegExp.Global = False
-      'oRegExp.Pattern = "umformung +(.+?)(\.tra)?[ \t]+\("
+      ThisWorkbook.RegExp.IgnoreCase = True
+      ThisWorkbook.RegExp.Global = False
+      'ThisWorkbook.RegExp.Pattern = "umformung +(.+?)(\.tra)?[ \t]+\("
       'VB.NET: Pattern = "^Trassenumformung\s+(.+?\.tra)\s+\("
-      oRegExp.Pattern = "umformung +(.+?\.tra)[ \t]+\("
-      Set oMatches = oRegExp.Execute(Zeile)
+      ThisWorkbook.RegExp.Pattern = "umformung +(.+?\.tra)[ \t]+\("
+      Set oMatches = ThisWorkbook.RegExp.Execute(Zeile)
       If (oMatches.Count > 0) Then
         NTra = oMatches(0).SubMatches(0)
       else
         'VB.NET: Pattern = "^Trassenumformung\s+(.+?)\s+\("
-        oRegExp.Pattern = "umformung +(.+?)[ \t]+\("
-        Set oMatches = oRegExp.Execute(Zeile)
+        ThisWorkbook.RegExp.Pattern = "umformung +(.+?)[ \t]+\("
+        Set oMatches = ThisWorkbook.RegExp.Execute(Zeile)
         If (oMatches.Count > 0) Then
           NTra = oMatches(0).SubMatches(0)
         else
@@ -1343,7 +1343,7 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
       Erfolg  = false
       AnzErr  = AnzErr + 1
       ErrEcho " *** Fehler:       in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: Name der Trasse oder Herkunft (Klassisch/D3L) konnte nicht ermittelt werden."
-      call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Name der Trasse oder Herkunft (Klassisch/D3L) konnte nicht ermittelt werden", _
+      call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Name der Trasse oder Herkunft (Klassisch/D3L) konnte nicht ermittelt werden", _
                                    "Es wurde der Beginn einer Verm.esn-Umformung erkannt, aber deren Entstehung oder der Trassenname konnten nicht ermittelt werden." & vbNewLine & _
                                    "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus Verm.esn (CimpTrassenkoo.LeseTkAdelt())", _
                                    blnFehlerKonsolidieren)
@@ -1381,10 +1381,10 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
             'Keine Zeile mit Umformungsdaten, d.h. normalerweise Kopf
             If (Not Format_ok) Then
               'Kopf, da noch kein Punkt gelesen.
-              oRegExp.IgnoreCase = True
-              oRegExp.Global = False
-              oRegExp.Pattern = "\s*(.*?)\s*:\s*(\S*.*\S+)\s*"
-              Set oMatches = oRegExp.Execute(Zeile)
+              ThisWorkbook.RegExp.IgnoreCase = True
+              ThisWorkbook.RegExp.Global = False
+              ThisWorkbook.RegExp.Pattern = "\s*(.*?)\s*:\s*(\S*.*\S+)\s*"
+              Set oMatches = ThisWorkbook.RegExp.Execute(Zeile)
               If (oMatches.Count > 0) Then
                 Key  = oMatches(0).SubMatches(0)
                 Wert = oMatches(0).SubMatches(1)
@@ -1438,7 +1438,7 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
                 AnzErr = AnzErr + 1
                 Erfolg = false
                 ErrEcho " *** Fehler:       in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: Unerwartetes Auftreten einer Koordinatenzeile in einer als 'einzeilig' erkannten Umformung."
-                call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Unerwartetes Auftreten einer Koordinatenzeile in einer als 'einzeilig' erkannten Umformung.", _
+                call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Unerwartetes Auftreten einer Koordinatenzeile in einer als 'einzeilig' erkannten Umformung.", _
                                              "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus Verm.esn (CimpTrassenkoo.LeseTkAdelt())", _
                                              blnFehlerKonsolidieren)
               else
@@ -1476,7 +1476,7 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
                   Erfolg   = false
                   PktNr_ok = false
                   ErrEcho " *** Fehler:       in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: Die Punktnummern des zweizeiligen Datensatzes stimmen nicht überein (PktNr/TK='" & cStr(PktNr_TK) & "' PktNr/GK='" & cStr(PktNr_GK) & "')."
-                  call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 7 + so1, "Fehler: Die Punktnummern des zweizeiligen Datensatzes stimmen nicht überein (PktNr/TK='" & cStr(PktNr_TK) & "' PktNr/GK='" & cStr(PktNr_GK) & "').", _
+                  call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 7 + so1, "Fehler: Die Punktnummern des zweizeiligen Datensatzes stimmen nicht überein (PktNr/TK='" & cStr(PktNr_TK) & "' PktNr/GK='" & cStr(PktNr_GK) & "').", _
                                                "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus Verm.esn (CimpTrassenkoo.LeseTkAdelt())", _
                                                blnFehlerKonsolidieren)
                 end if
@@ -1522,7 +1522,7 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
                     Erfolg = false
                     err.clear
                     ErrEcho " *** Fehler:       in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: dH='" & cStr(vdH) & "'."
-                    call oSysTools.FileErrorsAdd("f", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Der Höhenunterschied (dH='" & cStr(vdH) & "') ist kein numerischer Wert.", _
+                    call ThisWorkbook.SysTools.FileErrorsAdd("f", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Der Höhenunterschied (dH='" & cStr(vdH) & "') ist kein numerischer Wert.", _
                                                  "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus Verm.esn (CimpTrassenkoo.LeseTkAdelt())", blnFehlerKonsolidieren)
                   else
                     If ((vZ = "") And (vdH <> "") And (vGradHoehe <> "")) Then vZ = cdbl(vGradHoehe) + vdH
@@ -1531,7 +1531,7 @@ Private Function LeseTkAdelt(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef
                       Erfolg = false
                       err.clear
                       ErrEcho " *** Fehler:       in Zeile " & cStr(ZeilenNr) & " der Eingabedatei: SO-Höhe='" & cStr(vGradHoehe) & "'."
-                      call oSysTools.FileErrorsAdd("f", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Die SO-Höhe (SO='" & cStr(vGradHoehe) & "') ist kein numerischer Wert.", _
+                      call ThisWorkbook.SysTools.FileErrorsAdd("f", Me.Quelle_AsciiDatei_Name, ZeilenNr, 0, 0, "Fehler: Die SO-Höhe (SO='" & cStr(vGradHoehe) & "') ist kein numerischer Wert.", _
                                                    "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus Verm.esn (CimpTrassenkoo.LeseTkAdelt())", blnFehlerKonsolidieren)
                     end if
                   end if

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -25,7 +25,7 @@ Attribute VB_Exposed = False
 '  - Dateibezogene Fehlerliste
 ' 
 ' Voraussetzungen: 1. korrekt installiertes Windows Scripting v5.6.
-'                  2. oKonfig.JEDIT_HOME liefert jEdit-Programmverz.
+'                  2. ThisWorkbook.Konfig.JEDIT_HOME liefert jEdit-Programmverz.
 ' 
 ' 
 ' Beschreibung:
@@ -54,7 +54,7 @@ Attribute VB_Exposed = False
   '  G  JavaExe             ... Pfad\Dateiname der exe von Java, falls installiert.
   '  G  JAVA_HOME           ... Stammverzeichnis der zu verwendenden Java-Platform (Umgebungsvariable)
   '  G  JEDIT_HOME          ... Verzeichnis, in dem jEdit.jar gefunden wurde.
-  '                             Gesucht wird unter %JEDIT_HOME%, dann unter oKonfig.JEDIT_HOME
+  '                             Gesucht wird unter %JEDIT_HOME%, dann unter ThisWorkbook.Konfig.JEDIT_HOME
   '                             (aus Konfigurationsdatei).
   '  G  JEDIT_SETTINGS      ... jEdit-Einstellungsverzeichnis (Umgebungsvariable)
   '  G  jEditJar            ... Pfad\Dateiname von jEdit.jar, falls gefunden.
@@ -112,7 +112,7 @@ Attribute VB_Exposed = False
  '                - %PROGRAMFILES%\
  '                - %PROGRAMFILES%\Tools\
  '                - Die Unterverzeichnisse heißen: "jEdit" und "Crimson Editor"
- '                - Für jEdit wird außerdem oKonfig.JEDIT_HOME gefragt
+ '                - Für jEdit wird außerdem ThisWorkbook.Konfig.JEDIT_HOME gefragt
  '              - StartJEdit() verwendet: - Kommandozeilenschalter "-Dawt.useSystemAAFontSettings=on"
  '              - Javaw.exe wird gesucht: 1. Umgebungsvariable %JAVA_HOME%
  '                                        2. Windows Systemverzeichnis (system32)
@@ -1443,10 +1443,10 @@ Private sub GetJEditUmgebung()
   
   'Spezial für GeoTools:
   if (not Erfolg) then
-    if (oKonfig is nothing) then
+    if (ThisWorkbook.Konfig is nothing) then
       DebugEcho "GetJEditUmgebung(): Konfigurationsobjekt existiert nicht!"
     else
-      JEDIT_HOME = LastBackslashDelete(oKonfig.JEDIT_HOME)
+      JEDIT_HOME = LastBackslashDelete(ThisWorkbook.Konfig.JEDIT_HOME)
       jEditjar = JEDIT_HOME & "\" & JarName
       if (fs.FileExists(jEditjar)) then
         Erfolg = true

@@ -5,16 +5,16 @@ Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 
 '====================================================================================
-'Modul GlobaleVarKonst
+' Modul GlobaleVarKonst
 '====================================================================================
 '
-'Deklaration von Variablen und Konstanten, die für das gesamte Add-In gelten.
+' Deklaration von Variablen und Konstanten, die für das gesamte Add-In gelten.
 
 
 Option Explicit
 
 'Programminfo'
-Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
+Public Const ProgName     As String = "GeoTools"
 Public Const VersionNr    As String = "2.7.0"
 Public Const VersionDate  As String = "Februar 2014"
 Public Const Copyright    As String = "© 2003 - 2014  Robert Schwenn"
@@ -28,6 +28,7 @@ Public Const Std_VorhWerteUeberschreiben     As Boolean = false
 Public Const Std_DatenModifizieren           As Boolean = true
 Public Const Std_ErsatzZielspaltenVerwenden  As Boolean = true
 Public Const Std_FormelnErhalten             As Boolean = true
+Public Const Std_ExpimSchlussMeldung         As Boolean = true
 
 
 'Namen der unterstützten Anwender
@@ -183,14 +184,7 @@ Public Const SpN_DGM_NameDGM                 As String = "DGM.NameDGM"
 
 
 'Objekte
-Public oKonfig                               As CdatKonfig
-Public oMetadaten                            As CdatMetaDaten
-Public oAktiveTabelle                        As CtabAktiveTabelle
 Public oExpimGlobal                          As CdatExpim
-Public oSysTools                             As CToolsSystem
-Public oConsole                              As Object
-
-Public oRegExp                               As VBScript_RegExp_55.RegExp    'Wird instanziert in Workbook_open() ==> viel schneller!
 
 
 Public CfgNichtGelesen                       As Boolean      'zeigt an, ob die Konfig.datei gelesen wurde.

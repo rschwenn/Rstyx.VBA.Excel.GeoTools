@@ -1,19 +1,25 @@
 Attribute VB_Name = "mdlRibbon"
+'**************************************************************************************************
+' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
+' Copyright © 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+'**************************************************************************************************
+
 '===============================================================================
-'Modul mdlRibbon                                                                  
+' Modul mdlRibbon                                                                   
 '===============================================================================
+' Stellt Zugriff auf das Menüband sowie Ribbon-Calllbacks Verfügung.
 
 Option Explicit
 
 
-Public oRibbon As IRibbonUI
+Private oRibbon As IRibbonUI
 
-' Region "Referenz auf das Ribbon-Objekt"
+' Region "Ribbon-Objekt (Referenz, Update)"
     
     ' Siehe http://social.msdn.microsoft.com/Forums/office/en-US/99a3f3af-678f-4338-b5a1-b79d3463fb0b/how-to-get-the-reference-to-the-iribbonui-in-vba
     Public Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (lpDest As Any, lpSource As Any, ByVal cBytes&)
     
-    ' Initialisierung der RibbonUI: Speichern einer Referenz auf das Ribbon-Objekt
+    ' Bei Initialisierung der RibbonUI: Speichern einer Referenz auf das Ribbon-Objekt
     ' und als Backup eines entsprechenden Integer-Zeigers in die Add-In-interne Tabelle.
     Public Sub OnGeoToolsRibbonLoad(ribbon As IRibbonUI)
         Set oRibbon = ribbon
@@ -21,7 +27,7 @@ Public oRibbon As IRibbonUI
     End Sub
     
     ' Beziehen einer Referenz auf das Ribbon-Objekt (Sollte auch nach Fehler im Add-In funktionieren).
-    Function getRibbon() As IRibbonUI
+    Function getGeoToolsRibbon() As IRibbonUI
         ' "oRibbon" ist normalerweise nur dann "Nothing", wenn das AddIn wegen eines Fehlers gestoppt wurde.
         ' Dann kann der vorher gespeicherte Zeigert verwendet werden.
         ' ABER: Wenn das AddIn nicht schreibgeschützt ist, kann der Zeiger auch veraltet sein.
@@ -38,34 +44,17 @@ Public oRibbon As IRibbonUI
             End If
         End If
         
-        Set getRibbon = oRibbon
+        Set getGeoToolsRibbon = oRibbon
     End Function
     
     ' Status-Aktualisierung aller Ribbon-Steuerelemente erzwingen.
-    Public Sub UpdateRibbon(Optional ByVal keinAktivesBlatt As Boolean = False)
+    ' Falls das AddIn gestoopt wurde, impliziert diese Routine auch dessen Neustart
+    ' durch die Verwendung der Eigenschaft ThisWorkbook.AktiveTabelle...
+    Public Sub UpdateGeoToolsRibbon(Optional ByVal keinAktivesBlatt As Boolean = False)
         On Error Resume Next
-        getRibbon().Invalidate
+        getGeoToolsRibbon().Invalidate
         On Error Goto 0
     End Sub
-    
-' End Region
-
-
-' Region "###  Verschieben  ###"
-    
-    Function getAktiveTabelle() As CtabAktiveTabelle
-        If (oAktiveTabelle Is Nothing) Then
-            Set oAktiveTabelle = New CtabAktiveTabelle
-        End If
-        Set getAktiveTabelle = oAktiveTabelle
-    End Function
-    
-    Function getKonfig() As CdatKonfig
-        If (oKonfig Is Nothing) Then
-            Set oKonfig = New CdatKonfig
-        End If
-        Set getKonfig = oKonfig
-    End Function
     
 ' End Region
 
@@ -75,163 +64,104 @@ Public oRibbon As IRibbonUI
     Sub GetVisibleNoConfigButton(control As IRibbonControl, ByRef returnedVal)
         returnedVal = True
         On Error Resume Next
-        returnedVal = (Not getKonfig().EinstellungenGelesen)
+        returnedVal = (Not ThisWorkbook.Konfig.KonfigDateiGelesen)
         On Error Goto 0
     End Sub
     
     Sub GetSupertipNoConfigButton(control As IRibbonControl, ByRef returnedVal)
-        Dim cfg As String
-        cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
-        returnedVal = GetInfoKeineKonfig()
+        returnedVal = ThisWorkbook.Konfig.InfoKeineKonfig
     End Sub
     
     Sub NoConfigButtonAction(ByVal control As IRibbonControl)
         Call InfoKeineKonfig
+        Call UpdateGeoToolsRibbon
     End Sub
     
 ' End Region
 
-
+' Region "ComboBox"
+    
+    ' Anzahl NK-Stellen wurde via GUI geändert.
+    Sub FmtOptPrecisionNumberChange(control As IRibbonControl, text As String)
+        On Error Resume Next
+        ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl = cInt(text)
+        On Error Goto 0
+    End Sub
+    
+    'Callback for FmtOptPrecisionNumber getLabel
+    Sub GetTextFmtOptPrecisionNumber(control As IRibbonControl, ByRef returnedVal)
+        On Error Resume Next
+        returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl
+        On Error Goto 0
+    End Sub
+    
+' End Region
 
 ' Region "Action Buttons"
     
-    Sub LogButtonAction(ByVal control As IRibbonControl)
-        Call Protokoll
-    End Sub
-    
-    Sub HelpButtonAction(ByVal control As IRibbonControl)
-        Call Hilfe_Komplett
-    End Sub
-    
-    Sub InfoButtonAction(ByVal control As IRibbonControl)
-        Call GeoTools_Info
-    End Sub
-    
-    Sub ImportExportButtonAction(ByVal control As IRibbonControl)
-        Call ExpimManager
-    End Sub
-    
-    Sub TableStructureButtonAction(ByVal control As IRibbonControl)
-        Call TabellenStruktur
-    End Sub
-    
-    Sub FormatButtonAction(ByVal control As IRibbonControl)
-        Call FormatDaten
-    End Sub
-    
-    Sub FormulaButtonAction(ByVal control As IRibbonControl)
-        Call UebertragenFormeln
-    End Sub
-    
-    Sub DeleteButtonAction(ByVal control As IRibbonControl)
-        Call LoeschenDaten
-    End Sub
-    
-    Sub CalcDiffsButtonAction(ByVal control As IRibbonControl)
-        Call Mod_FehlerVerbesserung
-    End Sub
-    
-    Sub CalcCantButtonAction(ByVal control As IRibbonControl)
-        Call Mod_UeberhoehungAusBemerkung
-    End Sub
-    
-    Sub CalcHorizontalToCantedButtonAction(ByVal control As IRibbonControl)
-        Call Mod_Transfo_Tk2Gls
-    End Sub
-    
-    Sub CalcCantedToHorizontalButtonAction(ByVal control As IRibbonControl)
-        Call Mod_Transfo_Gls2Tk
-    End Sub
-    
-    Sub InterpolButtonAction(ByVal control As IRibbonControl)
-        Call Selection2Interpolationsformel
-    End Sub
-    
-    Sub DuplicatesButtonAction(ByVal control As IRibbonControl)
-        Call Selection2MarkDoppelteWerte
-    End Sub
-    
-    Sub BlankLinesButtonAction(ByVal control As IRibbonControl)
-        Call insertLines
-    End Sub
-    
-    Sub EditFileButtonAction(ByVal control As IRibbonControl)
-        Call DateiBearbeiten
-    End Sub
-    
-    Sub SetFooterButtonAction(ByVal control As IRibbonControl)
-        Call SchreibeFusszeile_1
+    Sub GeoTolsButtonAction(ByVal control As IRibbonControl)
+        'On Error Resume Next
+        Select Case control.ID
+            Case "InfoButton"                   : Call GeoTools_Info
+            Case "HelpButton"                   : Call Hilfe_Komplett
+            Case "LogButton"                    : Call Protokoll
+            Case "ImportExportButton"           : Call ExpimManager
+            Case "TableStructureButton"         : Call TabellenStruktur
+            Case "FormatButton"                 : Call FormatDaten
+            Case "CalcDiffsButton"              : Call Mod_FehlerVerbesserung
+            Case "CalcCantButton"               : Call Mod_UeberhoehungAusBemerkung
+            Case "CalcHorizontalToCantedButton" : Call Mod_Transfo_Tk2Gls
+            Case "CalcCantedToHorizontalButton" : Call Mod_Transfo_Gls2Tk
+            Case "FormulaButton"                : Call UebertragenFormeln
+            Case "DeleteButton"                 : Call LoeschenDaten
+            Case "InterpolButton"               : Call Selection2Interpolationsformel
+            Case "DuplicatesButton"             : Call Selection2MarkDoppelteWerte
+            Case "BlankLinesButton"             : Call InsertLines
+            Case "EditFileButton"               : Call DateiBearbeiten
+            Case "SetFooterButton"              : Call SchreibeFusszeile_1
+            Case "FormatContextMenuButton"      : Call FormatDaten
+            Case Else                           : WarnEcho "mdlRibbon.GeoTolsButtonAction(): Unbekannte Control.ID = " & control.ID
+        End select
+        Call UpdateGeoToolsRibbon
+        'On Error Goto 0
     End Sub
     
 ' End Region
 
 ' Region "Toggle Buttons"
     
-    Sub FmtOptStripesButtonAction(control As IRibbonControl, pressed As Boolean)
+    ' Response to a click on a toggle button.
+    Sub GeoToolsToggleButtonAction(control As IRibbonControl, pressed As Boolean)
         On Error Resume Next
-        getAktiveTabelle().FormatDatenMitStreifen = pressed
+        Select Case control.ID
+            Case "FmtOptStripesButton":         ThisWorkbook.AktiveTabelle.FormatDatenMitStreifen = pressed
+            Case "FmtOptBackgroundButton":      ThisWorkbook.AktiveTabelle.FormatDatenOhneFuellung = pressed
+            Case "FmtOptPrecisionButton":       ThisWorkbook.AktiveTabelle.FormatDatenNKStellenSetzen = pressed
+            Case "CalcOptOverrideButton":       ThisWorkbook.AktiveTabelle.ModOpt_VorhWerteUeberschreiben = pressed
+            Case "CalcOptKeepFormulasButton":   ThisWorkbook.AktiveTabelle.ModOpt_FormelnErhalten = pressed
+            Case Else:                          WarnEcho "mdlRibbon.GeoToolsToggleButtonAction(): Unbekannte Control.ID = " & control.ID
+        End select
+        Call UpdateGeoToolsRibbon
         On Error Goto 0
     End Sub
     
-    Sub FmtOptBackgroundButtonAction(control As IRibbonControl, pressed As Boolean)
+    ' Get status of a toggle button.
+    Sub GeoToolsToggleButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
         On Error Resume Next
-        getAktiveTabelle().FormatDatenOhneFuellung = pressed
-        On Error Goto 0
-    End Sub
-    
-    Sub FmtOptPrecisionButtonAction(control As IRibbonControl, pressed As Boolean)
-        On Error Resume Next
-        getAktiveTabelle().FormatDatenNKStellenSetzen = pressed
-        On Error Goto 0
-    End Sub
-    
-    Sub CalcOptOverrideButtonAction(control As IRibbonControl, pressed As Boolean)
-        On Error Resume Next
-        getAktiveTabelle().ModOpt_VorhWerteUeberschreiben = pressed
-        On Error Goto 0
-    End Sub
-    
-    Sub CalcOptKeepFormulasButtonAction(control As IRibbonControl, pressed As Boolean)
-        On Error Resume Next
-        getAktiveTabelle().ModOpt_FormelnErhalten = pressed
-        On Error Goto 0
-    End Sub
-    
-    
-    Sub FmtOptStripesButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = getAktiveTabelle().FormatDatenMitStreifen
-        On Error Goto 0
-    End Sub
-    
-    Sub FmtOptBackgroundButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = getAktiveTabelle().FormatDatenOhneFuellung
-        On Error Goto 0
-    End Sub
-    
-    Sub FmtOptPrecisionButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = getAktiveTabelle().FormatDatenNKStellenSetzen
-        On Error Goto 0
-    End Sub
-    
-    Sub CalcOptOverrideButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = getAktiveTabelle().ModOpt_VorhWerteUeberschreiben
-        On Error Goto 0
-    End Sub
-    
-    Sub CalcOptKeepFormulasButtonGetPressed(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = getAktiveTabelle().ModOpt_FormelnErhalten
+        Select Case control.ID
+            Case "FmtOptStripesButton":         returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenMitStreifen
+            Case "FmtOptBackgroundButton":      returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenOhneFuellung
+            Case "FmtOptPrecisionButton":       returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenNKStellenSetzen
+            Case "CalcOptOverrideButton":       returnedVal = ThisWorkbook.AktiveTabelle.ModOpt_VorhWerteUeberschreiben
+            Case "CalcOptKeepFormulasButton":   returnedVal = ThisWorkbook.AktiveTabelle.ModOpt_FormelnErhalten
+            Case Else:                          WarnEcho "mdlRibbon.GeoToolsToggleButtonGetPressed(): Unbekannte Control.ID = " & control.ID
+        End select
         On Error Goto 0
     End Sub
     
 ' End Region
 
-
-' Region "Controls Enabled / Disabled"
+' Region "GetEnabled"
     
     ' Verfügbar, wenn das aktive Blatt eine Tabelle ist.
     Sub GetEnabledTable(control As IRibbonControl, ByRef returnedVal)
@@ -255,7 +185,7 @@ Public oRibbon As IRibbonUI
         If (returnedVal) Then
             returnedVal = False
             Dim oTable As CtabAktiveTabelle
-            Set oTable = getAktiveTabelle()
+            Set oTable = ThisWorkbook.AktiveTabelle
             If (Not oTable Is Nothing) Then
                 If (oTable.ExistsLokalerZellname(strInfoTraeger)) Then
                     returnedVal = True
@@ -270,7 +200,7 @@ Public oRibbon As IRibbonUI
         Call GetEnabledGeoToolsTable(control, returnedVal)
         
         If (returnedVal) Then
-            If (Not getAktiveTabelle().ExistsLokalerZellname(strFliesskomma)) Then
+            If (Not ThisWorkbook.AktiveTabelle.ExistsLokalerZellname(strFliesskomma)) Then
                 returnedVal = False
             End If
         End If
@@ -282,27 +212,13 @@ Public oRibbon As IRibbonUI
         Call GetEnabledGeoToolsTable(control, returnedVal)
         
         If (returnedVal) Then
-            If (Not getAktiveTabelle().ExistsLokalerZellname(strFormel)) Then
+            If (Not ThisWorkbook.AktiveTabelle.ExistsLokalerZellname(strFormel)) Then
                 returnedVal = False
             End If
         End If
     End Sub
     
 ' End Region
-
-' Anzahl NK-Stellen wurde via GUI geändert.
-Sub FmtOptPrecisionNumberChange(control As IRibbonControl, text As String)
-    On Error Resume Next
-    getAktiveTabelle().FormatDatenNKStellenAnzahl = cInt(text)
-    On Error Goto 0
-End Sub
-
-'Callback for FmtOptPrecisionNumber getLabel
-Sub GetTextFmtOptPrecisionNumber(control As IRibbonControl, ByRef returnedVal)
-    On Error Resume Next
-    returnedVal = getAktiveTabelle().FormatDatenNKStellenAnzahl
-    On Error Goto 0
-End Sub
 
 
 ' for jEdit:  :collapseFolds=1::tabSize=4::indentSize=4:

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -231,22 +231,14 @@ Public Sub SetzeStandardEinstellungen()
   'Alle Einstellungen auf Standardwerte zurücksetzen.
   On Error GoTo Fehler
   
-  Dim Konfig_ok As Boolean
   DebugEcho "CdatDatenpuffer.SetzeStandardEinstellungen(): Einstellungen werden zurückgesetzt."
   
   'Für einige Einstellungen: Konfiguration übernehmen, falls verfügbar
-  Konfig_ok = false
-  If (Not oKonfig Is Nothing) Then
-    If (oKonfig.EinstellungenGelesen) Then
-      Konfig_ok = true
-      bln_VorhWerteUeberschreiben = String2Bool(oKonfig.Expim_Ueberschreiben)
-      bln_UebAusInfoStreng        = String2Bool(oKonfig.UebAusInfoStreng)
-      dbl_TkBasisUeberhoehung     = oKonfig.TkBasisUeberhoehung  'gibt garantiert einen Double-Wert zurück.
-    End If
-  End If
-  
-  'Falls Konfiguration nicht verfügbar => hart kodierte Standard-Einstellungen anwenden.
-  if (Not Konfig_ok) then
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
+    bln_VorhWerteUeberschreiben = String2Bool(ThisWorkbook.Konfig.Expim_Ueberschreiben)
+    bln_UebAusInfoStreng        = String2Bool(ThisWorkbook.Konfig.UebAusInfoStreng)
+    dbl_TkBasisUeberhoehung     = ThisWorkbook.Konfig.TkBasisUeberhoehung  'gibt garantiert einen Double-Wert zurück.
+  Else
     DebugEcho "CdatDatenpuffer.SetzeStandardEinstellungen(): Keine Konfiguration verfügbar => Setze hart kodierte Standard-Einstellungen."
     bln_VorhWerteUeberschreiben = Std_VorhWerteUeberschreiben
     bln_UebAusInfoStreng        = Std_UebAusInfoStreng
@@ -304,13 +296,13 @@ Public Sub Daten_SchreibenErsatzSpalte(byVal QuellSpalte as String)
   Else
     'Ersatzspalte laut Konfiguration ermitteln.
     SpalteErsatz = ""
-    Set oSpNameAttr = oKonfig.SpNameAttr(QuellSpalte)
+    Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(QuellSpalte)
     SpalteOhneStatus = oSpNameAttr("NamePur")
     If (SpalteOhneStatus <> SpName_unbekannt) Then
       'Für die Spalte existiert eine Konfiguration.
-      If (oKonfig.SpaltenErsatzZiel(SpalteOhneStatus) <> "") Then
+      If (ThisWorkbook.Konfig.SpaltenErsatzZiel(SpalteOhneStatus) <> "") Then
         'Für "Spalte" ist ein Ersatzziel konfiguriert.
-        SpalteErsatz = oSpNameAttr("StatusPrefix") & oKonfig.SpaltenErsatzZiel(SpalteOhneStatus)
+        SpalteErsatz = oSpNameAttr("StatusPrefix") & ThisWorkbook.Konfig.SpaltenErsatzZiel(SpalteOhneStatus)
         DebugEcho "Daten_SchreibenErsatzSpalte(): Ersatzspalte ist '" & SpalteErsatz & "'."
       End If
     End If
@@ -403,8 +395,8 @@ Sub Mod_FehlerVerbesserung()
   If (Not oSpaltenStatus(StatusBez_Fehler) Is Nothing) Then
     For Each SpNameOhneStatus In oSpaltenStatus(StatusBez_Fehler)
       'Alle vorhandenen Fehlerwerte durchgehen.
-      SpName_Fehler = oKonfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
-      SpName_Verbesserung = oKonfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
+      SpName_Fehler = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
+      SpName_Verbesserung = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
       lb = LBound(oDaten(SpName_Fehler), 1)
       ub = UBound(oDaten(SpName_Fehler), 1)
       ReDim Vektor(lb To ub)
@@ -430,8 +422,8 @@ Sub Mod_FehlerVerbesserung()
   If (Not oSpaltenStatus(StatusBez_Verbesserung) Is Nothing) Then
     For Each SpNameOhneStatus In oSpaltenStatus(StatusBez_Verbesserung)
       'Alle vorhandenen Verbesserungen durchgehen.
-      SpName_Fehler = oKonfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
-      SpName_Verbesserung = oKonfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
+      SpName_Fehler = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
+      SpName_Verbesserung = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
       lb = LBound(oDaten(SpName_Verbesserung), 1)
       ub = UBound(oDaten(SpName_Verbesserung), 1)
       ReDim Vektor(lb To ub)
@@ -457,10 +449,10 @@ Sub Mod_FehlerVerbesserung()
       'Alle vorhandenen Sollwerte durchgehen.
       If (oSpaltenStatus(StatusBez_Ist).Exists(SpNameOhneStatus)) Then
         'Istwert existiert.
-        SpName_Ist = oKonfig.StatusPrefix(StatusBez_Ist) & SpNameOhneStatus
-        SpName_Soll = oKonfig.StatusPrefix(StatusBez_Soll) & SpNameOhneStatus
-        SpName_Fehler = oKonfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
-        SpName_Verbesserung = oKonfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
+        SpName_Ist = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Ist) & SpNameOhneStatus
+        SpName_Soll = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Soll) & SpNameOhneStatus
+        SpName_Fehler = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Fehler) & SpNameOhneStatus
+        SpName_Verbesserung = ThisWorkbook.Konfig.StatusPrefix(StatusBez_Verbesserung) & SpNameOhneStatus
         lb = LBound(oDaten(SpName_Soll), 1)
         ub = UBound(oDaten(SpName_Soll), 1)
         ReDim Vektor(lb To ub)
@@ -523,8 +515,8 @@ Sub Mod_Transfo_Tk2Gls()
   Application.StatusBar = "Transformation von Trassenkoo' ins gedrehte Gleissystem (Zwangspunkt-Reduktion)."
   
   If (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
-    For Each WertStatus In oKonfig.StatusPrefix.Keys
-      Prefix = oKonfig.StatusPrefix(WertStatus)
+    For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
+      Prefix = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
       SpN_Abst = Prefix & SpN_TK_Q
       SpN_dH = Prefix & SpN_TK_HSOK
       SpN_AbstRed = Prefix & SpN_TK_QG
@@ -593,8 +585,8 @@ Sub Mod_Transfo_Gls2Tk()
   Application.StatusBar = "Transformation von Koo' des gedrehten Gleissystems in normale Trassenkoo'."
   
   If ((oDaten.Exists(SpN_S_Tra_Radius)) And (oDaten.Exists(SpN_S_Tra_u))) Then
-    For Each WertStatus In oKonfig.StatusPrefix.Keys
-      Prefix = oKonfig.StatusPrefix(WertStatus)
+    For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
+      Prefix = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
       SpN_Abst = Prefix & SpN_TK_Q
       SpN_dH = Prefix & SpN_TK_HSOK
       SpN_AbstRed = Prefix & SpN_TK_QG
@@ -774,11 +766,11 @@ Private Sub Daten_GetSpaltenInfo()
   oSpaltenStatus(StatusBez_Fehler).RemoveAll
   oSpaltenStatus(StatusBez_Verbesserung).RemoveAll
   
-  '"Daten_GetSpaltenInfo" wird während der Initialisierung des Add-Ins verwendet (oKonfig.initialize).
-  'Zu diesem Zeitpunkt existiert oKonfig noch nicht:
-  If (Not oKonfig Is Nothing) Then
+  '"Daten_GetSpaltenInfo" wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
+  'Zu diesem Zeitpunkt existiert ThisWorkbook.Konfig noch nicht:
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
     For Each SpNameMitStatus In oDaten
-      Set oSpNameAttr = oKonfig.SpNameAttr(SpNameMitStatus)
+      Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(SpNameMitStatus)
       StatusBez = oSpNameAttr("StatusBez")
       If (StatusBez <> "") Then
         SpNameOhneStatus = oSpNameAttr("NamePur")

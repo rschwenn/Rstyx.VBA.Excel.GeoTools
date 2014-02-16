@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlTabellenFunktionen"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -190,8 +190,8 @@ Private Function getNivStatistik(byVal ZielGroesse As Integer, byVal Sp_s As Int
   Dim i          As Long
   
   'Festwerte des Datenbereiches ermitteln
-  ZeAnf = oAktiveTabelle.ErsteDatenZeile
-  ZeEnd = oAktiveTabelle.LetzteDatenZeile
+  ZeAnf = ThisWorkbook.AktiveTabelle.ErsteDatenZeile
+  ZeEnd = ThisWorkbook.AktiveTabelle.LetzteDatenZeile
   
   n = 0
   m = 0

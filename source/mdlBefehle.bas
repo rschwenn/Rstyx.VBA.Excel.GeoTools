@@ -1,40 +1,25 @@
-Attribute VB_Name = "mdlUserInterface"
+Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
 ' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
-'Modul mdlUserInterface
+' Modul mdlBefehle
 '====================================================================================
-'Stellt die Benutzer-Befehle des Add-Ins zur Verfügung und bindet diese
-'in ebenfalls hier erzeugte Menüs und Toolboxen ein.
-'
-'Die Import-Routinen stellen einen Dateiauswahldialog zur Verfügung,
-'wenn die zu importierende Datei nicht gefunden wurde.
-
+' Stellt die Befehle des Add-Ins zur Verfügung.
+' Diese werden i.d.R. von Ribbon-Callbacks oder per Fernsteuerung aufgerufen.
 
 Option Explicit
 
 
-
-Sub MenuesEntfernen()
-  ' Altlasten aus Vorgängerversionen entfernen.
-  'Wird aufgerufen von wbk_GeoTools\Workbook_BeforeClose().
-  On Error Resume Next
-  'Einträge im Kontextmenü entfernen
-  Application.CommandBars("cell").Controls("Datenbereich formatieren").Delete
-  Application.CommandBars("cell").Controls("Bedingte Formatierung...").Delete
-  Application.CommandBars("cell").Controls("Datei öffnen (Name in Zelle)").Delete
-  Application.CommandBars("gtDummy_Icons").Delete
-  On Error Goto 0
-End Sub
-
-
 Sub SetSilent_AktiveTabelle(inpSilent As Boolean)
-  'Setzt den aktuellen Modus für "Silent" im Objekt oAktiveTabelle.
-  On Error GoTo 0
-  oAktiveTabelle.Silent = inpSilent
+  ' Dies wird in VB-Skripten verwendet, um Fehlermeldungen zu unterdrücken,
+  ' die auftreten, wenn z.B. eine GeoTools-Formatierung ausgelöst wird, ohne
+  ' vorher zu prüfen, ob die Tabelle dafür vorbereitet ist.
+  On Error Resume Next
+  ThisWorkbook.AktiveTabelle.Silent = inpSilent
+  On Error Goto 0
 End Sub
 
 
@@ -42,8 +27,8 @@ Sub SchreibeProjektDaten()
   'Schreibt von allen verfügbaren Projektdaten diejenigen in die aktive Tabelle,
   'für die entsprechend benannte Zellen existieren.
   On Error GoTo Fehler
-  oMetadaten.Update oPrjLocal:=nothing, oExtraLocal:=nothing
-  oAktiveTabelle.SchreibeMetaDaten
+  ThisWorkbook.Metadaten.Update oPrjLocal:=nothing, oExtraLocal:=nothing
+  ThisWorkbook.AktiveTabelle.SchreibeMetaDaten
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -54,7 +39,7 @@ End Sub
 Sub SchreibeFusszeile_1()
   'Schreibt die Fusszeile_1 in die aktive Tabelle.
   On Error GoTo Fehler
-  oAktiveTabelle.SchreibeFusszeile_1
+  ThisWorkbook.AktiveTabelle.SchreibeFusszeile_1
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -73,7 +58,7 @@ Sub LoeschenDaten()
   Buttons = vbYesNo + vbQuestion + vbDefaultButton2
   Titel = "Datenbereich löschen!"
   If (MsgBox(Message, Buttons, Titel) = vbYes) Then
-    oAktiveTabelle.LoeschenDaten
+    ThisWorkbook.AktiveTabelle.LoeschenDaten
     call ClearStatusBarDelayed(StatusBarClearDelay)
   End If
   Exit Sub
@@ -85,7 +70,7 @@ End Sub
 Sub FormatDaten()
   'Überträgt das Format des "InfoTraegers" auf alle weiteren Datenzeilen.
   On Error GoTo Fehler
-  oAktiveTabelle.FormatDaten
+  ThisWorkbook.AktiveTabelle.FormatDaten
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -96,7 +81,7 @@ End Sub
 Sub UebertragenFormeln()
   'Überträgt die Formeln des 'Formel'-Bereiches auf alle weiteren Datenzeilen.
   On Error GoTo Fehler
-  oAktiveTabelle.UebertragenFormeln
+  ThisWorkbook.AktiveTabelle.UebertragenFormeln
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -107,7 +92,7 @@ End Sub
 Sub Mod_FehlerVerbesserung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
-  oAktiveTabelle.Mod_FehlerVerbesserung
+  ThisWorkbook.AktiveTabelle.Mod_FehlerVerbesserung
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -118,7 +103,7 @@ End Sub
 Sub Mod_UeberhoehungAusBemerkung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
-  oAktiveTabelle.Mod_UeberhoehungAusBemerkung
+  ThisWorkbook.AktiveTabelle.Mod_UeberhoehungAusBemerkung
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -129,7 +114,7 @@ End Sub
 Sub Mod_Transfo_Tk2Gls()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
-  oAktiveTabelle.Mod_Transfo_Tk2Gls
+  ThisWorkbook.AktiveTabelle.Mod_Transfo_Tk2Gls
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -140,7 +125,7 @@ End Sub
 Sub Mod_Transfo_Gls2Tk()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
-  oAktiveTabelle.Mod_Transfo_Gls2Tk
+  ThisWorkbook.AktiveTabelle.Mod_Transfo_Gls2Tk
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -163,7 +148,7 @@ End Sub
 Sub Selection2Interpolationsformel()
   'Aufgrund der aktuellen Zellauswahl wird eine Interpolationsformel erstellt.
   On Error GoTo Fehler
-  oAktiveTabelle.Selection2Interpolationsformel
+  ThisWorkbook.AktiveTabelle.Selection2Interpolationsformel
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -176,7 +161,7 @@ Sub Selection2MarkDoppelteWerte()
   'Formatierung versehen, die alle Zellen mit solchen Werten hervorhebt, die in
   'derselben Spalte mehr als einmal vorkommen.
   On Error GoTo Fehler
-  oAktiveTabelle.Selection2MarkDoppelteWerte
+  ThisWorkbook.AktiveTabelle.Selection2MarkDoppelteWerte
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
@@ -184,7 +169,7 @@ Fehler:
 End Sub
 
 
-Sub insertLines()
+Sub InsertLines()
   'Dialog "Leerzeilen einfügen"
   On Error GoTo Fehler
   Dim oDialog    As frmInsertLines
@@ -207,13 +192,13 @@ Sub DateiBearbeiten()
     Application.StatusBar = "Fehler: Es existiert keine aktive Zelle!"
   else
     Datei = trim(ActiveCell.Value)
-    if (not oSysTools.isDatei(Datei)) then
+    if (not ThisWorkbook.SysTools.isDatei(Datei)) then
       Application.StatusBar = "Der Inhalt der aktiven Zelle ('" & Datei & "') bezeichnet keine existierende Datei !"
     else
       Application.StatusBar = "Datei '" & Datei & "' wird im Editor geöffnet."
-      if (not oSysTools.StartEditor(Datei)) then
+      if (not ThisWorkbook.SysTools.StartEditor(Datei)) then
         Application.StatusBar = "Datei '" & Datei & "' wird mit Standardanwendung geöffnet."
-        oSysTools.StarteDatei(Datei)
+        ThisWorkbook.SysTools.StarteDatei(Datei)
       end if
     end if
   end if
@@ -309,7 +294,7 @@ End Sub
 Sub Protokoll()
   On Error GoTo Fehler
   ErrMessage = "Protokoll-Konsole existiert nicht!"
-  oConsole.Show vbModeless
+  ThisWorkbook.LogConsole.Show vbModeless
   ErrMessage = ""
   Exit Sub
 Fehler:
@@ -324,7 +309,7 @@ Sub Hilfe_Komplett()
   On Error GoTo Fehler
   Dim hlp As String
   hlp = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & ".chm"
-  oSysTools.StarteDatei hlp
+  ThisWorkbook.SysTools.StarteDatei hlp
   Exit Sub
 Fehler:
   FehlerNachricht "mdlUserInterface.Hilfe_Komplett()"
@@ -353,21 +338,11 @@ Sub InfoKeineKonfig()
   On Error GoTo Fehler
   Dim Titel As String
   Titel = "Keine Konfiguration für " & ProgName & " verfügbar."
-  Call MsgBox(GetInfoKeineKonfig(), vbExclamation, Titel)
+  Call MsgBox(ThisWorkbook.Konfig.InfoKeineKonfig, vbExclamation, Titel)
   Exit Sub
 Fehler:
   FehlerNachricht "mdlUserInterface.InfoKeineKonfig()"
 End Sub
-
-Function GetInfoKeineKonfig() As String
-    Dim cfg As String
-    cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
-    GetInfoKeineKonfig = "Konfigurationsdatei '" & cfg & "' wurde beim Start nicht gelesen." & vbLf & vbLf & _
-                         "Mögliche Ursachen:." & vbLf & _
-                         "  1. Die Datei existiert nicht." & vbLf & _
-                         "  2. Excel wurde ferngesteuert gestartet." & vbLf & vbLf & _
-                         "==> Die Funktionalität des Programmes steht dadurch nur eingeschränkt zur Verfügung."
-End Function
 
 
 'für jEdit:  :folding=indent::collapseFolds=1:

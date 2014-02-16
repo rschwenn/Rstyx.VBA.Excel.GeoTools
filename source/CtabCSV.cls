@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2009-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -539,7 +539,7 @@ Private Function LeseDateiKopf() As Boolean
     
   Dateiname = Me.Quelle_AsciiDatei_Name
   
-  If (not oSysTools.isDatei(Dateiname)) Then
+  If (not ThisWorkbook.SysTools.isDatei(Dateiname)) Then
     'Programmfehler, da der Dateiname bereits von CdatExpim ermittelt wird.
     ErrEcho "CtabCSV.LeseDateiKopf(): Öffnen der folgenden Datei fehlgeschlagen (existiert nicht): '" & Dateiname & "'."
   Else
@@ -557,7 +557,7 @@ Private Function LeseDateiKopf() As Boolean
       Erfolg = false
       WarnEcho "Die CSV-Datei '" & Dateiname & "' ist leer!"
       Meldung = "Warnung: Die CSV-Datei ist leer"
-      Call oSysTools.FileErrorsAdd("W", Dateiname, 1, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+      Call ThisWorkbook.SysTools.FileErrorsAdd("W", Dateiname, 1, 0, 0, Meldung, "", blnFehlerKonsolidieren)
       
     else
       '1. Zeile der Datei lesen
@@ -577,7 +577,7 @@ Private Function LeseDateiKopf() As Boolean
             Erfolg = false
             ErrEcho "Fehler: Nach dem GeoTools-Spezialkopf gibt es keine Daten in der CSV-Datei '" & Dateiname & "'."
             Meldung = "Fehler: Nach dem GeoTools-Spezialkopf gibt es keine Daten in der CSV-Datei"
-            Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+            Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
           else
             Line Input #Kanal, Zeile
             NR = NR + 1
@@ -673,7 +673,7 @@ Private Function LeseSpezialKopf() As Boolean
               ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Unbekannter Abschnittsname!"
               Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Unbekannter Abschnittsname!"
               Meldung2 = "Unterstützte Abschnittsnamen: @CSV-Settings, @Metadata, @ExcelFieldFormats, @ExcelFieldUnits, @ExcelTableProps"
-              Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+              Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
         End Select
         
       else
@@ -682,7 +682,7 @@ Private Function LeseSpezialKopf() As Boolean
           Erfolg = false
           ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Informationen außerhalb eines Abschnittes sind nicht erlaubt!"
           Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Informationen außerhalb eines Abschnittes sind nicht erlaubt!"
-          Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+          Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
           
         else
           'Name und Wert extrahieren.
@@ -693,7 +693,7 @@ Private Function LeseSpezialKopf() As Boolean
             Erfolg = false
             ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Name oder/und Wert sind leer!"
             Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Name oder/und Wert sind leer!"
-            Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+            Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
           else
             'Name und Wert verarbeiten.
             
@@ -710,11 +710,11 @@ Private Function LeseSpezialKopf() As Boolean
                     ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Unbekannte CSV-Einstellung!"
                     Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Unbekannte CSV-Einstellung!"
                     Meldung2 = "Unterstützte Schlüsselworte: " & join(oCsvSettings.Keys, ", ")
-                    Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+                    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
                   End If
                   
               Case "@Metadata"
-                  if (oMetadaten.AlleProjektDaten.exists(Name)) then
+                  if (ThisWorkbook.Metadaten.AlleProjektDaten.exists(Name)) then
                     'Gültiges Projektdatum.
                     oMetadatenProjekt(Name) = Wert
                   Else
@@ -738,7 +738,7 @@ Private Function LeseSpezialKopf() As Boolean
                     ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Unbekannte Eigenschaft für Daten-Importoptionen!"
                     Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Unbekannte Eigenschaft für Daten-Importoptionen!"
                     Meldung2 = "Unterstützte Schlüsselworte: " & join(oDataImportOptions.Keys, ", ")
-                    Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+                    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
                   End If
                   
               Case "@ExcelFieldFormats"
@@ -749,7 +749,7 @@ Private Function LeseSpezialKopf() As Boolean
                     end if
                   
               Case "@ExcelFieldUnits"
-                  if(oKonfig.EinheitExists(Wert)) then
+                  if(ThisWorkbook.Konfig.EinheitExists(Wert)) then
                     if (oZielEinheiten.Exists(Name)) then
                       oZielEinheiten(Name) = Wert
                     else
@@ -760,7 +760,7 @@ Private Function LeseSpezialKopf() As Boolean
                     ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Unbekannte Einheit!"
                     Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Unbekannte Einheit!"
                     Meldung2 = "Die unterstützten Einheiten sind am Anfang des Debug-Protokolls nachgewiesen! "
-                    Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+                    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
                   end if
                   
               Case "@ExcelTableProps"
@@ -775,7 +775,7 @@ Private Function LeseSpezialKopf() As Boolean
                     ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Unbekannte Eigenschaft für Exceltabelle!"
                     Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Unbekannte Eigenschaft für Exceltabelle!"
                     Meldung2 = "Unterstützte Schlüsselworte: " & join(oExcelTableProps.Keys, ", ")
-                    Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
+                    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, Meldung2, blnFehlerKonsolidieren)
                   End If
                   
               Case Else
@@ -791,7 +791,7 @@ Private Function LeseSpezialKopf() As Boolean
   if (Not (blnKopfEnde)) then
     ErrEcho "Endmarke des GeoTools-Spezialkopfes (" & CsvKopfEnde & ") nicht gefunden!"
     Meldung = "Endmarke des GeoTools-Spezialkopfes (" & CsvKopfEnde & ") nicht gefunden"
-    Call oSysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Dateiname, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
   end if
   
   LeseSpezialKopf = (Erfolg AND blnKopfEnde)
@@ -844,7 +844,7 @@ Private Sub GetQuellSpaltenInfo(CsvZeileMitSpaltennamen as String)
     'DebugEcho "CtabCSV.GetQuellSpaltenInfo(): Es wurden keine Spaltennamen gefunden => CSV-Datei kann nicht eingelesen werden!"
     ErrEcho "Zeile " & cStr(NR) & ": Es wurden keine Spaltennamen gefunden => CSV-Datei kann nicht eingelesen werden!"
     Meldung = "Es wurden keine Spaltennamen gefunden => CSV-Datei kann nicht eingelesen werden"
-    Call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+    Call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
     
   else
     DebugEcho "CtabCSV.GetQuellSpaltenInfo(): Es wurden " & cStr(AnzSpalten) & " Spaltennamen gefunden."
@@ -1052,7 +1052,7 @@ Fehler:
   
   ErrEcho "Syntaxfehler im GeoTools-Spezialkopf in Zeile " & cStr(NR) & ": Ungültiger Wert! (erforderlich ist '" & TypName & "')"
   Meldung = "Syntaxfehler im GeoTools-Spezialkopf: Ungültiger Wert! (erforderlich ist '" & TypName & "')"
-  Call oSysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
+  Call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, NR, 0, 0, Meldung, "", blnFehlerKonsolidieren)
 End Function
 
 
@@ -1074,7 +1074,7 @@ Private Function GetKategorien() As String
   If (Not (oQuellSpaltenPositionen Is Nothing)) Then
     On Error Resume Next
     For Each Spalte In oQuellSpaltenPositionen
-      If (oKonfig.SpaltenKategorie(Spalte) <> "") Then DictTmp.Add oKonfig.SpaltenKategorie(Spalte), "*"
+      If (ThisWorkbook.Konfig.SpaltenKategorie(Spalte) <> "") Then DictTmp.Add ThisWorkbook.Konfig.SpaltenKategorie(Spalte), "*"
     Next
     On Error GoTo 0
     ListeKeys = ListeDerKeys(DictTmp)

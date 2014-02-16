@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -111,24 +111,24 @@ Private Sub UserForm_Initialize()
   
   'Formatlisten erzeugen und merken (Cache und persistent).
     'Alle XLT-Vorlagen
-    If (Not oKonfig.Cache.Exists("Liste_XLT_komplett")) Then
+    If (Not ThisWorkbook.Konfig.Cache.Exists("Liste_XLT_komplett")) Then
       Call GetFormatliste_XlVorlagen
-      oKonfig.Cache.Add "Liste_XLT_komplett", Liste_XLT_komplett
+      ThisWorkbook.Konfig.Cache.Add "Liste_XLT_komplett", Liste_XLT_komplett
     End If
     
     'Alle Programmodule für ASCII-Spezialimport
-    If (Not oKonfig.Cache.Exists("Liste_SpezialImport_komplett")) Then
+    If (Not ThisWorkbook.Konfig.Cache.Exists("Liste_SpezialImport_komplett")) Then
       Call GetFormatliste_SpezialImport
-      oKonfig.Cache.Add "Liste_SpezialImport_komplett", Liste_SpezialImport_komplett
+      ThisWorkbook.Konfig.Cache.Add "Liste_SpezialImport_komplett", Liste_SpezialImport_komplett
     End If
     
     'Alle Spaltennamen der aktiven XL-Tabelle
     Call GetFormatliste_Spaltennamen_XlTabAktiv
   '
   'Dateifilter für CSV-Spezialimport
-    If (Not oKonfig.Cache.Exists("Quelle_CsvSpezial_DialogFilter")) Then
+    If (Not ThisWorkbook.Konfig.Cache.Exists("Quelle_CsvSpezial_DialogFilter")) Then
       Set oCsvSpezial = New CtabCSV
-      oKonfig.Cache.Add "Quelle_CsvSpezial_DialogFilter", oCsvSpezial.Quelle_AsciiDatei_DialogFilter
+      ThisWorkbook.Konfig.Cache.Add "Quelle_CsvSpezial_DialogFilter", oCsvSpezial.Quelle_AsciiDatei_DialogFilter
       Set oCsvSpezial = Nothing
     End If
   
@@ -217,8 +217,8 @@ End Sub
 
 Private Sub btnQuelle_AsciiDateiEdit_Click()
   'Eingabedatei bearbeiten.
-  If (Not oSysTools.StartEditor(Me.tbQuelle_AsciiDatei.value)) Then
-    oSysTools.StarteDatei (Me.tbQuelle_AsciiDatei.value)
+  If (Not ThisWorkbook.SysTools.StartEditor(Me.tbQuelle_AsciiDatei.value)) Then
+    ThisWorkbook.SysTools.StarteDatei (Me.tbQuelle_AsciiDatei.value)
   End If
 End Sub
 
@@ -322,7 +322,7 @@ End Sub
 
 Private Sub tbQuelle_AsciiDatei_Change()
   'MsgBox "tbQuelle_AsciiDatei_Change"
-  If (oSysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
+  If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
     'If (Me.tbQuelle_AsciiDatei.value = Me.tbZiel_AsciiDatei.value) Then
     '  oExpimGlobal.Quelle_AsciiDatei_Name = ""
     '  Me.tbQuelle_AsciiDatei.ForeColor = &H80FF&
@@ -394,7 +394,7 @@ End Sub
   'If (Verzeichnis = "") Then Verzeichnis = "NichtVorhanden"
   'NameMitExt = NameExt(Me.tbZiel_AsciiDatei.value, "mitext")
   '
-  'If (oSysTools.isDatei(Me.tbZiel_AsciiDatei.value)) Then
+  'If (ThisWorkbook.SysTools.isDatei(Me.tbZiel_AsciiDatei.value)) Then
   '  'Datei ist vorhanden.
   '  'If (Me.tbQuelle_AsciiDatei.value = Me.tbZiel_AsciiDatei.value) Then
   '  '  oExpimGlobal.Ziel_AsciiDatei_Name = ""
@@ -421,7 +421,7 @@ End Sub
   '    'End If
   '  'End If
   '
-  'ElseIf (oSysTools.isVerzeichnis(Verzeichnis) And (Not oSysTools.isVerzeichnis(Me.tbZiel_AsciiDatei.value))) Then
+  'ElseIf (ThisWorkbook.SysTools.isVerzeichnis(Verzeichnis) And (Not ThisWorkbook.SysTools.isVerzeichnis(Me.tbZiel_AsciiDatei.value))) Then
   '  'Neue Datei.
   '  '(Datei ist nicht vorhanden, aber angegeben. Das Verzeichnis existiert.)
   '  If (VorName(Me.tbZiel_AsciiDatei.value) = "") Then
@@ -528,12 +528,12 @@ Private Sub Changed_Quelle_Typ()
         Me.LstQuelle_Formate.Clear
         
         'Kategorien der aktiven Tabelle als Filterkriterium für die Liste der Zielformate.
-        'oAktiveTabelle.Syncronisieren
-        Ziel_Kategorien = oAktiveTabelle.Kategorien
+        'ThisWorkbook.AktiveTabelle.Syncronisieren
+        Ziel_Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
         Call GetQuellFormatliste(Liste_Spaltennamen_XlTabAktiv, "#")
         
         'Wenn keine Spalte verfügbar ist, gibt's nichts zu exportieren.
-        NF = oAktiveTabelle.SpaltenErsteZellen.Count
+        NF = ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Count
         If (NF > 0) Then
           Ziel_IoTyp = io_Typ_Puffer
           Me.lblQuelle_Formate.Caption = "Die Tabelle enthält folgende bezeichneten Spalten:"
@@ -584,7 +584,7 @@ Private Sub Changed_Quelle_Typ()
         Me.tbQuelle_AsciiDatei.BackColor = save_Backcolor_TB
         
         'Dateifilter setzen
-        oExpimGlobal.Quelle_AsciiDatei_DialogFilter = oKonfig.Cache.Item("Quelle_CsvSpezial_DialogFilter")
+        oExpimGlobal.Quelle_AsciiDatei_DialogFilter = ThisWorkbook.Konfig.Cache.Item("Quelle_CsvSpezial_DialogFilter")
         
         'Alle weiteren, vom  Dateiinhalt abhängigen GUI-Aktualisierungen.
         Call Changed_CsvDateiname
@@ -625,7 +625,7 @@ Private Sub Changed_Quelle_Typ()
         Me.LstQuelle_Formate.Enabled = True
         Me.LstQuelle_Formate.BackColor = save_Backcolor_Lst
         Me.btnQuelle_AsciiDatei.Enabled = True
-        If (oSysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
+        If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
         Me.tbQuelle_AsciiDatei.Enabled = True
         Me.tbQuelle_AsciiDatei.BackColor = save_Backcolor_TB
         
@@ -644,7 +644,7 @@ Private Sub Changed_Quelle_Typ()
         Me.LstQuelle_Formate.BackColor = save_Backcolor_Lst
         
         Me.btnQuelle_AsciiDatei.Enabled = True
-        If (oSysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
+        If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
         Me.tbQuelle_AsciiDatei.Enabled = True
         Me.tbQuelle_AsciiDatei.BackColor = save_Backcolor_TB
         
@@ -652,7 +652,7 @@ Private Sub Changed_Quelle_Typ()
         FormatLetzteWahl = Mid$(Quelle_LetztesFormat_AsciiSpezial, Len(io_Klasse_PrefixImport) + 1)
         Ziel_IoTyp = "#"
         Ziel_Kategorien = "#"
-        Call GetQuellFormatliste(oKonfig.Cache.Item("Liste_SpezialImport_komplett"), FormatLetzteWahl)
+        Call GetQuellFormatliste(ThisWorkbook.Konfig.Cache.Item("Liste_SpezialImport_komplett"), FormatLetzteWahl)
         'Call GetQuellFormatliste(Liste_SpezialImport_komplett, FormatLetzteWahl)
         
         
@@ -710,7 +710,7 @@ Private Sub Changed_Ziel_Typ()
         'Excel-Vorlagenliste.
         FormatLetzteWahl = VorName(Ziel_LetztesFormat_XlTabNeu)
         'Call GetZielFormatliste(Liste_XLT_komplett, FormatLetzteWahl)
-        Call GetZielFormatliste(oKonfig.Cache.Item("Liste_XLT_komplett"), FormatLetzteWahl)
+        Call GetZielFormatliste(ThisWorkbook.Konfig.Cache.Item("Liste_XLT_komplett"), FormatLetzteWahl)
         
         
     Case io_Typ_AsciiFormatiert
@@ -943,7 +943,7 @@ Private Function GetXLVorlagen(DateiMaske As String) As String
   If (Application.NetworkTemplatesPath <> "") Then VerzListe = VerzListe & ";" & Application.NetworkTemplatesPath
   If (Application.TemplatesPath <> "") Then VerzListe = VerzListe & ";" & Application.TemplatesPath
   VerzListe = Mid(VerzListe, 2)
-  Set oVorlagenListe = oSysTools.FindFiles(DateiMaske, VerzListe, True)
+  Set oVorlagenListe = ThisWorkbook.SysTools.FindFiles(DateiMaske, VerzListe, True)
   Call SortDictionary(oVorlagenListe, 1, 1, False)
   VorlagenListe = VorlagenListe & ";" & Join(oVorlagenListe.Keys, ";")
   DebugEcho "GetXLVorlagen='" & VorlagenListe & "'"
@@ -953,7 +953,7 @@ Private Function GetXLVorlagen(DateiMaske As String) As String
   'If (Application.AltStartupPath <> "") Then VerzListe = VerzListe & ";" & Application.AltStartupPath
   'If (Application.StartupPath <> "") Then VerzListe = VerzListe & ";" & Application.StartupPath
   'VerzListe = Mid(VerzListe, 2)
-  'Set oVorlagenListe = oSysTools.FindFiles(DateiMaske, VerzListe, False)
+  'Set oVorlagenListe = ThisWorkbook.SysTools.FindFiles(DateiMaske, VerzListe, False)
   'VorlagenListe = VorlagenListe & ";" & join(oVorlagenListe.keys, ";")
   'DebugEcho "GetXLVorlagen='" & VorlagenListe & "'"
   
@@ -1021,7 +1021,7 @@ Private Function isGueltig_Quelldatei() As Boolean
         
     Case io_Typ_CsvSpezial, io_Typ_AsciiFormatiert, io_Typ_AsciiSpezial
         
-        If (oSysTools.isDatei(oExpimGlobal.Quelle_AsciiDatei_Name)) Then
+        If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Quelle_AsciiDatei_Name)) Then
           blnGueltig = True
         Else
           blnGueltig = False
@@ -1061,7 +1061,7 @@ Private Function isGueltig_ZielFormat() As Boolean
   Select Case oExpimGlobal.Ziel_Typ
     
     Case io_Typ_XlTabNeu, io_Typ_AsciiFormatiert
-        If (oSysTools.isDatei(oExpimGlobal.Ziel_FormatID)) Then blnGueltig = True
+        If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Ziel_FormatID)) Then blnGueltig = True
         
     Case io_Typ_AsciiSpezial
         If (Not IsNull(Me.LstZiel_Formate.value)) Then blnGueltig = True
@@ -1087,7 +1087,7 @@ Private Function isGueltig_Zieldatei() As Boolean
     
     Case io_Typ_AsciiFormatiert, io_Typ_AsciiSpezial
         
-        'If (oSysTools.isDatei(oExpimGlobal.Ziel_AsciiDatei_Name)) Then
+        'If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Ziel_AsciiDatei_Name)) Then
         If (oExpimGlobal.Ziel_AsciiDatei_Name <> "") Then
           'Echte Prüfung hat bereits "tbZiel_AsciiDatei_Change" übernommen.
           blnGueltig = True
@@ -1121,7 +1121,7 @@ Private Function GetQuellDateinameAusDialog() As String
   DateiPfadName = Application.GetOpenFileName(oExpimGlobal.Quelle_AsciiDatei_DialogFilter, , "Quelldatei wählen:")
   If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName("", , "Quelldatei wählen:")
   
-  If (oSysTools.isDatei(DateiPfadName)) Then
+  If (ThisWorkbook.SysTools.isDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Eingabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
     Call SetArbeitsverzeichnis(Verz(DateiPfadName))
   Else
@@ -1155,7 +1155,7 @@ Private Function GetZielDateinameAusDialog() As String
   DateiPfadName = Application.GetSaveAsFilename(NameExt(oExpimGlobal.Ziel_AsciiDatei_Name, "mitext"), oExpimGlobal.Ziel_AsciiDatei_DialogFilter, , "Zieldatei wählen:")
   If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName(, "", , "Zieldatei wählen:")
   
-  If (oSysTools.isDatei(DateiPfadName)) Then
+  If (ThisWorkbook.SysTools.isDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Ausgabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
     Verzeichnis = Verz(DateiPfadName)
     ChDrive Verzeichnis
@@ -1202,7 +1202,7 @@ Private Sub SetzeAnfangswerte()
   End Select
   
   'Wenn Aktive Tabelle nicht als Quelle dienen kann => Quelle = ASCII_Spezial!
-  If (oAktiveTabelle.Infotraeger Is Nothing) Then
+  If (ThisWorkbook.AktiveTabelle.Infotraeger Is Nothing) Then
     Me.optQuelle_Typ_XLTabAktiv.Enabled = False
     'yyy If (Me.optQuelle_Typ_XLTabAktiv) Then Me.optQuelle_Typ_AsciiFormatiert = True
     If (Me.optQuelle_Typ_XLTabAktiv) Then Me.optQuelle_Typ_AsciiSpezial = True
@@ -1287,9 +1287,9 @@ Private Sub ReflektiereDatenEinstellungen()
   
   'Option "Ersatzspalten" ist nur verfügbar, wenn solche konfiguriert sind.
   ErsatzKonfiguriert = False
-  If (Not oKonfig Is Nothing) Then
-    If (Not oKonfig.SpaltenErsatzZiel Is Nothing) Then
-      If (oKonfig.SpaltenErsatzZiel.Count > 0) Then
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
+    If (Not ThisWorkbook.Konfig.SpaltenErsatzZiel Is Nothing) Then
+      If (ThisWorkbook.Konfig.SpaltenErsatzZiel.Count > 0) Then
         ErsatzKonfiguriert = True
         Me.chkMod_Ersatzspalten.value = oExpimGlobal.Opt_ErsatzZielspaltenVerwenden
         If (Sperre_chkMod_Ersatzspalten) Then
@@ -1376,8 +1376,8 @@ Private Sub GetFormatliste_XlVorlagen()
     Application.ScreenUpdating = False
     
     On Error Resume Next
-    Computername = oSysTools.Computername
-    Username = oSysTools.Username
+    Computername = ThisWorkbook.SysTools.Computername
+    Username = ThisWorkbook.SysTools.Username
     On Error GoTo Fehler
   '
   '1. Aktuell auf Festplatte vorhandene XLT's suchen und die entsprechenden Verzeichnisse merken.
@@ -1406,11 +1406,11 @@ Private Sub GetFormatliste_XlVorlagen()
     For i = LBound(XltCachePfad) To UBound(XltCachePfad)
       If (XltCachePfad(i) <> "") Then
         PfadNameXltCache = XltCachePfad(i) & "\" & NameXltCache
-        If (Not oSysTools.isDatei(PfadNameXltCache)) Then
+        If (Not ThisWorkbook.SysTools.isDatei(PfadNameXltCache)) Then
           DebugEcho vbNewLine & "Cache existiert nicht im Verzeichnis: '" & XltCachePfad(i) & "'"
         Else
           DebugEcho vbNewLine & "Cache lesen aus Verzeichnis: '" & XltCachePfad(i) & "'"
-          Set oTS_XltCache = oSysTools.OpenTextFile(PfadNameXltCache, ForReading, NewFileIfNotExist_no, OpenAsSystemDefault)
+          Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForReading, NewFileIfNotExist_no, OpenAsSystemDefault)
           If (Not oTS_XltCache Is Nothing) Then
             'Datei erfolgreich geöffnet.
             iAnz = 0
@@ -1481,9 +1481,9 @@ Private Sub GetFormatliste_XlVorlagen()
         Application.Workbooks.Add AktFormatPfadName
         Application.EnableEvents = True
         
-        oAktiveTabelle.Syncronisieren
-        Titel = oAktiveTabelle.TabTitel
-        Kategorien = oAktiveTabelle.Kategorien
+        ThisWorkbook.AktiveTabelle.Syncronisieren
+        Titel = ThisWorkbook.AktiveTabelle.TabTitel
+        Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
         Application.ActiveWorkbook.Close False
         
         DebugEcho " - Titel = '" & Titel & "'"
@@ -1510,7 +1510,7 @@ Private Sub GetFormatliste_XlVorlagen()
     
     '4. "Innere" Eigenschaften aller gefundenen Vorlagen zwischenspeichern:
     'a, im internen Cache
-    oKonfig.Cache.Add "RecentXLT", oRecentXLT_Neu
+    ThisWorkbook.Konfig.Cache.Add "RecentXLT", oRecentXLT_Neu
     
     'b, persistent
     'In jedes verwendete Stammverzeichnis wird eine Cache-Datei geschrieben (vorhandene überschreiben).
@@ -1520,7 +1520,7 @@ Private Sub GetFormatliste_XlVorlagen()
       If (XltCachePfad(i) <> "") Then
         PfadNameXltCache = XltCachePfad(i) & "\" & NameXltCache
         DebugEcho vbNewLine & "Cache schreiben in Verzeichnis: '" & XltCachePfad(i) & "'"
-        Set oTS_XltCache = oSysTools.OpenTextFile(PfadNameXltCache, ForWriting, NewFileIfNotExist_yes, OpenAsSystemDefault)
+        Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForWriting, NewFileIfNotExist_yes, OpenAsSystemDefault)
         If (Not oTS_XltCache Is Nothing) Then
           
           'Kopf schreiben
@@ -1638,7 +1638,7 @@ Private Sub Changed_CsvDateiname()
   Call SetzeStandardDatenEinstellungen
   
   
-  If (oSysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
+  If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
     'CSV-Datei existiert => 'rein sehen!
     Set oCsvSpezial = New CtabCSV
     
@@ -1646,7 +1646,7 @@ Private Sub Changed_CsvDateiname()
     oCsvSpezial.Quelle_AsciiDatei_Name = oExpimGlobal.Quelle_AsciiDatei_Name
     
     'Eventuell aufgetretene Fehler sofort im Editor anzeigen oder die Protokoll-Konsole aufblenden.
-    If (Not oSysTools.FileErrorsShowInJEdit(True)) Then
+    If (Not ThisWorkbook.SysTools.FileErrorsShowInJEdit(True)) Then
       Call ShowConsole
     End If
     
@@ -1852,13 +1852,13 @@ Private Sub GetFormatliste_Spaltennamen_XlTabAktiv()
   Dim TitelPrefix          As String
   Dim oSpNameAttr          As Scripting.Dictionary
   
-  If (Not oAktiveTabelle.SpaltenErsteZellen Is Nothing) Then
-    oAktiveTabelle.Syncronisieren
-    If (oAktiveTabelle.SpaltenErsteZellen.Count > 0) Then
+  If (Not ThisWorkbook.AktiveTabelle.SpaltenErsteZellen Is Nothing) Then
+    ThisWorkbook.AktiveTabelle.Syncronisieren
+    If (ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Count > 0) Then
       i = 0
-      ReDim Liste_Spaltennamen_XlTabAktiv(0 To oAktiveTabelle.SpaltenErsteZellen.Count - 1, 0 To 5) As String
-      For Each Spalte In oAktiveTabelle.SpaltenErsteZellen
-        Set oSpNameAttr = oKonfig.SpNameAttr(Spalte)
+      ReDim Liste_Spaltennamen_XlTabAktiv(0 To ThisWorkbook.AktiveTabelle.SpaltenErsteZellen.Count - 1, 0 To 5) As String
+      For Each Spalte In ThisWorkbook.AktiveTabelle.SpaltenErsteZellen
+        Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(Spalte)
         Liste_Spaltennamen_XlTabAktiv(i, idxFmtKurzname) = Spalte
         If ((oSpNameAttr("StatusBez") = "") Or (oSpNameAttr("StatusBez") = Allg_unbekannt)) Then
           TitelPrefix = ""
@@ -1866,10 +1866,10 @@ Private Sub GetFormatliste_Spaltennamen_XlTabAktiv()
           TitelPrefix = oSpNameAttr("StatusBez") & ": "
         End If
         Liste_Spaltennamen_XlTabAktiv(i, idxFmtTitel) = TitelPrefix & oSpNameAttr("Titel")
-        Liste_Spaltennamen_XlTabAktiv(i, idxFmtID) = oKonfig.SpaltenMathGroesse(Spalte)
-        Liste_Spaltennamen_XlTabAktiv(i, idxFmtKategorien) = oKonfig.SpaltenKategorie(Spalte)
-        Liste_Spaltennamen_XlTabAktiv(i, idxFmtDateifilter) = oKonfig.KategorieAlsFilter(oKonfig.SpaltenKategorie(Spalte))
-        Liste_Spaltennamen_XlTabAktiv(i, idxFmtIoTyp) = oAktiveTabelle.SpaltenFormate(Spalte)
+        Liste_Spaltennamen_XlTabAktiv(i, idxFmtID) = ThisWorkbook.Konfig.SpaltenMathGroesse(Spalte)
+        Liste_Spaltennamen_XlTabAktiv(i, idxFmtKategorien) = ThisWorkbook.Konfig.SpaltenKategorie(Spalte)
+        Liste_Spaltennamen_XlTabAktiv(i, idxFmtDateifilter) = ThisWorkbook.Konfig.KategorieAlsFilter(ThisWorkbook.Konfig.SpaltenKategorie(Spalte))
+        Liste_Spaltennamen_XlTabAktiv(i, idxFmtIoTyp) = ThisWorkbook.AktiveTabelle.SpaltenFormate(Spalte)
         i = i + 1
       Next
     End If
@@ -1903,7 +1903,7 @@ Private Sub GetFormatliste_Spaltennamen_CsvSpezial(oCSV As CtabCSV)
       i = 0
       ReDim Liste_Spaltennamen_CsvSpezial(0 To oCSV.Quelle_SpaltenPositionen.Count - 1, 0 To 5) As String
       For Each Spalte In oCSV.Quelle_SpaltenPositionen
-        Set oSpNameAttr = oKonfig.SpNameAttr(Spalte)
+        Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(Spalte)
         Liste_Spaltennamen_CsvSpezial(i, idxFmtKurzname) = Spalte
         If ((oSpNameAttr("StatusBez") = "") Or (oSpNameAttr("StatusBez") = Allg_unbekannt)) Then
           TitelPrefix = ""
@@ -1911,9 +1911,9 @@ Private Sub GetFormatliste_Spaltennamen_CsvSpezial(oCSV As CtabCSV)
           TitelPrefix = oSpNameAttr("StatusBez") & ": "
         End If
         Liste_Spaltennamen_CsvSpezial(i, idxFmtTitel) = TitelPrefix & oSpNameAttr("Titel")
-        Liste_Spaltennamen_CsvSpezial(i, idxFmtID) = oKonfig.SpaltenMathGroesse(Spalte)
-        Liste_Spaltennamen_CsvSpezial(i, idxFmtKategorien) = oKonfig.SpaltenKategorie(Spalte)
-        Liste_Spaltennamen_CsvSpezial(i, idxFmtDateifilter) = oKonfig.KategorieAlsFilter(oKonfig.SpaltenKategorie(Spalte))
+        Liste_Spaltennamen_CsvSpezial(i, idxFmtID) = ThisWorkbook.Konfig.SpaltenMathGroesse(Spalte)
+        Liste_Spaltennamen_CsvSpezial(i, idxFmtKategorien) = ThisWorkbook.Konfig.SpaltenKategorie(Spalte)
+        Liste_Spaltennamen_CsvSpezial(i, idxFmtDateifilter) = ThisWorkbook.Konfig.KategorieAlsFilter(ThisWorkbook.Konfig.SpaltenKategorie(Spalte))
         Liste_Spaltennamen_CsvSpezial(i, idxFmtIoTyp) = ""
         'Liste_Spaltennamen_CsvSpezial(i, idxFmtIoTyp) = oCSV.Quelle_Formate(Spalte)
         i = i + 1
@@ -1980,7 +1980,7 @@ Private Function FilternFormatliste(FormatlisteKomplett As Variant, FormatlisteG
         Kategorie = Kategorien(k)
         If (Not entspricht("Tabelle", Kategorie)) Then
           'Die erste Kategorie ist i.d.R. der Tabellen-Kodename => Standardname ist hiermit ignoriert.
-          If (oKonfig.KategorieAlsFilter(Kategorie)) Then
+          If (ThisWorkbook.Konfig.KategorieAlsFilter(Kategorie)) Then
             'Die aktive Kategorie soll als Filter verwendet werden.
             If (InStr(1, FormatlisteKomplett(i, idxFmtKategorien), Kategorie, vbTextCompare) > 0) Then
               'Die aktive Kategorie ist in der Kategorienliste des Formates enthalten => Index der Gesamtliste merken.

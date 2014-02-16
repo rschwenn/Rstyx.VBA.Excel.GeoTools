@@ -9,14 +9,13 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
-'Klasse CdatMetaDaten:  Erfassung, temporäre Speicherung und Handhabung von Metadaten.
+' Klasse CdatMetaDaten
 '==================================================================================================
-'==> Wird beim Laden des Add-In automatisch instanziert per Workbook_Open() und steht
-'    global zur Verfügung.
+' Erfassung, temporäre Speicherung und Handhabung von Metadaten.
 '
 'Beschreibung:
 '-------------
@@ -140,7 +139,7 @@ Private Sub Class_Initialize()
     oDictPrjOrt.Add FN_Projektbez2, ""
     oDictPrjOrt.Add FN_Projektbez3, ""
     oDictPrjOrt.Add FN_AuftragNr, ""
-    oDictPrjOrt.Add FN_BearbUsername, oSysTools.Username
+    oDictPrjOrt.Add FN_BearbUsername, ThisWorkbook.SysTools.Username
     oDictPrjOrt.Add FN_BearbVollerName, oDictPrjOrt(FN_BearbUsername)   ' mangels entsprechender Funktion
     oDictPrjOrt.Add FN_BearbNachname, oDictPrjOrt(FN_BearbUsername)     ' mangels entsprechender Funktion
     oDictPrjOrt.Add FN_HoehenSystem, ""
@@ -286,7 +285,7 @@ Property Let TraBasisUeb(inpTraBasisUeb As String)
   if (isNumeric(inpTraBasisUeb)) then
     dblWert = cDbl(inpTraBasisUeb)
   else
-    dblWert = oKonfig.TkBasisUeberhoehung
+    dblWert = ThisWorkbook.Konfig.TkBasisUeberhoehung
     if (not (isEmpty(inpTraBasisUeb) or (inpTraBasisUeb = ""))) then
       ErrEcho vbNewLine & "CdatMetaDaten.TraBasisUeb (Let): Basis für Überhöhung kann nicht auf den Wert '" & inpTraBasisUeb & "' gesetzt werden!"
       msgbox "Basis für Überhöhung kann nicht auf den Wert '" & inpTraBasisUeb & "' gesetzt werden!" & vbNewLine & "Standard-Wert '" & dblWert & "' wird verwendet.", vbOKOnly, "FEHLER"
@@ -524,10 +523,10 @@ Private Sub GetOrtsDaten()
   Dim Key                  As String
   
   On Error GoTo Fehler
-  DebugEcho "CdatMetaDaten.GetOrtsDaten(): Ortsdaten lesen aus: " & oKonfig.Ort_Dateiname
+  DebugEcho "CdatMetaDaten.GetOrtsDaten(): Ortsdaten lesen aus: " & ThisWorkbook.Konfig.Ort_Dateiname
   
   Kanal = FreeFile()
-  Open oKonfig.Ort_Dateiname For Input Lock Write As #Kanal
+  Open ThisWorkbook.Konfig.Ort_Dateiname For Input Lock Write As #Kanal
   If (Err) Then GoTo Fehler
   
   Do While Not EOF(Kanal)
@@ -560,7 +559,7 @@ Private Sub GetAktPrjDat()
   'so werden alle betroffenen Felder mit "" belegt.
   
   On Error GoTo Fehler
-  DebugEcho "CdatMetaDaten.GetAktPrjDat(): Daten des aktiven Projektes ermitteln für Anwender: '" & oKonfig.Anwender & "'"
+  DebugEcho "CdatMetaDaten.GetAktPrjDat(): Daten des aktiven Projektes ermitteln für Anwender: '" & ThisWorkbook.Konfig.Anwender & "'"
   
   'Alte Daten löschen
   DebugEcho "CdatMetaDaten.GetAktPrjDat(): Alte Projektdaten löschen."
@@ -570,9 +569,9 @@ Private Sub GetAktPrjDat()
   Me.Projektbez3  = ""
   Me.HoehenSystem = ""
   Me.KooSystem    = ""
-  Me.TraBasisUeb  = oKonfig.TkBasisUeberhoehung
+  Me.TraBasisUeb  = ThisWorkbook.Konfig.TkBasisUeberhoehung
   
-  Select Case oKonfig.Anwender
+  Select Case ThisWorkbook.Konfig.Anwender
     Case Anw_intermetric
          Call GetAktPrjDat_iGEO    'Projektdaten des aktiven iGEO-Projektes ermitteln
     Case Else

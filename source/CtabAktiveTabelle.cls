@@ -186,6 +186,9 @@ Private Sub Class_Initialize()
   Set oSpaltenEinheiten = New Scripting.Dictionary
   Set oSpaltenBuchst2Name = New Scripting.Dictionary
   Set oSpaltenFormate = New Scripting.Dictionary
+  
+  Call Me.Syncronisieren
+  
   Exit Sub
   
 Fehler:
@@ -376,7 +379,7 @@ Property Let FormatDatenMitStreifen(inpFormatDatenMitStreifen As Boolean)
   'Mit Streifen heißt auch: ohne Füllung.
   If (blnFormatDatenMitStreifen) Then Me.FormatDatenOhneFuellung = True
   
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
 End Property
 
 
@@ -394,7 +397,7 @@ Property Let FormatDatenOhneFuellung(inpFormatDatenOhneFuellung As Boolean)
   'Mit Füllung heißt auch: ohne Streifen.
   If (Not blnFormatDatenOhneFuellung) Then Me.FormatDatenMitStreifen = False
   
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
 End Property
 
 
@@ -411,7 +414,7 @@ Property Let FormatDatenNKStellenAnzahl(inpFormatDatenNKStellenAnzahl As Integer
     'NK-Anzahl einstellen heißt auch: "Setzen der NachkommaStellen" einschalten!
     Me.FormatDatenNKStellenSetzen = True
     
-    Call UpdateRibbon
+    Call UpdateGeoToolsRibbon
   End If
 End Property
 
@@ -425,7 +428,7 @@ Property Let FormatDatenNKStellenSetzen(inpFormatDatenNKStellenSetzen As Boolean
   'Setzt die Schalterstellung "Setzen der NachkommaStellen"
   blnFormatDatenNKStellenSetzen = inpFormatDatenNKStellenSetzen
   
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
 End Property
 
 
@@ -464,7 +467,7 @@ Property Let ModOpt_VorhWerteUeberschreiben(inp_VorhWerteUeberschreiben As Boole
   'Setzt die Option "Vorhandene Werte überschreiben".
   bln_VorhWerteUeberschreiben = inp_VorhWerteUeberschreiben
   
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
 End Property
 
 
@@ -477,7 +480,7 @@ Property Let ModOpt_FormelnErhalten(inp_FormelnErhalten As Boolean)
   'Setzt die Option "Formeln erhalten".
   bln_FormelnErhalten = inp_FormelnErhalten
   
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
 End Property
 
 
@@ -785,23 +788,23 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
   
   'FeldGefunden = SchreibenFelderInTabelle(oDictPrjDat)
 
-  If (oMetadaten.Ort_Fusszeile_Excel_1 = "") Then
+  If (ThisWorkbook.Metadaten.Ort_Fusszeile_Excel_1 = "") Then
     ErrMessage = "Keine Fusszeile verfügbar. Mögliche Fehlerursachen:" & vbNewLine & vbNewLine & _
-                 "1. Die Datei mit Standortinformationen (" & oKonfig.Ort_Dateiname & ") ist nicht vorhanden." & vbNewLine & vbNewLine & _
+                 "1. Die Datei mit Standortinformationen (" & ThisWorkbook.Konfig.Ort_Dateiname & ") ist nicht vorhanden." & vbNewLine & vbNewLine & _
                  "2. In dieser Datei existiert kein Eintrag 'Fusszeile_Excel_1'."
     Err.Raise vbObjectError + ErrNumFuss1NichtGeschr, , "Fusszeile konnten nicht geschrieben werden."
   Else
     With ActiveSheet.PageSetup
       'Schriftart und -größe merken (&"Schriftart, Stil", &nn)
-      oRegExp.IgnoreCase = True
-      oRegExp.Pattern = "^(&""[0-9A-Za-z, _]*"")?(&[0-9]{1,2})?"
-      'oRegExp.Pattern = "^(&[0-9]{1,2})?(&""[A-Za-z, _]*"")?(&[0-9]{1,2})?"
-      oRegExp.Global = False
-      Set Fundstellen = oRegExp.Execute(Trim$(.LeftFooter))
+      ThisWorkbook.RegExp.IgnoreCase = True
+      ThisWorkbook.RegExp.Pattern = "^(&""[0-9A-Za-z, _]*"")?(&[0-9]{1,2})?"
+      'ThisWorkbook.RegExp.Pattern = "^(&[0-9]{1,2})?(&""[A-Za-z, _]*"")?(&[0-9]{1,2})?"
+      ThisWorkbook.RegExp.Global = False
+      Set Fundstellen = ThisWorkbook.RegExp.Execute(Trim$(.LeftFooter))
       If (Fundstellen.Count > 0) Then Tx_FussLi = Fundstellen(0).value
-      Set Fundstellen = oRegExp.Execute(Trim$(.CenterFooter))
+      Set Fundstellen = ThisWorkbook.RegExp.Execute(Trim$(.CenterFooter))
       If (Fundstellen.Count > 0) Then Tx_FussMi = Fundstellen(0).value
-      Set Fundstellen = oRegExp.Execute(Trim$(.RightFooter))
+      Set Fundstellen = ThisWorkbook.RegExp.Execute(Trim$(.RightFooter))
       If (Fundstellen.Count > 0) Then Tx_FussRe = Fundstellen(0).value
       
       'MsgBox "links: " & .LeftFooter & "  (" & Tx_FussLi & ")" & vbNewLine & _
@@ -810,7 +813,7 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
       
       'Neue Texte mit alter Schriftgröße setzen
       .LeftFooter = Tx_FussLi & "&F (&A)"
-      .CenterFooter = Tx_FussMi & oMetadaten.Ort_Fusszeile_Excel_1
+      .CenterFooter = Tx_FussMi & ThisWorkbook.Metadaten.Ort_Fusszeile_Excel_1
       .RightFooter = Tx_FussRe & "Seite &P von &N"
     End With
   End If
@@ -848,8 +851,8 @@ Public Sub SchreibeMetaDaten(Optional Silent As Boolean = False)
   Application.ScreenUpdating = False
   ActiveSheet.EnableCalculation = False
   
-  ErfogProjekt = SchreibenFelderInTabelle(oMetadaten.AlleProjektDaten)
-  ErfogExtra = SchreibenFelderInTabelle(oMetadaten.AlleExtraDaten)
+  ErfogProjekt = SchreibenFelderInTabelle(ThisWorkbook.Metadaten.AlleProjektDaten)
+  ErfogExtra = SchreibenFelderInTabelle(ThisWorkbook.Metadaten.AlleExtraDaten)
   
   If (Not (ErfogProjekt or ErfogExtra)) Then
     ErrMessage = "Mögliche Fehlerursachen:" & vbNewLine & vbNewLine & _
@@ -932,7 +935,7 @@ Sub Selection2Infotraeger()
   ActiveSheet.Select True
   
   Call SetInfotraeger(Selection)
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
   Exit Sub
   
 Fehler:
@@ -1025,7 +1028,7 @@ Sub Selection2Fliesskomma()
   strBezug = "=" & Union(Selection, Selection).Address(RowAbsolute:=True, ColumnAbsolute:=True, ReferenceStyle:=xlA1, External:=True)
   benannteZellen.Add Name:=Feldname, RefersTo:=strBezug
   Set benannteZellen = Nothing
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
   Exit Sub
   
 Fehler:
@@ -1058,7 +1061,7 @@ Sub Selection2Spaltenname(ByVal SpName As String, Optional ByVal Einheit As Stri
   
   'Eigenschaften dieser Klasse mit der geänderten aktiven Tabelle abgleichen.
   Call Me.Syncronisieren
-  'Call UpdateRibbon
+  'Call UpdateGeoToolsRibbon
   Exit Sub
   
 Fehler:
@@ -1142,7 +1145,7 @@ Sub SetSpaltenname(Bereich As Range, ByVal SpName As String, ByVal Einheit As St
       'Kommentar
       Set Kommentar = oRange.Offset(rowoffset:=-1).Comment
       If (Not Kommentar Is Nothing) Then Kommentar.Delete
-      Set oSpNameAttr = oKonfig.SpNameAttr(SpName)
+      Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(SpName)
       AnzZeilen = 3
       strKommentar = vbLf & "Spalte:       " & SpName & vbLf & _
                             "Kategorie:  " & oSpNameAttr("Kategorie") & vbLf & _
@@ -1249,7 +1252,7 @@ Sub Selection2Feldname(ByVal Feldname As String)
     
     'Kommentar einfügen/ändern.
     strKommentar = "Feld:    " & Feldname & vbLf & _
-                   "Inhalt:  " & oMetadaten.TitelDerProjektDaten(Feldname)
+                   "Inhalt:  " & ThisWorkbook.Metadaten.TitelDerProjektDaten(Feldname)
     Call BereichZiel.AddComment(strKommentar)
     Set Kommentar = BereichZiel.Comment
     If (Not Kommentar Is Nothing) Then
@@ -1327,7 +1330,7 @@ Sub Selection2Formel()
   strBezug = "=" & Union(Selection, Selection).Address(RowAbsolute:=True, ColumnAbsolute:=True, ReferenceStyle:=xlA1, External:=True)
   benannteZellen.Add Name:=Feldname, RefersTo:=strBezug
   Set benannteZellen = Nothing
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
   Exit Sub
 
 Fehler:
@@ -1386,8 +1389,8 @@ Public Sub Mod_Transfo_Tk2Gls()
   oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = Me.ModOpt_VorhWerteUeberschreiben
   
   'Basis für Überhöhung: Auf Umwegen ermitteln...
-  oMetadaten.Update oPrjLocal:=Me.GetProjektDaten, oExtraLocal:=Me.GetExtraDaten
-  oExpim.Datenpuffer.TkBasisUeberhoehung = oMetadaten.TraBasisUeb
+  ThisWorkbook.Metadaten.Update oPrjLocal:=Me.GetProjektDaten, oExtraLocal:=Me.GetExtraDaten
+  oExpim.Datenpuffer.TkBasisUeberhoehung = ThisWorkbook.Metadaten.TraBasisUeb
   
   oExpim.Datenpuffer.Mod_Transfo_Tk2Gls
   oExpim.SchreibeDatenpuffer_XlTabAktiv
@@ -1415,8 +1418,8 @@ Public Sub Mod_Transfo_Gls2Tk()
   oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = Me.ModOpt_VorhWerteUeberschreiben
   
   'Basis für Überhöhung: Auf Umwegen ermitteln...
-  oMetadaten.Update oPrjLocal:=Me.GetProjektDaten, oExtraLocal:=Me.GetExtraDaten
-  oExpim.Datenpuffer.TkBasisUeberhoehung = oMetadaten.TraBasisUeb
+  ThisWorkbook.Metadaten.Update oPrjLocal:=Me.GetProjektDaten, oExtraLocal:=Me.GetExtraDaten
+  oExpim.Datenpuffer.TkBasisUeberhoehung = ThisWorkbook.Metadaten.TraBasisUeb
   
   oExpim.Datenpuffer.Mod_Transfo_Gls2Tk
   oExpim.SchreibeDatenpuffer_XlTabAktiv
@@ -1830,7 +1833,7 @@ Public Sub Syncronisieren()
   strKategorien = GetKategorien()
   
   '4. Verfügbarkeit von Methoden
-  Call UpdateRibbon
+  Call UpdateGeoToolsRibbon
   
   Call Me.ZeigeSpalten()
   Exit Sub
@@ -1938,7 +1941,7 @@ Private Function GetKategorien() As String
   If (Not (oSpaltenErsteZellen Is Nothing)) Then
     On Error Resume Next
     For Each Spalte In oSpaltenErsteZellen
-      If (oKonfig.SpaltenKategorie(Spalte) <> "") Then DictTmp.Add oKonfig.SpaltenKategorie(Spalte), "*"
+      If (ThisWorkbook.Konfig.SpaltenKategorie(Spalte) <> "") Then DictTmp.Add ThisWorkbook.Konfig.SpaltenKategorie(Spalte), "*"
     Next
     On Error GoTo 0
     ListeKeys = ListeDerKeys(DictTmp)
@@ -1972,10 +1975,12 @@ End Sub
 
 Private Sub App_SheetActivate(ByVal Sh As Object)
   'Wird aufgerufen beim Aktivieren eines Arbeitsblattes in (hoffentlich) jeder Situation.
+  On Error Resume Next
   strNeuesBlatt = Sh.Parent.Name & "!" & Sh.Name
   strAltesBlatt = strNeuesBlatt
   DebugEcho "Neues Arbeitsblatt aktiviert: " & strNeuesBlatt
-  'Call UpdateRibbon
+  'Call UpdateGeoToolsRibbon
+  On Error GoTo 0
   Call Me.Syncronisieren
 End Sub
 
@@ -1983,12 +1988,14 @@ End Sub
 
 Private Sub App_WindowActivate(ByVal Wb As Excel.Workbook, ByVal Wn As Excel.Window)
   'Löst "app_SheetActivate" aus, wenn beim Aktivieren eines Fensters auch das Arbeitsblatt wechselt.
+  On Error Resume Next
   strNeuesBlatt = Wb.Name & "!" & Wb.ActiveSheet.Name
   Echo "Fenster aktiviert mit Arbeitsblatt: " & strNeuesBlatt
   If (strNeuesBlatt <> strAltesBlatt) Then
     strAltesBlatt = strNeuesBlatt
     Call App_SheetActivate(Wb.ActiveSheet)
   End If
+  On Error GoTo 0
 End Sub
 
 
@@ -1996,12 +2003,14 @@ End Sub
 Private Sub App_WorkbookDeactivate(ByVal Wb As Excel.Workbook)
   'Reaktion auf das Deaktivieren der (noch) einzigen Arbeitsmappe, d.h. diese
   'wird geschlossen und danach (!) ist also kein Arbeitsblatt mehr aktiv.
+  On Error Resume Next
   If (Application.Workbooks.Count = 1) Then
     strAltesBlatt = ""
-    Call UpdateRibbon(keinAktivesBlatt:=True)
+    Call UpdateGeoToolsRibbon(keinAktivesBlatt:=True)
     'MsgBox "Gleich gibt's keine aktive Mappe mehr!"
     DebugEcho "Kein Arbeitsblatt mehr aktiv."
   End If
+  On Error GoTo 0
 End Sub
 
 

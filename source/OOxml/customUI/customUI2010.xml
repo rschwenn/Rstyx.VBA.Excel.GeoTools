@@ -28,21 +28,21 @@
                     label="Info"
                     size="normal"
                     screentip="Über GeoTools"
-                    onAction="InfoButtonAction"
+                    onAction="GeoTolsButtonAction"
                     imageMso="TaskSuggestionsShow" />
             
             <button id="HelpButton"
                     label="Hilfe"
                     size="normal"
                     screentip="GeoTools-Hilfe"
-                    onAction="HelpButtonAction"
+                    onAction="GeoTolsButtonAction"
                     imageMso="Help" />
             
             <button id="LogButton"
                     label="Protokoll"
                     size="normal"
                     screentip="GeoTools-Protokoll"
-                    onAction="LogButtonAction"
+                    onAction="GeoTolsButtonAction"
                     imageMso="GroupCreateOther" />
           </box>
           
@@ -53,7 +53,7 @@
                   size="large"
                   screentip="Import / Export von Tabellendaten"
                   supertip="Es wird eine neue Datei anhand einer Vorlage erzeugt. Die dorthin geschriebenen Daten stammen aus einer Spezial-ASCII/CSV-Datei oder aus der aktiven Tabelle"
-                  onAction="ImportExportButtonAction"
+                  onAction="GeoTolsButtonAction"
                   imageMso="SyncTool" />
           
           <button id="TableStructureButton"
@@ -61,7 +61,7 @@
                   size="large"
                   screentip="Verwaltung der GeoTools-Tabellenstruktur"
                   supertip="Für die Nutzung der meisten GeoTools-Funktionen wird eine GeoTools-interne Strukturierung der Tabelle benötigt. Diese kann hiermit erzeugt und verwaltet werden."
-                  onAction="TableStructureButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="CatalogMergeCreateList" />
         </group>
@@ -73,7 +73,7 @@
                   size="large"
                   screentip="Datenbereich formatieren"
                   supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
-                  onAction="FormatButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
                   imageMso="FormatPainter" />
           
@@ -83,9 +83,9 @@
                   size="normal"
                   screentip="Formatierungsoption: Mit Streifen"
                   supertip="Wenn aktiviert, wird jede zweite Zeile grau eingefärbt. Eventuell vorhandene Hintergrundfarben der ersten Datenzeile werden gelöscht."
-                  onAction="FmtOptStripesButtonAction"
+                  onAction="GeoToolsToggleButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
-                  getPressed="FmtOptStripesButtonGetPressed"
+                  getPressed="GeoToolsToggleButtonGetPressed"
                   imageMso="AlignJustify" />
           
           <toggleButton id="FmtOptBackgroundButton"
@@ -94,9 +94,9 @@
                   size="normal"
                   screentip="Formatierungsoption: Ohne Hintergrundfarbe"
                   supertip="Wenn aktiviert, werden eventuell vorhandene Hintergrundfarben der ersten Datenzeile gelöscht, bevor deren Format auf alle anderen Zeilen übertragen wird."
-                  onAction="FmtOptBackgroundButtonAction"
+                  onAction="GeoToolsToggleButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
-                  getPressed="FmtOptBackgroundButtonGetPressed"
+                  getPressed="GeoToolsToggleButtonGetPressed"
                   imageMso="BlackAndWhiteDontShow" />
                   
           <box id="FmtOptPrecisionBox" boxStyle="horizontal">
@@ -107,9 +107,9 @@
                     size="normal"
                     screentip="Formatierungsoption: Änderung der NK-Stellen"
                     supertip="Wenn aktiviert, werden die laut Tabellenstruktur dafür vorgesehenen Spalten mit der angegebenen Anzahl Nachkommastellen formatiert."
-                    onAction="FmtOptPrecisionButtonAction"
+                    onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledFloatingPoint"
-                    getPressed="FmtOptPrecisionButtonGetPressed"
+                    getPressed="GeoToolsToggleButtonGetPressed"
                     imageMso="CalculatedNumber" />
             
             <comboBox id="FmtOptPrecisionNumber"
@@ -149,28 +149,28 @@
                           label="Fehler und Verbesserungen"
                           screentip="Fehler und Verbesserungen berechnen"
                           supertip="Für Größen, die mit Soll- und Istwerten in der Tabelle vertreten sind, werden Fehler und Verbesserungen berechnet."
-                          onAction="CalcDiffsButtonAction"
+                          onAction="GeoTolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
                   <button id="CalcCantButton"
                           label="Ist-Überhöhung aus Bemerkung"
                           screentip="Ist-Überhöhung aus Bemerkung extrahieren"
                           supertip="Enthält die Bemerkung (Punktinfo') Angaben der Form 'u=xxx', dann wird 'xxx' als Ist-Überhöhung interpretiert. Ist 'Überschreiben' aktiviert, wird die genannte Angabe aus der Bemerkung entfernt."
-                          onAction="CalcCantButtonAction"
+                          onAction="GeoTolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
                   <button id="CalcHorizontalToCantedButton"
                           label="Trassenkoo' => Gleissystem"
                           screentip="Transformation: Trassensystem => Gleissystem (gedreht)"
                           supertip="Trassenkoordinaten (Q, HSOK) werden ins Gleissystem (QG, HG) transformiert."
-                          onAction="CalcHorizontalToCantedButtonAction"
+                          onAction="GeoTolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
                   <button id="CalcCantedToHorizontalButton"
                           label="Gleissystem => Trassenkoo'"
                           screentip="Transformation: Gleissystem (gedreht) => Trassensystem"
                           supertip="Koordinaten im Gleissystem (QG, HG) werden ins Trassensystem (Q, HSOK) transformiert."
-                          onAction="CalcCantedToHorizontalButtonAction"
+                          onAction="GeoTolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
           </menu>
@@ -183,9 +183,9 @@
                     size="normal"
                     screentip="Berechnungsoption: Überschreiben"
                     supertip="Wenn aktiviert, werden vorhandene Werte überschrieben, andernfalls bleiben sie erhalten."
-                    onAction="CalcOptOverrideButtonAction"
+                    onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledGeoToolsTable"
-                    getPressed="CalcOptOverrideButtonGetPressed"
+                    getPressed="GeoToolsToggleButtonGetPressed"
                     imageMso="Delete" />
             
             <toggleButton id="CalcOptKeepFormulasButton"
@@ -194,9 +194,9 @@
                     size="normal"
                     screentip="Berechnungsoption: Formeln erhalten"
                     supertip="Wenn aktiviert, werden vorhandene Formeln durch komplexere Formeln ersetzt, andernfalls durch Werte."
-                    onAction="CalcOptKeepFormulasButtonAction"
+                    onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledGeoToolsTable"
-                    getPressed="CalcOptKeepFormulasButtonGetPressed"
+                    getPressed="GeoToolsToggleButtonGetPressed"
                     imageMso="FunctionLookup" />
           </box>
           
@@ -207,7 +207,7 @@
                   size="large"
                   screentip="Formeln übertragen"
                   supertip="Die Formeln des 'Formelbereiches' der ersten Datenzeile (laut Tabellenstruktur) werden auf alle weiteren Zeilen übertragen."
-                  onAction="FormulaButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledFormula"
                   imageMso="Formula" />
           
@@ -216,7 +216,7 @@
                   size="large"
                   screentip="Datenbereich löschen"
                   supertip="Die Inhalte der ersten Zeile des Datenbereiches (laut Tabellenstruktur) werden gelöscht. Alle weiteren Zeilen werden komplett entfernt."
-                  onAction="DeleteButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
                   imageMso="DeleteTable" />
           
@@ -229,7 +229,7 @@
                   size="large"
                   screentip="Interpolationsformel erstellen"
                   supertip="Wenn 3 Zellen markiert sind, zwei davon in der gleichen Spalte (x-Werte), dann wird in die dritte Zelle die Interpolationsformel eingetragen (Spalte mit Funktionswerten)."
-                  onAction="InterpolButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="ZIndex" />
           
@@ -238,7 +238,7 @@
                   size="large"
                   screentip="Duplikate markieren"
                   supertip="Ab der markierten Zelle werden alle wiederholt auftretenden Werte hervorgehoben (mit Hilfe der Bedingten Formatierung)."
-                  onAction="DuplicatesButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="QuickStylesSets" />
           
@@ -247,7 +247,7 @@
                   size="large"
                   screentip="Leerzeilen im Intervall einfügen"
                   supertip="In einem per Dialog festzulegenden Intervall werden Leerzeilen eingefügt."
-                  onAction="BlankLinesButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="SpacingDouble" />
           
@@ -259,7 +259,7 @@
                   size="normal"
                   screentip="Datei editieren"
                   supertip="Wenn die aktive Zelle einen vollständigen Dateinamen enthält, wird diese Datei im Editor geöffnet."
-                  onAction="EditFileButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="EditDocument" />
           
@@ -268,7 +268,7 @@
                   size="normal"
                   screentip="Fußzeile einrichten"
                   supertip="Die Fußzeile wird mit Standardeinträgen belegt. Der mittlere Teil wird aus dem Eintrag “FUSSZEILE_EXCEL_1” aus der Ini-Datei mit Ortsdaten gelesen (siehe Konfiguration)."
-                  onAction="SetFooterButtonAction"
+                  onAction="GeoTolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="FooterInsertGallery" />
          </group>
@@ -283,7 +283,7 @@
               label="Format (GeoTools-Tabelle)"
               screentip="Datenbereich formatieren"
               supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
-              onAction="FormatButtonAction"
+              onAction="GeoTolsButtonAction"
               getEnabled="GetEnabledGeoToolsTable"
               imageMso="FormatPainter" />
     </contextMenu>

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsAllgemein"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -21,31 +21,31 @@ const SORTTYPE_STRING  As Byte = 1  'Alphanumerisch
 
 
 '***  Abteilung Protokollierung  ******************************************************************
-'    ==> Die Echo-Methoden benötigen die Globale Variable "oConsole"!
+'    ==> Die Echo-Methoden benötigen die Eigenschaft "ThisWorkbook.LogConsole"!
 
 Sub Echo(ByVal Message As String)
   'Adds a "Normal Message" to the Log.
-  If (Not oConsole Is Nothing) Then oConsole.logInfo Message
+  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logInfo Message
 End Sub
 
 Sub ErrEcho(ByVal Message As String)
   'Adds an "Error Message" to the Log.
-  If (Not oConsole Is Nothing) Then oConsole.logError Message
+  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logError Message
 End Sub
 
 Sub WarnEcho(ByVal Message As String)
   'Adds a "Warning Message" to the Log.
-  If (Not oConsole Is Nothing) Then oConsole.logWarning Message
+  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logWarning Message
 End Sub
 
 Sub DebugEcho(ByVal Message As String)
   'Adds a "Debug Message" to the Log.
-  If (Not oConsole Is Nothing) Then oConsole.logDebug Message
+  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logDebug Message
 End Sub
 
 Sub ShowConsole()
   'Shows the Logging Console Dialog.
-  If (Not oConsole Is Nothing) Then oConsole.Show vbModeless
+  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.Show vbModeless
 End Sub
 
 Function GetNewConsole(Optional WindowTitle As String = "", Optional LogSource As String = "") As frmLoggingConsole
@@ -360,7 +360,7 @@ Function FileSpec2RegExp(ByVal Spec As String) As String
   'Steve Fulton
   'convert a filespec to a pattern used for Regular expressions
   Dim Pattern As String
-  With oRegExp
+  With ThisWorkbook.RegExp
     .Global = True
     .Pattern = "\\"
     Pattern = .Replace(Spec, "\\")
@@ -389,11 +389,11 @@ Function splitWords(ByVal text As String, ByRef Feld As Variant, ByVal WordRegEx
   On Error GoTo Fehler
   
   Dim cWords  As Object
-  'Dim oRegexp As Object
+  'Dim ThisWorkbook.RegExp As Object
   Dim NF      As Long
   Dim i       As Long
   
-  With oRegExp
+  With ThisWorkbook.RegExp
     If (Trim(WordRegEx) = "") Then
       .Pattern = "\S+"
     Else
@@ -412,7 +412,7 @@ Function splitWords(ByVal text As String, ByRef Feld As Variant, ByVal WordRegEx
   splitWords = NF
   
   Set cWords = Nothing
-  'Set oRegexp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   Exit Function
   
 Fehler:
@@ -429,14 +429,14 @@ Function substitute(ByVal SuchMuster, ByVal Ersatzstring, ByVal Zeichenfolge, _
   'Skriptverarbeitung, wenn das Suchmuster nicht gefunden wird.
   On Error GoTo Fehler
       
-  'Dim oRegExp As Object
-  'Set oRegExp = CreateObject("VBScript.RegExp")
+  'Dim ThisWorkbook.RegExp As Object
+  'Set ThisWorkbook.RegExp = CreateObject("VBScript.RegExp")
   
-  oRegExp.Pattern = SuchMuster       ' Setzt das Muster.
-  oRegExp.IgnoreCase = True          ' Ignoriert die Schreibweise. (Namen in Excel sind nicht case sensitive!)
-  oRegExp.Global = AlleErsetzen      ' Legt globales Anwenden fest.
-  If oRegExp.test(Zeichenfolge) Then
-    substitute = oRegExp.Replace(Zeichenfolge, Ersatzstring)   ' Führt die Ersetzung durch.
+  ThisWorkbook.RegExp.Pattern = SuchMuster       ' Setzt das Muster.
+  ThisWorkbook.RegExp.IgnoreCase = True          ' Ignoriert die Schreibweise. (Namen in Excel sind nicht case sensitive!)
+  ThisWorkbook.RegExp.Global = AlleErsetzen      ' Legt globales Anwenden fest.
+  If ThisWorkbook.RegExp.test(Zeichenfolge) Then
+    substitute = ThisWorkbook.RegExp.Replace(Zeichenfolge, Ersatzstring)   ' Führt die Ersetzung durch.
   Else
     If AbbruchBeiFehler Then
       ErrMessage = "Fehler beim Ersetzen:" & vbNewLine & vbNewLine & _
@@ -448,7 +448,7 @@ Function substitute(ByVal SuchMuster, ByVal Ersatzstring, ByVal Zeichenfolge, _
       substitute = Zeichenfolge     ' keine Änderung
     End If
   End If
-  'Set oRegExp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   Exit Function
 
 Fehler:
@@ -462,19 +462,19 @@ Function RegExpTest(SuchMuster, Zeichenfolge)
   'Demonstriert die Anwendung von regulären Ausdrücken.
   On Error GoTo Fehler
   Dim Uebereinstimmung, Uebereinstimmungen, Rueckgabe   ' Erstellt Variablen.
-  'Dim oRegExp As Object
+  'Dim ThisWorkbook.RegExp As Object
   Rueckgabe = ""
-  'Set oRegExp = CreateObject("VBScript.RegExp")
-  oRegExp.Pattern = SuchMuster       ' Setzt das Muster.
-  oRegExp.IgnoreCase = False         ' Ignoriert die Schreibweise.
-  oRegExp.Global = False             ' Legt globales Anwenden fest.
-  Set Uebereinstimmungen = oRegExp.Execute(Zeichenfolge)   ' Führt die Suche aus.
+  'Set ThisWorkbook.RegExp = CreateObject("VBScript.RegExp")
+  ThisWorkbook.RegExp.Pattern = SuchMuster       ' Setzt das Muster.
+  ThisWorkbook.RegExp.IgnoreCase = False         ' Ignoriert die Schreibweise.
+  ThisWorkbook.RegExp.Global = False             ' Legt globales Anwenden fest.
+  Set Uebereinstimmungen = ThisWorkbook.RegExp.Execute(Zeichenfolge)   ' Führt die Suche aus.
   For Each Uebereinstimmung In Uebereinstimmungen   ' Durchläuft die Auflistung der Übereinstimmungen.
      Rueckgabe = Rueckgabe & "Entsprechung gefunden bei "
      Rueckgabe = Rueckgabe & Uebereinstimmung.FirstIndex & ". Wert: '"
      Rueckgabe = Rueckgabe & Uebereinstimmung.value & "'." & vbCrLf
   Next
-  'Set oRegExp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   Set Uebereinstimmungen = Nothing
   RegExpTest = Rueckgabe
   Exit Function
@@ -488,17 +488,17 @@ Function entspricht(SuchMuster, Zeichenfolge) as Boolean
   'Liefert "true", wenn Zeichenfolge dem Suchmuster entspricht
   On Error GoTo Fehler
   
-  'Dim oRegExp As Object
-  'Set oRegExp = CreateObject("VBScript.RegExp")
-  oRegExp.Pattern = SuchMuster       ' Setzt das Muster.
-  oRegExp.IgnoreCase = True          ' Ignoriert die Schreibweise.
-  oRegExp.Global = False             ' Legt globales Anwenden fest.
-  If oRegExp.test(Zeichenfolge) Then
+  'Dim ThisWorkbook.RegExp As Object
+  'Set ThisWorkbook.RegExp = CreateObject("VBScript.RegExp")
+  ThisWorkbook.RegExp.Pattern = SuchMuster       ' Setzt das Muster.
+  ThisWorkbook.RegExp.IgnoreCase = True          ' Ignoriert die Schreibweise.
+  ThisWorkbook.RegExp.Global = False             ' Legt globales Anwenden fest.
+  If ThisWorkbook.RegExp.test(Zeichenfolge) Then
     entspricht = True
   Else
     entspricht = False
   End If
-  'Set oRegExp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   Exit Function
 
 Fehler:
@@ -741,41 +741,41 @@ Function Ueberhoehung(ByVal text As String, UebInInfo_Streng As Boolean) As Stri
   
   Dim ui           As String
   Dim Fundstellen  As Object
-  'Dim oRegExp As Object
-  'Set oRegExp = CreateObject("VBScript.RegExp")
+  'Dim ThisWorkbook.RegExp As Object
+  'Set ThisWorkbook.RegExp = CreateObject("VBScript.RegExp")
   
   text = Trim$(text)
   ui = ""
   
   '1. nach "u=..." suchen
-  oRegExp.IgnoreCase = True
-  oRegExp.Global = False
-  oRegExp.Pattern = "u *= *[-|+]? *[0-9]+"
-  Set Fundstellen = oRegExp.Execute(text)
+  ThisWorkbook.RegExp.IgnoreCase = True
+  ThisWorkbook.RegExp.Global = False
+  ThisWorkbook.RegExp.Pattern = "u *= *[-|+]? *[0-9]+"
+  Set Fundstellen = ThisWorkbook.RegExp.Execute(text)
   If (Fundstellen.Count > 0) Then
     ui = Fundstellen(0).value
-    oRegExp.Global = True
-    oRegExp.Pattern = "u *= *"
-    ui = oRegExp.Replace(ui, "")
-    oRegExp.Pattern = " +"
-    ui = oRegExp.Replace(ui, "")
+    ThisWorkbook.RegExp.Global = True
+    ThisWorkbook.RegExp.Pattern = "u *= *"
+    ui = ThisWorkbook.RegExp.Replace(ui, "")
+    ThisWorkbook.RegExp.Pattern = " +"
+    ui = ThisWorkbook.RegExp.Replace(ui, "")
   end if
   
   '2. "u=..." nicht gefunden => erste Zahl nehmen, falls erlaubt.'
   If ((ui = "") and not UebInInfo_Streng) Then
-    oRegExp.Global = False
-    oRegExp.Pattern = "[-|+]?[0-9]+"
-    Set Fundstellen = oRegExp.Execute(text)
+    ThisWorkbook.RegExp.Global = False
+    ThisWorkbook.RegExp.Pattern = "[-|+]?[0-9]+"
+    Set Fundstellen = ThisWorkbook.RegExp.Execute(text)
     If (Fundstellen.Count > 0) Then
       ui = Fundstellen(0).value
-      oRegExp.Global = True
-      oRegExp.Pattern = " "
-      ui = oRegExp.Replace(ui, "")
+      ThisWorkbook.RegExp.Global = True
+      ThisWorkbook.RegExp.Pattern = " "
+      ui = ThisWorkbook.RegExp.Replace(ui, "")
     End If
   End If
   
   Set Fundstellen = Nothing
-  'Set oRegExp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   Ueberhoehung = ui
 End Function
 
@@ -785,13 +785,13 @@ Function GetKm(byVal KmAngabe)
   'Eingabe:  KmAngabe ... reele Zahl in [m] oder übliche Km-Angabe (Vorzeichen des Km-Anteils ist allein entscheidend)
   dim Km, Hm, m, T, KmReal, VorzKm, VorzM, Vorz
   Dim oMatches
-  'Dim oRegExp As Object
-  'Set oRegExp = CreateObject("VBScript.RegExp")
+  'Dim ThisWorkbook.RegExp As Object
+  'Set ThisWorkbook.RegExp = CreateObject("VBScript.RegExp")
   KmReal = null
-  oRegExp.IgnoreCase = True
-  oRegExp.Global = False
-  oRegExp.Pattern = "^ *([+\-]? *[0-9]*[.]*[0-9]+)([-+ ]+)([0-9]*[.]*[0-9]+) *$"
-  Set oMatches = oRegExp.Execute(KmAngabe)
+  ThisWorkbook.RegExp.IgnoreCase = True
+  ThisWorkbook.RegExp.Global = False
+  ThisWorkbook.RegExp.Pattern = "^ *([+\-]? *[0-9]*[.]*[0-9]+)([-+ ]+)([0-9]*[.]*[0-9]+) *$"
+  Set oMatches = ThisWorkbook.RegExp.Execute(KmAngabe)
   if (oMatches.Count = 0) then
     'Keine gültige Km-Schreibweise => eventuell eine reele Zahl.
     if (isNumeric(KmAngabe)) then KmReal = cdbl(KmAngabe)
@@ -807,7 +807,7 @@ Function GetKm(byVal KmAngabe)
     KmReal = Vorz * (abs(Km) * 1000 + m)
   end if
   Set oMatches = Nothing
-  'Set oRegExp = Nothing
+  'Set ThisWorkbook.RegExp = Nothing
   GetKm = KmReal
 end function
 

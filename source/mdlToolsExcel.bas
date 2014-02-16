@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -39,9 +39,9 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   End If
   
   'Protokolleintrag
-  If (((ErrMessage <> "") Or (Err.Number <> 0)) And (Not oConsole Is Nothing)) Then
+  If (((ErrMessage <> "") Or (Err.Number <> 0)) And (Not ThisWorkbook.LogConsole Is Nothing)) Then
     'Fehlermeldung für Protokoll
-    'oConsole.logError replace(Message, vbNewLine & vbNewLine, vbNewLine)
+    'ThisWorkbook.LogConsole.logError replace(Message, vbNewLine & vbNewLine, vbNewLine)
     Application.Visible        = true
     Application.UserControl    = true
     Application.ScreenUpdating = true
@@ -150,7 +150,7 @@ Public Function FindeXLVorlage(ByVal FileName As String) As String
                      Application.TemplatesPath & ";" & _
                      Application.StartupPath
   'MsgBox VerzeichnisListe
-  FindeXLVorlage = oSysTools.FindFile(FileName, VerzeichnisListe, True)
+  FindeXLVorlage = ThisWorkbook.SysTools.FindFile(FileName, VerzeichnisListe, True)
   
 End Function
 
@@ -167,7 +167,7 @@ Public Function SetArbeitsverzeichnis(Optional ByVal Verzeichnis As String = "")
   'wird nur dann ein Verzeichniswechsel durchgeführt, wenn das aktuelle Verzeichnis
   'ein Systemverzeichnis ist ("windows" oder "winnt" im Namen). In diesem Fall wird
   'der in den Excel-Optionen angegebene "Standardarbeitsordner" eingestellt. Schlägt
-  'dieser Versuch fehl, so wird das in "oKonfig.StdArbeitsverz" festgelegte
+  'dieser Versuch fehl, so wird das in "ThisWorkbook.Konfig.StdArbeitsverz" festgelegte
   'Verzeichnis verwendet.
   
   On Error GoTo Fehler
@@ -177,7 +177,7 @@ Public Function SetArbeitsverzeichnis(Optional ByVal Verzeichnis As String = "")
   
   Verzeichnis = LastBackslashDelete(Verzeichnis)
   
-  If (oSysTools.isVerzeichnis(Verzeichnis)) Then
+  If (ThisWorkbook.SysTools.isVerzeichnis(Verzeichnis)) Then
     'angegebenes Verzeichnis einstellen
     On Error Resume Next
     ChDrive Verzeichnis
@@ -191,9 +191,9 @@ Public Function SetArbeitsverzeichnis(Optional ByVal Verzeichnis As String = "")
     If ((InStr(1, strCurDir, "windows", vbTextCompare) > 0) Or (InStr(1, strCurDir, "winnt", vbTextCompare) > 0)) Then
       'kein sinnvolles Arbeitsverzeichnis eingestellt (nämlich Systemverzeichnis)
       strArbeitsverz = LastBackslashDelete(Application.DefaultFilePath)
-      If ((Not oSysTools.isDatei(strArbeitsverz & "\")) Or (strArbeitsverz = "")) Then
+      If ((Not ThisWorkbook.SysTools.isDatei(strArbeitsverz & "\")) Or (strArbeitsverz = "")) Then
         'Application.DefaultFilePath nicht oder fehlerhaft gesetzt.
-        strArbeitsverz = LastBackslashDelete(oKonfig.StdArbeitsverz)    'Voreinstellung als Konstante in mdlAllgemein
+        strArbeitsverz = LastBackslashDelete(ThisWorkbook.Konfig.StdArbeitsverz)    'Voreinstellung als Konstante in mdlAllgemein
       End If
       On Error Resume Next
       ChDrive strArbeitsverz

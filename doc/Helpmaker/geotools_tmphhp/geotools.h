@@ -20,7 +20,6 @@
 #define projektdaten 252
 #define extradaten 253
 #define anwendung 235
-#define tabellenkopflayout 310
 #define werkzeuge 320
 #define datenbereich 330
 #define datenbearbeiten 340

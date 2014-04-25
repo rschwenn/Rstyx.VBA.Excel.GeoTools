@@ -39,7 +39,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'   02.2014 v2.7.0  - Umstellung der Oberfläche von Controls/2003 auf Ribbon/2010
+'24.04.2014 v2.8.0  - LeseTKiTrassePC(): - Anpassung für A1/A5 iGeo Version 1.2.2 (04/2014)
+'                                        - Unterstützung für alle verfügbaren Felder
+'                                        - Unterstützung für iGeo-Format A0
+'                                        - Umbenamnnt in LeseTKiGeo()
+'16.02.2014 v2.7.0  - Umstellung der Oberfläche von Controls/2003 auf Ribbon/2010
 '                   - Umstellung der Konfigurationsdatei auf .xlx
 '                   - Umstellung globaler Objekte auf Eigenschaften von ThisWorkbook, damit
 '                     Excel nicht neu gestartet weden muss, wenn AddIn wegen Fehler gestoppt wurde.

@@ -1050,13 +1050,14 @@ public sub FileErrorsAdd(byVal Typ as String, _
   dim Meldung_alt      as String
   dim ExtraZeilen_alt  As String
   
-  dim oFehler       As Scripting.Dictionary
-  dim oFehlerNeu    As Scripting.Dictionary
+  dim oFehler      As Scripting.Dictionary
+  dim oFehlerNeu   As Scripting.Dictionary
   set oFehlerNeu = New Scripting.Dictionary
   
   on error goto 0
   
   if (SpAnf > SpEnd) then SpAnf = 0
+  if (Zeile < 1) then Zeile = 1
   
   'Neuen Fehler zusammenstellen
     oFehlerNeu.add "Typ",         ucase(Typ)

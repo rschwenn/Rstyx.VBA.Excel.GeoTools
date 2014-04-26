@@ -1,7 +1,7 @@
 Rstyx.VBA.Excel.GeoTools
 ========================
 
-Eine Sammlung von Werkzeugen für Excel 2003, die insbesondere das Arbeiten mit einfachen Listen effizienter gestalten sollen, im einzelnen:
+Eine Sammlung von Werkzeugen für Excel 2003 und 2010, die insbesondere das Arbeiten mit einfachen Listen effizienter gestalten sollen, im einzelnen:
 
 
 Funktionen für beliebige Tabellen
@@ -13,9 +13,11 @@ Funktionen für beliebige Tabellen
 
 Funktionen für bereits strukturierte Tabellen
 ---------------------------------------------
- - Projektdaten in den Tabellenkopf eintragen.
  - Formatierung des Datenbereiches.
  - Berechnungen oder/und Textmanipulationen über ganze Spalten
+
+Funktionen für passend strukturierte Tabellenvorlagen
+-----------------------------------------------------
  - Import / Export von Daten für z.T. spezielle Anwendungen.
  - Ergebnis ist immer eine neue Excel-Tabelle
  - Als Datenquelle können dienen:
@@ -25,10 +27,11 @@ Funktionen für bereits strukturierte Tabellen
 
 Zugriff auf die Funktionen der GeoTools
 ---------------------------------------
- - Hauptmenü, Punkt "GeoTools"
- - Symbolleisten bzw. Toolboxen
- - Die Befehle stehen i.d.R. nur dann zur Verfügung, wenn sie sinnvoll einsetzbar sind. Ein Befehl, der eine vorhandene Tabelle bearbeitet, ist z.B. nicht verfügbar, wenn keine Tabelle aktiv ist usw. Die Beschriftungen und Tooltips von Schaltern geben den aktiven Status an.
- - Die Import-Funktionen sind abhängig vom Vorhandensein passender Formatvorlagen. Diese Vorlagen können wie jede andere Vorlage als Grundlage zum Erstellen einer neuen Datei dienen (Menü Datei | neu).
+ - Excel 2003
+   -- Hauptmenü, Punkt "GeoTools"
+   -- Symbolleisten bzw. Toolboxen
+ - Excel 2010
+   -- Menüband, Register "GeoTools"
 
 Lizenz
 -------
@@ -36,7 +39,7 @@ Lizenz
 
 Abhängigkeiten
 --------------
- - Excel 2003
+ - Excel 2003 oder 2010
  - Microsoft Scripting Runtime
  - Windows Script Host Object Model
  - Microsoft Windows Common Controls 6.0 (MSComctl.ocx)

@@ -1,7 +1,7 @@
 Rstyx.VBA.Excel.GeoTools
 ========================
 
-Eine Sammlung von Werkzeugen für Excel 2003 und 2010, die insbesondere das Arbeiten mit einfachen Listen effizienter gestalten sollen, im einzelnen:
+Eine Sammlung von Werkzeugen für Excel 2003 und 2010, die insbesondere das Arbeiten mit einfachen Listen einschließlich CSV-Import effizienter gestalten sollen, im einzelnen:
 
 
 Funktionen für beliebige Tabellen
@@ -9,29 +9,29 @@ Funktionen für beliebige Tabellen
  - Standard-Fußzeile eintragen.
  - Interpolationsformel erstellen.
  - Doppelte Werte in einer Spalte markieren.
+ - Leerzeilen im Intervall einfügen
  - Strukturierung der Tabelle in Datenbereich und Kopf
 
-Funktionen für bereits strukturierte Tabellen
----------------------------------------------
+Funktionen für bereits strukturierte Tabellen (-vorlagen)
+---------------------------------------------------------
  - Formatierung des Datenbereiches.
  - Berechnungen oder/und Textmanipulationen über ganze Spalten
-
-Funktionen für passend strukturierte Tabellenvorlagen
------------------------------------------------------
  - Import / Export von Daten für z.T. spezielle Anwendungen.
  - Ergebnis ist immer eine neue Excel-Tabelle
  - Als Datenquelle können dienen:
-   -- die aktive Tabelle
-   -- eine spezielle ASCII-Datei, für die ein Import-Modul realisiert ist.
-   -- eine CSV-Datei mit passendem Kopf
+   - die aktive, strukturierte Tabelle
+   - eine spezielle ASCII-Datei, für die ein Import-Modul realisiert ist.
+   - eine CSV-Datei mit passendem Kopf
 
 Zugriff auf die Funktionen der GeoTools
 ---------------------------------------
- - Excel 2003
-   -- Hauptmenü, Punkt "GeoTools"
-   -- Symbolleisten bzw. Toolboxen
- - Excel 2010
-   -- Menüband, Register "GeoTools"
+ - Excel 2003: Hauptmenü-Punkt "GeoTools" sowie Symbolleisten
+ - Excel 2010: Menüband-Register "GeoTools"
+
+Dokumentation
+-------------
+Das Projektarchiv enthält die komplette Dokumentation einschließlich Beispieldaten und -vorlagen.
+Dokumentation und Download sind auch auf der [Website] (http://www.rstyx.de/GeoTools.html) verfügbar.
 
 Lizenz
 -------

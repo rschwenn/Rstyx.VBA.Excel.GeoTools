@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2013  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
-Public Const VersionNr    As String = "2.6.0"
-Public Const VersionDate  As String = "Dezember 2013"
-Public Const Copyright    As String = "© 2003 - 2013  Robert Schwenn"
+Public Const VersionNr    As String = "2.6.0.1"
+Public Const VersionDate  As String = "April 2014"
+Public Const Copyright    As String = "© 2003 - 2014  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
@@ -142,6 +142,11 @@ Public Const SpN_TK_St                       As String = "TK.St"
 Public Const SpN_TK_V                        As String = "TK.V"
 Public Const SpN_TK_RG                       As String = "TK.RG"
 Public Const SpN_TK_LG                       As String = "TK.LG"
+Public Const SpN_TK_QGT                      As String = "TK.QGT"
+Public Const SpN_TK_HGT                      As String = "TK.HGT"
+Public Const SpN_TK_QGS                      As String = "TK.QGS"
+Public Const SpN_TK_HGS                      As String = "TK.HGS"
+Public Const SpN_TK_KmStatus                 As String = "TK.KmStatus"
 
 Public Const SpN_Tra_NameGra                 As String = "Tra.NameGra"
 Public Const SpN_Tra_NameKML                 As String = "Tra.NameKML"

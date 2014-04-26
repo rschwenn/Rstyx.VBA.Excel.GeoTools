@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2013 Robert Schwenn
+' Copyright (c) 2003-2014 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'25.04.2014 v2.6.0.1  - Import Trasdsenkoo': Update entsprechend v2.8.0 (XL2010):
+'                                        - Anpassung für A1/A5 iGeo Version 1.2.2 (04/2014)
+'                                        - Unterstützung für alle verfügbaren Felder
+'                                        - Unterstützung für iGeo-Format A0
+'                                        - Umbenamnnt in LeseTKiGeo()
 '05.12.2013 v2.6.0  - Lizenz geändert. GeoTools unterliegen jetzt der "The MIT License"
 '10.11.2013 v2.5.1  - CimpTrassenkoo     - Anpassung für iGeo Version 11/2013 (Gleisprofilbereich)
 '15.09.2013 v2.5.0  - CimpTrassenkoo     - Anpassung an iTrassePC 2.0.2 (A1-Kennung ohne Kommas)

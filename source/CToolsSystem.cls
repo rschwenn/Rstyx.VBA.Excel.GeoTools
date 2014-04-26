@@ -1048,6 +1048,7 @@ public sub FileErrorsAdd(byVal Typ as String, _
   on error goto 0
   
   if (SpAnf > SpEnd) then SpAnf = 0
+  if (Zeile < 1) then Zeile = 1
   
   'Neuen Fehler zusammenstellen
     oFehlerNeu.add "Typ",         ucase(Typ)

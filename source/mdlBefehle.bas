@@ -292,13 +292,7 @@ Fehler:
 End Sub
 
 Sub Protokoll()
-  On Error GoTo Fehler
-  ErrMessage = "Protokoll-Konsole existiert nicht!"
-  ThisWorkbook.LogConsole.Show vbModeless
-  ErrMessage = ""
-  Exit Sub
-Fehler:
-  FehlerNachricht "mdlUserInterface.ZeigeProtokoll()"
+  Call ShowConsole
 End Sub
 
 

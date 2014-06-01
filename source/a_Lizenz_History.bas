@@ -33,12 +33,17 @@ Attribute VB_Name = "a_Lizenz_History"
 'Nötige Verweise:   - Microsoft ActiveX Data Objects 2.1 Library
 '                   - Microsoft Scripting Runtime
 '                   - Windows Script Host Object Model
-'                   - Microsoft Windows Common Controls 6.0 (SP6)
 '                   - Microsoft VBScript Regular Expressions 5.5
+'                   - Optional (für Protokollierung): Actions.NET-AddIn
 '
 '
 'Versionshistorie:
 '=================
+'01.06.2014 v2.9.0  - Protokollierung umgestellt:
+'                     - VBA-LoggingConsole ausgebaut!
+'                     - ***Echo-Methoden benutzen LoggingConsole.NET via Actions.NET-AddIn
+'                     - Ist Actions.NET-AddIn nicht geladen, steht kein Protokoll zur Verfügung.
+'                     => Abhängigkeit von "Microsoft Windows Common Controls 6.0 (SP6)" entfällt!
 '24.04.2014 v2.8.0  - LeseTKiTrassePC(): - Anpassung für A1/A5 iGeo Version 1.2.2 (04/2014)
 '                                        - Unterstützung für alle verfügbaren Felder
 '                                        - Unterstützung für iGeo-Format A0

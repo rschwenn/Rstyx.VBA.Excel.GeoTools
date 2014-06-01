@@ -25,7 +25,6 @@ Private InitMsg                 As String
 Private strVBAHostNameVersion   As String
 Private strAddInName            As String
 Private oAktiveTabelle          As CtabAktiveTabelle
-Private oConsole                As frmLoggingConsole
 Private oKonfig                 As CdatKonfig
 Private oMetadaten              As CdatMetaDaten
 Private oRegExp                 As VBScript_RegExp_55.RegExp
@@ -47,18 +46,10 @@ Private Sub Workbook_Open()
         InitMsg = "GeoTools " & VersionNr & " aktiviert (Keine Konfiguration verfügbar!)"
     End If
     Application.StatusBar = InitMsg
-    If (Me.LogConsole Is Nothing) Then Application.StatusBar = Application.StatusBar & " (Keine Protokollierung verfügbar!)"
     call ClearStatusBarDelayed(StatusBarClearDelay)
     
-    ' Versuch, den Fokus im Excel-Fenster zu behalten.
-    ' (Ansonsten verschwindet dieser - nach der Initialisierung! - im Nirvana)
-    If (Not Me.LogConsole is Nothing) Then
-        Me.LogConsole.Show vbModeless
-        Me.LogConsole.Hide
-    End If
-    
     Exit Sub
-
+    
 Fehler:
     FehlerNachricht "Workbook_Open()"
 End Sub
@@ -74,7 +65,6 @@ Private Sub Workbook_BeforeClose(Cancel As Boolean)
     Set oMetadaten = Nothing
     Set oAktiveTabelle = Nothing
     Set oSysTools = Nothing
-    Set oConsole = Nothing
 End Sub
 
 Sub UIAltlastenBeseitigung()
@@ -117,22 +107,6 @@ End Sub
         End If
         Set AktiveTabelle = oAktiveTabelle
     End Function
-    
-    Public Property Get LogConsole() As Object
-        'Public Property Get LogConsole() As frmLoggingConsole => geht nicht, weil "Forms" immer Private sind.
-        If (oConsole Is Nothing) Then
-            On Error Resume Next
-            ErrMessage = "Fehler beim Initialisieren der Protokoll-Konsole"
-            Set oConsole = New frmLoggingConsole
-            oConsole.WindowTitle = Me.AddInName & " Protokoll"
-            On Error GoTo Fehler
-        End If
-        Set LogConsole = oConsole
-        
-        Exit Sub
-        Fehler:
-        FehlerNachricht "LogConsole()"
-    End Property
     
     Public Property Get Konfig() As CdatKonfig
         If (oKonfig Is Nothing) Then

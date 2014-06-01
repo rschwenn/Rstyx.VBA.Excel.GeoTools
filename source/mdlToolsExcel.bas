@@ -39,9 +39,8 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   End If
   
   'Protokolleintrag
-  If (((ErrMessage <> "") Or (Err.Number <> 0)) And (Not ThisWorkbook.LogConsole Is Nothing)) Then
+  If ((ErrMessage <> "") Or (Err.Number <> 0)) Then
     'Fehlermeldung für Protokoll
-    'ThisWorkbook.LogConsole.logError replace(Message, vbNewLine & vbNewLine, vbNewLine)
     Application.Visible        = true
     Application.UserControl    = true
     Application.ScreenUpdating = true

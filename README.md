@@ -42,4 +42,5 @@ Abhängigkeiten
  - Excel 2003 oder 2010
  - Microsoft Scripting Runtime
  - Windows Script Host Object Model
- - Microsoft Windows Common Controls 6.0 (MSComctl.ocx)
+ - Version 2003: Microsoft Windows Common Controls 6.0 (MSComctl.ocx)
+ - Version 2010: Actions.Net-AddIn (https://github.com/rschwenn/Rstyx.Excel) (optional für Protokollierung)

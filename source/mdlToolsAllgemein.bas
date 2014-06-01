@@ -20,57 +20,6 @@ const SORTTYPE_STRING  As Byte = 1  'Alphanumerisch
 
 
 
-'***  Abteilung Protokollierung  ******************************************************************
-'    ==> Die Echo-Methoden benötigen die Eigenschaft "ThisWorkbook.LogConsole"!
-
-Sub Echo(ByVal Message As String)
-  'Adds a "Normal Message" to the Log.
-  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logInfo Message
-End Sub
-
-Sub ErrEcho(ByVal Message As String)
-  'Adds an "Error Message" to the Log.
-  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logError Message
-End Sub
-
-Sub WarnEcho(ByVal Message As String)
-  'Adds a "Warning Message" to the Log.
-  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logWarning Message
-End Sub
-
-Sub DebugEcho(ByVal Message As String)
-  'Adds a "Debug Message" to the Log.
-  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.logDebug Message
-End Sub
-
-Sub ShowConsole()
-  'Shows the Logging Console Dialog.
-  If (Not ThisWorkbook.LogConsole Is Nothing) Then ThisWorkbook.LogConsole.Show vbModeless
-End Sub
-
-Function GetNewConsole(Optional WindowTitle As String = "", Optional LogSource As String = "") As frmLoggingConsole
-  '--------------------------------------------------------------------------------------------
-  ' Returns a new instance of frmLoggingConsole with it's LogSource and WindowTitle properties set.
-  ' 
-  ' This function is needed to get a new Console in another VBProject,
-  ' because it can be instanciated only here in this VBProject.
-  ' The Type "frmLoggingConsole" isn't public - so the Console variable
-  ' in the other VBProject should be declared as "Object".
-  ' 
-  ' The other VBProject needs a reference to the LoggingConsole project.
-  ' The name of the LoggingConsole project must preceede this function's call.
-  ' 
-  ' Sample call: LoggingConsole.GetNewConsole("Demo Log")
-  '--------------------------------------------------------------------------------------------
-  Dim oLog As frmLoggingConsole
-  Set oLog = New frmLoggingConsole
-  oLog.WindowTitle = WindowTitle
-  oLog.LogSource = LogSource
-  Set GetNewConsole = oLog
-End Function
-
-
-
 '***  Abteilung Allgemeines  **********************************************************************
 
 Public Sub Wait(X)

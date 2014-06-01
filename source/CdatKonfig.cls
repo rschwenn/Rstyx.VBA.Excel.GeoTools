@@ -530,34 +530,39 @@ End Function
 
 Public Sub LeseKonfiguration()
   'Lesen der Konfigurations-Arbeitsmappe.
-
+  
   Dim StatusScreen     As Boolean
+  Dim StatusEvents     As Boolean
   Dim StatusCalc       As Boolean
-  Dim CfgGeoeffnet     As Boolean
-  Dim Datei            As Excel.Workbook
+  Dim IsCfgOpen        As Boolean
+  Dim Wbk              As Excel.Workbook
+  Dim WbkCfg           As Excel.Workbook
+  
+  On Error GoTo Fehler
+  DebugEcho "CdatKonfig.LeseKonfiguration(): Lese Konfigurationsdatei '" & cfg & "'."
+  
+  StatusScreen = Application.ScreenUpdating
+  StatusEvents = Application.EnableEvents
+  Application.ScreenUpdating = False
   
   On Error Resume Next
-  'On Error GoTo 0
-  DebugEcho "CdatKonfig.LeseKonfiguration(): Lese Konfigurationsdatei '" & cfg & "'."
-
-  StatusScreen = Application.ScreenUpdating
-  Application.ScreenUpdating = False
-
   Application.Workbooks.Open FileName:=cfg, ReadOnly:=True
+  On Error GoTo Fehler
   
   'Wird Excel per Automation gestartet (und das Laden der Startup-Add-Ins ebenso gesteuert),
   'so erzeugt der gescheiterte Versuch, eine nicht vorhandenen Arbeitsmappe zu öffnen,
   'keinen Fehler (bzw. der Versuch findet gar nicht erst statt, auch wenn die Datei vorhanden
   'ist). Deshalb:
-  CfgGeoeffnet = False
-  For Each Datei In Application.Workbooks
-    If (Datei.FullName = cfg) Then
-      CfgGeoeffnet = True
+  IsCfgOpen = False
+  For Each Wbk In Application.Workbooks
+    If (lcase(Wbk.FullName) = lcase(cfg)) Then
+      IsCfgOpen = True
+      Set WbkCfg = Wbk
       Exit For
     End If
   Next
-
-  If (Not CfgGeoeffnet) Then
+  
+  If (Not IsCfgOpen) Then
     On Error GoTo Fehler
     'ErrMessage = ErrMsgCfgFehlt
     Err.Raise ErrNumCfgFehlt + vbObjectError, , ThisWorkbook.Name & ": Konfigurationsdatei '" & cfg & "' nicht gefunden."
@@ -566,10 +571,17 @@ Public Sub LeseKonfiguration()
   Call LeseEinstellungen
   Call LeseSpaltenKonfig
   
-  Application.ActiveWorkbook.Close False
+  ' Mit aktiven Ereignissen scheitert dies gern mal (diverse Interferenzen)
+  Application.EnableEvents = False
+  WbkCfg.Close False
+  
+  Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
+  
+  Application.StatusBar = "GeoTools-Konfiguration gelesen. (" & cfg & ")."
+  Call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-
+  
 Fehler:
   Application.ScreenUpdating = StatusScreen
   'FehlerNachricht "CdatKonfig.LeseKonfiguration()"

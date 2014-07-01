@@ -1372,7 +1372,7 @@ Private Sub GetFormatliste_XlVorlagen()
     StatusEvents = Application.EnableEvents
     'Wenn Ereignisse ausgeschaltet werden, läuft diese Routine mindestens doppelt so schnell,
     'aber Symbolleisten der temporär geöffneten Dateien bleiben als Leichen zurück.
-    'Application.EnableEvents = False
+    Application.EnableEvents = False
     Application.ScreenUpdating = False
     
     On Error Resume Next
@@ -1477,11 +1477,13 @@ Private Sub GetFormatliste_XlVorlagen()
         'XLT öffnen, Info's lesen und schließen
         
         'Verhindern, dass die zu öffnende Datei selbständig tätig wird.
-        Application.EnableEvents = False
+        'Application.EnableEvents = False
         Application.Workbooks.Add AktFormatPfadName
-        Application.EnableEvents = True
         
+        Application.EnableEvents = True
         ThisWorkbook.AktiveTabelle.Syncronisieren
+        Application.EnableEvents = False
+        
         Titel = ThisWorkbook.AktiveTabelle.TabTitel
         Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
         Application.ActiveWorkbook.Close False
@@ -2158,5 +2160,3 @@ Fehler:
 End Sub
 
 ' Für jEdit:  :collapseFolds=1:mode=vbscript:
-
-

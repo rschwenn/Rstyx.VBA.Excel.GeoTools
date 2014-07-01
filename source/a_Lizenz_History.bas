@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'01.07.2014 v2.9.1  - Bugfix in frmStartExpim: Ereignisbehandlung beim Durchsuchen der Vorlagen
+'                     fast komplett ausgeschaltet wegen Interferenzen, die zu Fehlern führten.
 '01.06.2014 v2.9.0  - Protokollierung umgestellt:
 '                     - VBA-LoggingConsole ausgebaut!
 '                     - ***Echo-Methoden benutzen LoggingConsole.NET via Actions.NET-AddIn

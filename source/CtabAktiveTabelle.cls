@@ -1990,7 +1990,7 @@ Private Sub App_WindowActivate(ByVal Wb As Excel.Workbook, ByVal Wn As Excel.Win
   'Löst "app_SheetActivate" aus, wenn beim Aktivieren eines Fensters auch das Arbeitsblatt wechselt.
   On Error Resume Next
   strNeuesBlatt = Wb.Name & "!" & Wb.ActiveSheet.Name
-  Echo "Fenster aktiviert mit Arbeitsblatt: " & strNeuesBlatt
+  DebugEcho "Fenster aktiviert mit Arbeitsblatt: " & strNeuesBlatt
   If (strNeuesBlatt <> strAltesBlatt) Then
     strAltesBlatt = strNeuesBlatt
     Call App_SheetActivate(Wb.ActiveSheet)

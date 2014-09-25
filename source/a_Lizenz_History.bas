@@ -39,6 +39,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'25.09.2014 v2.9.2  - mdlTabellenFunktionen.bas entfernt (vorher in NivLinien.xltm integriert)
 '01.07.2014 v2.9.1  - Bugfix in frmStartExpim: Ereignisbehandlung beim Durchsuchen der Vorlagen
 '                     fast komplett ausgeschaltet wegen Interferenzen, die zu Fehlern führten.
 '01.06.2014 v2.9.0  - Protokollierung umgestellt:

@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2014 Robert Schwenn
+' Copyright (c) 2003-2015 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'07.06.2015 v2.9.3  - Bugfix LeseTKiGeo(): - Nach einem A0-Block wurde kein weiterer Block erkannt.
+'                                          - Als Name der Gradiente wurde "Trafo Gradiente" erkannt.
 '25.09.2014 v2.9.2  - mdlTabellenFunktionen.bas entfernt (vorher in NivLinien.xltm integriert)
 '01.07.2014 v2.9.1  - Bugfix in frmStartExpim: Ereignisbehandlung beim Durchsuchen der Vorlagen
 '                     fast komplett ausgeschaltet wegen Interferenzen, die zu Fehlern führten.

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -372,7 +372,6 @@ Sub AktionsManager()
   Dim Meldung_Titel             As String
   Dim AktionErfolgreich         As Boolean
   Dim StatusScreen              As Boolean
-  Dim StatusCalc                As Boolean
   Dim DatenImPuffer             As Boolean
   Dim MappeAngelegt             As Boolean
   Dim DialogAnzeigen            As Boolean
@@ -616,8 +615,6 @@ Sub AktionsManager()
               Meldung_Inhalt = "Aktion abgebrochen."
             Else
               'Mappe erfolgreich angelegt.
-              StatusCalc = ActiveSheet.EnableCalculation
-              ActiveSheet.EnableCalculation = False
               
               'Spezial nach CSV-Import: Struktur der Zieltabelle evtl. neu herstellen.
               If (Me.Quelle_Typ = io_Typ_CsvSpezial) Then AktionErfolgreich = TabelleStrukturieren(oCSV)
@@ -711,7 +708,6 @@ Sub AktionsManager()
     'Kontrolle über Statuszeile an Excel zurückgeben, Status Bildschirmaufbau und Berechnung wiederherstellen.
     'Application.StatusBar = False
     Application.ScreenUpdating = StatusScreen
-    If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
     
   End If
   

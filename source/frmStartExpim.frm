@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -1553,7 +1553,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Call ClearStatusBarDelayed(StatusBarClearDelay)
     Application.EnableEvents = StatusEvents
     Application.ScreenUpdating = StatusScreen
-    If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+    'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
     DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen vollständig."
     Exit Sub
 
@@ -1563,7 +1563,7 @@ Fehler:
   Application.StatusBar = False
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
-  If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
 End Sub
 
@@ -1778,7 +1778,7 @@ Fehler:
   Set oCsvSpezial = Nothing
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
-  If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.Changed_CsvDateiname()"
 End Sub
 
@@ -1831,13 +1831,13 @@ Private Sub GetFormatliste_SpezialImport()
   
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
-  If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   Exit Sub
 
 Fehler:
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
-  If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.GetFormatliste_SpezialImport()"
 End Sub
 

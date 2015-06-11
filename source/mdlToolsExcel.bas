@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -398,14 +398,7 @@ Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary) As
   On Error GoTo Fehler
   Dim Feld             As Variant
   Dim FeldGeschrieben  As Boolean
-  Dim StatusScreen     As Boolean
-  Dim StatusCalc       As Boolean
   Dim oRangeName       As Range
-  
-  StatusScreen = Application.ScreenUpdating
-  StatusCalc = ActiveSheet.EnableCalculation
-  Application.ScreenUpdating = False
-  ActiveSheet.EnableCalculation = False
   
   FeldGeschrieben = False
   For Each Feld In oDictionary
@@ -416,13 +409,9 @@ Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary) As
     End If
   Next
   SchreibenFelderInTabelle = FeldGeschrieben
-  Application.ScreenUpdating = StatusScreen
-  ActiveSheet.EnableCalculation = StatusCalc
   Exit Function
   
 Fehler:
-  Application.ScreenUpdating = StatusScreen
-  ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "mdlToolsExcel.SchreibenFelderInTabelle()"
   SchreibenFelderInTabelle = False
 End Function

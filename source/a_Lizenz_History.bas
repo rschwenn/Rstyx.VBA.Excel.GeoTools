@@ -39,6 +39,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'11.06.2015 v2.9.4  - Bugfix: Expim-Dialog deaktivierte die Formelberechnung in aktiver Tabelle.
 '07.06.2015 v2.9.3  - Bugfix LeseTKiGeo(): - Nach einem A0-Block wurde kein weiterer Block erkannt.
 '                                          - Als Name der Gradiente wurde "Trafo Gradiente" erkannt.
 '25.09.2014 v2.9.2  - mdlTabellenFunktionen.bas entfernt (vorher in NivLinien.xltm integriert)

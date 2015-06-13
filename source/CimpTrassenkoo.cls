@@ -1868,6 +1868,8 @@ Private Function GetValue(InputString As String)
     RetValue = InputString
   End If
   GetValue = RetValue
+  Exit Function
+  
 Fehler:
   ErrMessage = ""
   FehlerNachricht "CimpTrassenkoo.GetValue()"

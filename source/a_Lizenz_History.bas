@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'12.06.2015 v2.9.5  - Bugfix CimpTrassenkoo: - A0 darf jetzt mit absolut leerem Kommentar enden.
+'                     - Schwerer Performanceeinbruch, wegen GetValue() seit V 2.8.0
 '11.06.2015 v2.9.4  - Bugfix: Expim-Dialog deaktivierte die Formelberechnung in aktiver Tabelle.
 '07.06.2015 v2.9.3  - Bugfix LeseTKiGeo(): - Nach einem A0-Block wurde kein weiterer Block erkannt.
 '                                          - Als Name der Gradiente wurde "Trafo Gradiente" erkannt.

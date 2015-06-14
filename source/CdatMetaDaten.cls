@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -607,16 +607,8 @@ Private Sub GetAktPrjDat_iGEO()
   Dim TreiberStringDeu As String
   Dim ConnectStringEnd As String
   Dim SQL              As String
-  Dim StatusScreen     As Boolean
-  Dim StatusCalc       As Boolean
   
   DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Daten des aktiven iGEO-Projektes ermitteln."
-  On Error Resume Next
-  StatusScreen = Application.ScreenUpdating
-  StatusCalc = ActiveSheet.EnableCalculation
-  Application.ScreenUpdating = False
-  ActiveSheet.EnableCalculation = False
-  
   On Error GoTo Fehler
   
   aktPrjName = iGEO_aktPrjName
@@ -673,21 +665,15 @@ Private Sub GetAktPrjDat_iGEO()
       End If
       Set DBconn = Nothing
     End If
-  else
+  Else
     DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Aktives iGEO-Projekt ist unbekannt."
   End If
-  
-  On Error Resume Next
-  Application.ScreenUpdating = StatusScreen
-  ActiveSheet.EnableCalculation = StatusCalc
   
   Exit Sub
   
 Fehler:
   Set DBconn = Nothing
   Set RS = Nothing
-  Application.ScreenUpdating = StatusScreen
-  ActiveSheet.EnableCalculation = StatusCalc
   'FehlerNachricht "CdatMetaDaten.GetAktPrjDat_iGEO()"
 End Sub
 

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -872,10 +872,10 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
           debugecho "LeseTKiGeo(): Kommentar in Zeile " & cStr(ZeilenNr)
           oRegExp.IgnoreCase = True
           oRegExp.Global = False
-          oRegExp.Pattern = " *([^ \t]+) *\: *(.+) *"
+          oRegExp.Pattern = "^# *([^\:]+)\: *(.+) *"
           Set oMatches = oRegExp.Execute(Zeile)
           If (oMatches.Count > 0) Then
-            Key = oMatches(0).SubMatches(0)
+            Key  = Trim(oMatches(0).SubMatches(0))
             Wert = oMatches(0).SubMatches(1)
             Select Case Key
               Case "Achse":               NTra    = oFSO.GetBaseName(Wert)
@@ -891,7 +891,9 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               Case "DGM":                 NDGM    = oFSO.GetBaseName(Wert)
               Case "Feldnamen":           FieldNamesString = trim(Wert)     ' Format "A0"
               
-              Case "Format": UmfEnde = true  'Kommentarblock der nächsten "Umformung" von iGeo/iTrassePC => d.h. die bisherige Umformung ist zu Ende.
+              Case "Format"
+                  UmfEnde = true  'Kommentarblock der nächsten "Umformung" von iGeo/iTrassePC => d.h. die bisherige Umformung ist zu Ende.
+                  NF = splitWords(Zeile, Feld, "")               'awk-like Splitting
             End Select
           End If
           

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -2197,7 +2197,7 @@ End Sub
 Private Sub App_WindowActivate(ByVal Wb As Excel.Workbook, ByVal Wn As Excel.Window)
   'Löst "app_SheetActivate" aus, wenn beim Aktivieren eines Fensters auch das Arbeitsblatt wechselt.
   strNeuesBlatt = Wb.Name & "!" & Wb.ActiveSheet.Name
-  Echo "Fenster aktiviert mit Arbeitsblatt: " & strNeuesBlatt
+  DebugEcho "Fenster aktiviert mit Arbeitsblatt: " & strNeuesBlatt
   If (strNeuesBlatt <> strAltesBlatt) Then
     strAltesBlatt = strNeuesBlatt
     Call App_SheetActivate(Wb.ActiveSheet)

@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"  'Vermeidung des u.U. nicht erlaubten Zugriffs auf das VBProject.
-Public Const VersionNr    As String = "2.6.0.1"
-Public Const VersionDate  As String = "April 2014"
-Public Const Copyright    As String = "© 2003 - 2014  Robert Schwenn"
+Public Const VersionNr    As String = "2.6.0.2"
+Public Const VersionDate  As String = "Juni 2015"
+Public Const Copyright    As String = "© 2003 - 2015  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 

@@ -39,6 +39,15 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'14.06.2015 v2.6.0.2  Einpflegen von Bugfixes der Versionen 2.9.1, 2.9.3, 2.9.4, 2.9.5 (Office 2010):
+'                     - Bugfix CimpTrassenkoo: - A0 darf jetzt mit absolut leerem Kommentar enden.
+'                       - Schwerer Performanceeinbruch, wegen GetValue() seit V 2.6.0.1
+'                     - Bugfix: Expim-Dialog deaktivierte die Formelberechnung in aktiver Tabelle.
+'                     - Bugfix LeseTKiGeo(): - Nach einem A0-Block wurde kein weiterer Block erkannt.
+'                                            - Als Name der Gradiente wurde "Trafo Gradiente" erkannt.
+'                     - Bugfix in frmStartExpim: Ereignisbehandlung beim Durchsuchen der Vorlagen
+'                       fast komplett ausgeschaltet wegen Interferenzen,
+'                       die (zumindest in Excel 2010) zu Fehlern führten.
 '25.04.2014 v2.6.0.1  - Import Trasdsenkoo': Update entsprechend v2.8.0 (XL2010):
 '                                        - Anpassung für A1/A5 iGeo Version 1.2.2 (04/2014)
 '                                        - Unterstützung für alle verfügbaren Felder

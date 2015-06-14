@@ -1115,6 +1115,13 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             NF = splitWords(Datenzeile, Feld, "[^|]+")   'awk-like Splitting
             Feld(0) = ""                                 'Index 0 wird unten verwendet!
             
+            ' Falls die Datenzeile mit einem Feldtrenner endet, hat splitWords() das letzte (leere) Wort unterschlagen...
+            If (right(Datenzeile, 1) = "|") Then
+              NF = NF + 1
+              ReDim Preserve Feld(0 To NF)
+              Feld(NF) = ""
+            End If
+            
             ' Maskierte Trennzeichen wiederherstellen
             For i = 1 To NF
               Feld(i) = trim(Feld(i))
@@ -1869,6 +1876,8 @@ Private Function GetValue(InputString As String)
     RetValue = InputString
   End If
   GetValue = RetValue
+  Exit Function
+  
 Fehler:
   ErrMessage = ""
   FehlerNachricht "CimpTrassenkoo.GetValue()"

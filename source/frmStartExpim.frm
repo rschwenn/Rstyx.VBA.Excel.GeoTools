@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2009  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -1372,7 +1372,7 @@ Private Sub GetFormatliste_XlVorlagen()
     StatusEvents = Application.EnableEvents
     'Wenn Ereignisse ausgeschaltet werden, läuft diese Routine mindestens doppelt so schnell,
     'aber Symbolleisten der temporär geöffneten Dateien bleiben als Leichen zurück.
-    'Application.EnableEvents = False
+    Application.EnableEvents = False
     Application.ScreenUpdating = False
     
     On Error Resume Next
@@ -1477,11 +1477,13 @@ Private Sub GetFormatliste_XlVorlagen()
         'XLT öffnen, Info's lesen und schließen
         
         'Verhindern, dass die zu öffnende Datei selbständig tätig wird.
-        Application.EnableEvents = False
+        'Application.EnableEvents = False
         Application.Workbooks.Add AktFormatPfadName
-        Application.EnableEvents = true
         
+        Application.EnableEvents = true
         oAktiveTabelle.Syncronisieren
+        Application.EnableEvents = False
+        
         Titel = oAktiveTabelle.TabTitel
         Kategorien = oAktiveTabelle.Kategorien
         Application.ActiveWorkbook.Close False

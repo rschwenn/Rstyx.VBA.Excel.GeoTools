@@ -14,6 +14,18 @@ Option Explicit
 
 
 
+Function IsMacrosExecutable() As Boolean
+  'Checks if VBA macros are executable at this point.
+  On Error GoTo Fehler
+  Application.StatusBar = Application.StatusBar
+  IsMacrosExecutable = True
+  Exit Function
+Fehler:
+  Err.Clear
+  IsMacrosExecutable = False
+End Function
+
+
 '***  Abteilung Statuszeile und Meldungen  ***************************************
 
 Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
@@ -23,6 +35,8 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   ' - err.source wird ergänzt um "\FehlerQuelle"
   ' - "ErrMessage" (globale Variable, darf leer sein)
   'Danach wird der Fehler gelöscht.
+  
+  On Error GoTo Fehler
   Dim Titel   As String
   Dim Message As String
   
@@ -57,6 +71,11 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   
   ErrMessage = ""
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  
+  Exit Sub
+Fehler:
+  Err.Clear
+  ErrMessage = ""
 End Sub
 
 
@@ -100,17 +119,30 @@ End Sub
 
 Sub ClearStatusBarDelayed(Seconds as integer)
   'Clears the statusbar after a given amount of seconds.
+  On Error GoTo Fehler
   Application.OnTime Now + TimeSerial(0,0,Seconds), "ClearStatusBar"
+  Exit Sub
+Fehler:
+  Err.Clear
 End Sub
 
 Sub ClearStatusBar()
   'This method is needed for ClearStatusBarDelayed()...
+  On Error GoTo Fehler
   Application.StatusBar = False
+  Exit Sub
+Fehler:
+  Err.Clear
 End Sub
 
 Sub WriteStatusBar(Message as String)
   'This method is needed to catch different status bar handling in different VBA hosts.
+  On Error GoTo Fehler
   Application.StatusBar = Message
+  
+  Exit Sub
+Fehler:
+  Err.Clear
 End Sub
 
 
@@ -208,7 +240,8 @@ Public Function SetArbeitsverzeichnis(Optional ByVal Verzeichnis As String = "")
   Exit Function
   
 Fehler:
-  FehlerNachricht "mdlToolsExcel.SetArbeitsverzeichnis()"
+  Err.Clear
+  ErrMessage = ""
 End Function
 
 

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -99,7 +99,7 @@ Private oRibbon As IRibbonUI
 
 ' Region "Action Buttons"
     
-    Sub GeoTolsButtonAction(ByVal control As IRibbonControl)
+    Sub GeoToolsButtonAction(ByVal control As IRibbonControl)
         'On Error Resume Next
         Select Case control.ID
             Case "InfoButton"                   : Call GeoTools_Info
@@ -120,7 +120,7 @@ Private oRibbon As IRibbonUI
             Case "EditFileButton"               : Call DateiBearbeiten
             Case "SetFooterButton"              : Call SchreibeFusszeile_1
             Case "FormatContextMenuButton"      : Call FormatDaten
-            Case Else                           : WarnEcho "mdlRibbon.GeoTolsButtonAction(): Unbekannte Control.ID = " & control.ID
+            Case Else                           : WarnEcho "mdlRibbon.GeoToolsButtonAction(): Unbekannte Control.ID = " & control.ID
         End select
         Call UpdateGeoToolsRibbon
         'On Error Goto 0
@@ -163,7 +163,12 @@ Private oRibbon As IRibbonUI
 
 ' Region "GetEnabled"
     
-    ' Verfügbar, wenn das aktive Blatt eine Tabelle ist.
+    ' Verfügbar, wenn Makros nicht deaktiviert sind.
+    Sub GetEnabledMacrosExecutable(control As IRibbonControl, ByRef returnedVal)
+        returnedVal = IsMacrosExecutable
+    End Sub
+    
+    ' Verfügbar, wenn das aktive Blatt eine Tabelle ist und Makros nicht deaktiviert sind.
     Sub GetEnabledTable(control As IRibbonControl, ByRef returnedVal)
         
         returnedVal = False
@@ -175,6 +180,8 @@ Private oRibbon As IRibbonUI
                 End If
             End If
         End If
+        
+        returnedVal = (returnedVal And IsMacrosExecutable)
     End Sub
     
     ' Verfügbar, wenn der Infotraeger definiert ist ("GeoTools-Tabelle").

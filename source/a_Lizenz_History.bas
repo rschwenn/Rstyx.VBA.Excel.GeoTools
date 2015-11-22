@@ -39,7 +39,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'08.11.2015 v2.9.6  - Anfälligkeit gegenüber "Geschützter Ansicht" (deaktivierte Makros) verringert.
+'22.11.2015 v2.10.0 Kompatibilität mit Win7 und anderen Installations-Orten:
+'                   - Anfälligkeit gegenüber "Geschützter Ansicht" (deaktivierte Makros) verringert.
+'                   - Vorlagencache wird jetzt als eine einzige Datei in TEMP-Ordner geschrieben.
+'                   - Konfiguration und Hilfe werden jetzt nicht mehr im übergeordneten verzeichnis
+'                     gesucht, sondern im Unterverzeichnis "GeoToolsRes".
 '12.06.2015 v2.9.5  - Bugfix CimpTrassenkoo: - A0 darf jetzt mit absolut leerem Kommentar enden.
 '                     - Schwerer Performanceeinbruch, wegen GetValue() seit V 2.8.0
 '11.06.2015 v2.9.4  - Bugfix: Expim-Dialog deaktivierte die Formelberechnung in aktiver Tabelle.

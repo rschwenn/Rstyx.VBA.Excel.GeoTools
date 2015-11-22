@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -96,8 +96,9 @@ Private Sub Class_Initialize()
   On Error GoTo 0
   DebugEcho "CdatKonfig.Class_Initialize(): Initialisierung beginnt."
   
-  'Name der CFG_Datei = GeoTools_cfg.xls (eine Verzeichnisebene höher als iXLTools.xla).
-  cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
+  'Name der CFG_Datei = GeoTools_cfg.xlsx (im Ressource-Unterverzeichnis).
+  'cfg = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
+  cfg = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & "_cfg.xlsx"
   
   ' Meldung für den Fall, dass die Datei nicht gelesen wurde.
   strInfoKeineKonfig = "Konfigurationsdatei '" & cfg & "' wurde nicht gelesen." & vbLf & vbLf & _

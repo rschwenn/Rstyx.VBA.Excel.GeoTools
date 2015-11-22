@@ -1339,13 +1339,13 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim RecentXLT                 As Variant
     Dim RecentXLT_Neu(0 To 2)     As String
     Dim RecentXLT_Cache(0 To 2)   As String
-    Dim XltCachePfad(0 To 3)      As String
     Dim PfadNameXltCache          As String
     Dim Titel                     As String
     Dim Kategorien                As String
     Dim Formatliste               As String
     Dim AktFormatPfadName         As String
     Dim DateiAendDatum            As String
+    Dim vDateiAendDatum           As Variant
     Dim Zeile                     As String
     Dim Computername              As String
     Dim Username                  As String
@@ -1355,7 +1355,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim oFS                       As New Scripting.FileSystemObject
     Dim oTS_XltCache              As Scripting.TextStream
   
-  Const NameXltCache As String = "xlt.cache"
+  Const NameXltCache As String = "GeoTools_xltcache.txt"
   DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen zusammenstellen..."
   
   'Vorbereitungen
@@ -1380,63 +1380,52 @@ Private Sub GetFormatliste_XlVorlagen()
     Username = ThisWorkbook.SysTools.Username
     On Error GoTo Fehler
   '
-  '1. Aktuell auf Festplatte vorhandene XLT's suchen und die entsprechenden Verzeichnisse merken.
+  '1. Aktuell auf Festplatte vorhandene Vorlagen suchen und die entsprechenden Verzeichnisse merken.
     '   => Diese Liste wird eine Spalte des Arrays Liste_XLT_komplett
     '      und gibt damit auch die Sortierung vor (Zuerst XLT vom Netzwerk, dann lokale XLT).
     Formatliste = GetXLVorlagen(DateiMaskeXLT)
     NF = SplitDelim(Formatliste, FormatPfadName, ";")
     DebugEcho "Anzahl verfügbarer XL-Vorlagen = " & CStr(NF)
     Call WriteStatusBar("Anzahl verfügbarer XL-Vorlagen = " & CStr(NF))
-    
-    'Feststellen, auf welche der in Frage kommenden Verzeichnisse die gefundenen Vorlagen verteilt sind.
-    'Dabei zählen nur die Stammverzeichnisse (keine Unterverz.!).
-    '=> In diesen Verzeichnissen residieren die "xlt.cache"-Dateien!
-    If ((Application.NetworkTemplatesPath <> "") And (InStr(Formatliste, Application.NetworkTemplatesPath) > 0)) Then XltCachePfad(idxNetTemplatesPath) = LastBackslashDelete(Application.NetworkTemplatesPath)
-    If ((Application.TemplatesPath <> "") And (InStr(Formatliste, Application.TemplatesPath) > 0)) Then XltCachePfad(idxTemplatesPath) = LastBackslashDelete(Application.TemplatesPath)
-    If ((Application.AltStartupPath <> "") And (InStr(Formatliste, Application.AltStartupPath) > 0)) Then XltCachePfad(idxAltStartupPath) = LastBackslashDelete(Application.AltStartupPath)
-    If ((Application.StartupPath <> "") And (InStr(Formatliste, Application.StartupPath) > 0)) Then XltCachePfad(idxStartupPath) = LastBackslashDelete(Application.StartupPath)
   '
   '2. Persistenten XLT-Cache lesen
   '3. Array "Liste_XLT_komplett" für Listbox erstellen.
   '4. "Innere" Eigenschaften aller gefundenen Vorlagen zwischenspeichern:
   If (NF > 0) Then
-    '2. Eigenschaften der zuletzt vorhandenen XLT's lesen (aus persistentem Cache in jedem der o.g. Stammverzeichnisse)
-    'Im Netzwerk kann es zu konkurrierenden Zugriffen kommen => Fehler tolerieren, aber protokollieren.
+    '2. Eigenschaften der zuletzt vorhandenen Vorlagen lesen (aus persistentem Cache)
     DebugEcho "GetFormatliste_XlVorlagen(): Cache der zuletzt vorhandenen XL-Vorlagen lesen..."
-    For i = LBound(XltCachePfad) To UBound(XltCachePfad)
-      If (XltCachePfad(i) <> "") Then
-        PfadNameXltCache = XltCachePfad(i) & "\" & NameXltCache
-        If (Not ThisWorkbook.SysTools.isDatei(PfadNameXltCache)) Then
-          DebugEcho vbNewLine & "Cache existiert nicht im Verzeichnis: '" & XltCachePfad(i) & "'"
-        Else
-          DebugEcho vbNewLine & "Cache lesen aus Verzeichnis: '" & XltCachePfad(i) & "'"
-          Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForReading, NewFileIfNotExist_no, OpenAsSystemDefault)
-          If (Not oTS_XltCache Is Nothing) Then
-            'Datei erfolgreich geöffnet.
-            iAnz = 0
-            Do While Not oTS_XltCache.AtEndOfStream
-              Zeile = oTS_XltCache.ReadLine
-              If (Left(Zeile, 1) <> "#") Then
-                'keine Kopfzeile
-                NF = SplitDelim(Zeile, tmp, "|")
-                If (NF <> 4) Then
-                  ErrEcho "Fehler: in Zeile " & oTS_XltCache.Line & ": falsche Anzahl Felder: " & CStr(NF)
-                Else
-                  iAnz = iAnz + 1
-                  RecentXLT_Cache(idxAendDatum) = tmp(1)
-                  RecentXLT_Cache(idxTitel) = tmp(3)
-                  RecentXLT_Cache(idxKategorien) = tmp(4)
-                  RecentXLT = RecentXLT_Cache
-                  oRecentXLT.Add tmp(2), RecentXLT
-                End If
-              End If
-            Loop
-            DebugEcho " - Eigenschaften für " & CStr(iAnz) & " Vorlagen gelesen."
-            oTS_XltCache.Close
+    
+    PfadNameXltCache = oFS.GetSpecialFolder(TempOrdner).Path & "\" & NameXltCache
+    
+    If (Not ThisWorkbook.SysTools.isDatei(PfadNameXltCache)) Then
+      DebugEcho vbNewLine & "Cache existiert nicht: '" & PfadNameXltCache & "'"
+    Else
+      DebugEcho vbNewLine & "Cache lesen: '" & PfadNameXltCache & "'"
+      Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForReading, NewFileIfNotExist_no, OpenAsSystemDefault)
+      If (Not oTS_XltCache Is Nothing) Then
+        'Datei erfolgreich geöffnet.
+        iAnz = 0
+        Do While Not oTS_XltCache.AtEndOfStream
+          Zeile = oTS_XltCache.ReadLine
+          If (Left(Zeile, 1) <> "#") Then
+            'keine Kopfzeile
+            NF = SplitDelim(Zeile, tmp, "|")
+            If (NF <> 4) Then
+              ErrEcho "Fehler: in Zeile " & oTS_XltCache.Line & ": falsche Anzahl Felder: " & CStr(NF)
+            Else
+              iAnz = iAnz + 1
+              RecentXLT_Cache(idxAendDatum) = tmp(1)
+              RecentXLT_Cache(idxTitel) = tmp(3)
+              RecentXLT_Cache(idxKategorien) = tmp(4)
+              RecentXLT = RecentXLT_Cache
+              oRecentXLT.Add tmp(2), RecentXLT
+            End If
           End If
-        End If
+        Loop
+        DebugEcho " - Eigenschaften für " & CStr(iAnz) & " Vorlagen gelesen."
+        oTS_XltCache.Close
       End If
-    Next
+    End If
     DebugEcho "==> Eigenschaften für insgesamt " & CStr(oRecentXLT.Count) & " Vorlagen gelesen." & vbNewLine
     
     '3. "Liste_XLT_komplett" erstellen. Dabei:
@@ -1451,7 +1440,8 @@ Private Sub GetFormatliste_XlVorlagen()
       
       'Datum der (auf der Festplatte) gefundenen Datei
         ErrMessage = "Datei existiert nicht !?!"  'Kann eigentlich nicht sein.
-        DateiAendDatum = Format(oFS.GetFile(AktFormatPfadName).DateLastModified, "dd/mm/yy hh:mm:ss")
+        vDateiAendDatum = oFS.GetFile(AktFormatPfadName).DateLastModified
+        DateiAendDatum  = Format(vDateiAendDatum, "dd/mm/yy hh:mm:ss")
         DebugEcho " - Letzte Änderung der gefundenen Datei = " & DateiAendDatum
       
       'Datum  der zuletzt vorhandenen Datei
@@ -1518,33 +1508,24 @@ Private Sub GetFormatliste_XlVorlagen()
     'In jedes verwendete Stammverzeichnis wird eine Cache-Datei geschrieben (vorhandene überschreiben).
     'Im Netzwerk kann es zu konkurrierenden Zugriffen kommen => Fehler tolerieren, aber protokollieren.
     DebugEcho "GetFormatliste_XlVorlagen(): Cache der aktuell verfügbaren XL-Vorlagen schreiben..."
-    For i = LBound(XltCachePfad) To UBound(XltCachePfad)
-      If (XltCachePfad(i) <> "") Then
-        PfadNameXltCache = XltCachePfad(i) & "\" & NameXltCache
-        DebugEcho vbNewLine & "Cache schreiben in Verzeichnis: '" & XltCachePfad(i) & "'"
-        Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForWriting, NewFileIfNotExist_yes, OpenAsSystemDefault)
-        If (Not oTS_XltCache Is Nothing) Then
-          
-          'Kopf schreiben
-          oTS_XltCache.WriteLine "# GeoTools.xla:     Cache für ""innere"" Eigenschaften der XL-Vorlagen in diesem Verzeichnis incl. Unterverzeichnissen"
-          oTS_XltCache.WriteLine "# Stammverzeichnis: " & XltCachePfad(i)
-          oTS_XltCache.WriteLine "# Erstellt:         " & CStr(Now) & "   (Benutzer " & Username & " an PC " & Computername & ")"
-          oTS_XltCache.WriteLine "# -------------------------------------------------------------------------------------------------"
-          oTS_XltCache.WriteLine "# Datum und Zeit der letzten Änderung | Pfad\Name der Vorlage | Titel | Kategorien der Datenfelder"
-          oTS_XltCache.WriteLine "# -------------------------------------------------------------------------------------------------"
-          
-          For Each XltPfad In oRecentXLT_Neu
-            RecentXLT = oRecentXLT_Neu(XltPfad)
-            If (InStr(XltPfad, XltCachePfad(i)) > 0) Then
-              'XLT gehört zum aktuellen Stammverzeichnis => schreiben.
-              oTS_XltCache.WriteLine RecentXLT(idxAendDatum) & "|" & XltPfad & "|" & RecentXLT(idxTitel) & "|" & RecentXLT(idxKategorien)
-            End If
-          Next
-          DebugEcho " - " & CStr(oTS_XltCache.Line - 1) & " Zeilen geschrieben."
-          oTS_XltCache.Close
-        End If
-      End If
-    Next
+    DebugEcho vbNewLine & "Cache schreiben in Datei: '" & PfadNameXltCache & "'"
+    Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForWriting, NewFileIfNotExist_yes, OpenAsSystemDefault)
+    If (Not oTS_XltCache Is Nothing) Then
+      
+      'Kopf schreiben
+      oTS_XltCache.WriteLine "# GeoTools.xlam:    Cache für ""innere"" Eigenschaften aller gefundenen XL-Vorlagen"
+      oTS_XltCache.WriteLine "# Erstellt:         " & CStr(Now) & "   (Benutzer " & Username & " an PC " & Computername & ")"
+      oTS_XltCache.WriteLine "# -------------------------------------------------------------------------------------------------"
+      oTS_XltCache.WriteLine "# Datum und Zeit der letzten Änderung | Pfad\Name der Vorlage | Titel | Kategorien der Datenfelder"
+      oTS_XltCache.WriteLine "# -------------------------------------------------------------------------------------------------"
+      
+      For Each XltPfad In oRecentXLT_Neu
+        RecentXLT = oRecentXLT_Neu(XltPfad)
+        oTS_XltCache.WriteLine RecentXLT(idxAendDatum) & "|" & XltPfad & "|" & RecentXLT(idxTitel) & "|" & RecentXLT(idxKategorien)
+      Next
+      DebugEcho " - " & CStr(oTS_XltCache.Line - 1) & " Zeilen geschrieben."
+      oTS_XltCache.Close
+    End If
   End If
   
   'Nachbereitung

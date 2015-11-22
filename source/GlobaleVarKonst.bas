@@ -15,11 +15,14 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "2.9.6"
+Public Const VersionNr    As String = "2.10.0"
 Public Const VersionDate  As String = "November 2015"
 Public Const Copyright    As String = "© 2003 - 2015  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
+
+'Installation
+Public Const ResourcesSubFolder              As String = "GeoToolsRes"
 
 'Standard-Einstellungen
 Public Const Std_TkBasisUeberhoehung         As Double  = 1.500

@@ -302,7 +302,8 @@ Sub Hilfe_Komplett()
   'Pfad: Eine Verzeichnisebene über der des AddIn
   On Error GoTo Fehler
   Dim hlp As String
-  hlp = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & ".chm"
+  'hlp = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & ".chm"
+  hlp = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & ".chm"
   ThisWorkbook.SysTools.StarteDatei hlp
   Exit Sub
 Fehler:

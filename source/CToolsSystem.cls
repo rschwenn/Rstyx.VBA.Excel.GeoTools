@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -54,8 +54,11 @@ Attribute VB_Exposed = False
   '  G  JavaExe             ... Pfad\Dateiname der exe von Java, falls installiert.
   '  G  JAVA_HOME           ... Stammverzeichnis der zu verwendenden Java-Platform (Umgebungsvariable)
   '  G  JEDIT_HOME          ... Verzeichnis, in dem jEdit.jar gefunden wurde.
-  '                             Gesucht wird unter %JEDIT_HOME%, dann unter ThisWorkbook.Konfig.JEDIT_HOME
-  '                             (aus Konfigurationsdatei).
+  '                             Gesucht wird unter: - %JEDIT_HOME%
+  '                                                  - %PROGRAMFILES%\jedit
+  '                                                  - %PROGRAMFILES(X86)%\jedit
+  '                                                  - %PROGRAMW6432%\jedit
+  '                                                  - ThisWorkbook.Konfig.JEDIT_HOME (aus Konfigurationsdatei).
   '  G  JEDIT_SETTINGS      ... jEdit-Einstellungsverzeichnis (Umgebungsvariable)
   '  G  jEditJar            ... Pfad\Dateiname von jEdit.jar, falls gefunden.
   '  G  Editoren            ... Liste unterstützter Editoren (2d-Array als Variant).
@@ -119,6 +122,13 @@ Attribute VB_Exposed = False
  '                                        3. Registry (Standardanwendung von .jar)
  '            - rudimentäre OS-Info (Property "OS")
  '            - FindFiles() zeigt Aktivität in Statuszeile
+ '21.02.2016  - Suche nach jedit.jar geändert (siehe Tools_1.vbi 4.2):
+ '                 Gesucht wird unter: - %JEDIT_HOME%
+ '                                      - %PROGRAMFILES%\jedit
+ '                                      - %PROGRAMFILES(X86)%\jedit
+ '                                      - %PROGRAMW6432%\jedit
+ '                                      - ThisWorkbook.Konfig.JEDIT_HOME
+ '              - StartJEdit() verwendet keine speuiellen Kommandozeilenschalter mehr
 '====================================================================================
 
 Option Explicit
@@ -391,14 +401,16 @@ Function StartJEdit(byVal strArgumente as String) As Boolean
     if (JavaExe = "") then
       ErrEcho "StartjEdit(): Die Java-Laufzeitumgebung ist nicht (korrekt) installiert!"
     else
-      ArbVerzSich = Me.ArbeitsVerz
-      Me.ArbeitsVerz = JEDIT_HOME
-      DebugEcho "Arbeitsverzeichnis gesetzt auf " & Me.ArbeitsVerz
-      Kommando = """" & JavaExe & """-ms128m -mx1024m -Dawt.useSystemAAFontSettings=on -Dsun.java2d.noddraw=true -jar """ & jEditJar & """ -reuseview -background "
+      'ArbVerzSich = Me.ArbeitsVerz
+      'Me.ArbeitsVerz = JEDIT_HOME
+      'DebugEcho "Arbeitsverzeichnis gesetzt auf " & Me.ArbeitsVerz
+      'Kommando = """" & JavaExe & """-ms128m -mx1024m -Dawt.useSystemAAFontSettings=on -Dsun.java2d.noddraw=true -jar """ & jEditJar & """ -reuseview -background "
       
       '-Xms<size> set initial Java heap size
       '-Xmx<size> set maximum Java heap size
       '-Xss<size> set java thread stack size
+      
+      Kommando = """" & JavaExe & """ -jar """ & jEditJar & """ -reuseview -background "
       
       if (JEDIT_SETTINGS <> "") then Kommando = Kommando & """-settings=" & JEDIT_SETTINGS & """ "
       DebugEcho "jEdit-Einstellungsverzeichnis gesetzt auf " & JEDIT_SETTINGS
@@ -414,7 +426,7 @@ Function StartJEdit(byVal strArgumente as String) As Boolean
         ErrEcho "StartjEdit(): jEdit konnte nicht gestartet werden."
       end if
       On Error GoTo 0
-      Me.ArbeitsVerz = ArbVerzSich
+      'Me.ArbeitsVerz = ArbVerzSich
     end if
   end if
   StartJEdit = Erfolg
@@ -1442,7 +1454,38 @@ Private sub GetJEditUmgebung()
     end if
   end if
   
-  'Spezial für GeoTools:
+  if (not Erfolg) then
+    JEDIT_HOME = Environ("PROGRAMFILES") & "\jEdit"
+    jEditjar = JEDIT_HOME & "\" & JarName
+    if (fs.FileExists(jEditjar)) then
+      Erfolg = true
+    else
+      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im Verzeichnis '" & JEDIT_HOME & "'"
+    end if
+  end if
+  
+  if (not Erfolg) then
+    JEDIT_HOME = Environ("PROGRAMFILES(X86)") & "\jEdit"
+    jEditjar = JEDIT_HOME & "\" & JarName
+    if (fs.FileExists(jEditjar)) then
+      Erfolg = true
+    else
+      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im Verzeichnis '" & JEDIT_HOME & "'"
+    end if
+  end if
+  
+  if (not Erfolg) then
+    JEDIT_HOME = Environ("PROGRAMW6432") & "\jEdit"
+    jEditjar = JEDIT_HOME & "\" & JarName
+    if (fs.FileExists(jEditjar)) then
+      Erfolg = true
+    else
+      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im Verzeichnis '" & JEDIT_HOME & "'"
+    end if
+  end if
+  
+  
+  ' Nur für GeoTools (Konfig):
   if (not Erfolg) then
     if (ThisWorkbook.Konfig is nothing) then
       DebugEcho "GetJEditUmgebung(): Konfigurationsobjekt existiert nicht!"
@@ -1458,35 +1501,16 @@ Private sub GetJEditUmgebung()
     end if
   end if
     
-  if (not Erfolg) then
-    JEDIT_HOME = "G:\Tools\jEdit"
-    jEditjar = JEDIT_HOME & "\" & JarName
-    if (fs.FileExists(jEditjar)) then
-      Erfolg = true
-    else
-      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im (hart kodierten) Verzeichnis '" & JEDIT_HOME & "'"
-    end if
-  end if
-  
-  if (not Erfolg) then
-    JEDIT_HOME = Environ("PROGRAMFILES") & "\jEdit"
-    jEditjar = JEDIT_HOME & "\" & JarName
-    if (fs.FileExists(jEditjar)) then
-      Erfolg = true
-    else
-      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im (hart kodierten) Verzeichnis '" & JEDIT_HOME & "'"
-    end if
-  end if
-  
-  if (not Erfolg) then
-    JEDIT_HOME = Environ("PROGRAMFILES") & "\Tools\jEdit"
-    jEditjar = JEDIT_HOME & "\" & JarName
-    if (fs.FileExists(jEditjar)) then
-      Erfolg = true
-    else
-      DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im (hart kodierten) Verzeichnis '" & JEDIT_HOME & "'"
-    end if
-  end if
+  '' Nicht für GeoTools:
+  'if (not Erfolg) then
+  '  JEDIT_HOME = "G:\Tools\jEdit"
+  '  jEditjar = JEDIT_HOME & "\" & JarName
+  '  if (fs.FileExists(jEditjar)) then
+  '    Erfolg = true
+  '  else
+  '    DebugEcho "GetJEditUmgebung(): jEdit.jar nicht gefunden im (hart kodierten) Verzeichnis '" & JEDIT_HOME & "'"
+  '  end if
+  'end if
   
   JEDIT_SETTINGS = LastBackslashDelete(Environ("JEDIT_SETTINGS"))
   DebugEcho "GetJEditUmgebung(): Umgebungsvariable %JEDIT_SETTINGS%='" & JEDIT_SETTINGS & "'"

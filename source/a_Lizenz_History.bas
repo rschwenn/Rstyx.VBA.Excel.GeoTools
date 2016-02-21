@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2015 Robert Schwenn
+' Copyright (c) 2003-2016 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,13 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'21.02.2016 v2.10.1 - Suche nach jedit.jar geändert (siehe Tools_1.vbi 4.2):
+'                       Gesucht wird unter: - %JEDIT_HOME%
+'                                           - %PROGRAMFILES%\jedit
+'                                           - %PROGRAMFILES(X86)%\jedit
+'                                           - %PROGRAMW6432%\jedit
+'                                           - ThisWorkbook.Konfig.JEDIT_HOME
+'                   - Editoraufrufe unterstützen jetzt Pfade mit Leerzeichen :-) 
 '22.11.2015 v2.10.0 Kompatibilität mit Win7 und anderen Installations-Orten:
 '                   - Anfälligkeit gegenüber "Geschützter Ansicht" (deaktivierte Makros) verringert.
 '                   - Vorlagencache wird jetzt als eine einzige Datei in TEMP-Ordner geschrieben.

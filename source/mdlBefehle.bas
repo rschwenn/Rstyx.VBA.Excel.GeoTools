@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -196,7 +196,7 @@ Sub DateiBearbeiten()
       Application.StatusBar = "Der Inhalt der aktiven Zelle ('" & Datei & "') bezeichnet keine existierende Datei !"
     else
       Application.StatusBar = "Datei '" & Datei & "' wird im Editor geöffnet."
-      if (not ThisWorkbook.SysTools.StartEditor(Datei)) then
+      if (not ThisWorkbook.SysTools.StartEditor("""" & Datei & """")) then
         Application.StatusBar = "Datei '" & Datei & "' wird mit Standardanwendung geöffnet."
         ThisWorkbook.SysTools.StarteDatei(Datei)
       end if

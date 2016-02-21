@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -217,8 +217,8 @@ End Sub
 
 Private Sub btnQuelle_AsciiDateiEdit_Click()
   'Eingabedatei bearbeiten.
-  If (Not ThisWorkbook.SysTools.StartEditor(Me.tbQuelle_AsciiDatei.value)) Then
-    ThisWorkbook.SysTools.StarteDatei (Me.tbQuelle_AsciiDatei.value)
+  If (Not ThisWorkbook.SysTools.StartEditor("""" & Me.tbQuelle_AsciiDatei.value & """")) Then
+    ThisWorkbook.SysTools.StarteDatei(Me.tbQuelle_AsciiDatei.value)
   End If
 End Sub
 

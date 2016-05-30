@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'30.05.2016 v2.10.2 - Bugfix: Die letzte Arbeitsmappe konnte nicht per Fernsteuerung geschlossen werden. 
+'                     => CtabAktiveTabelle.App_WorkbookDeactivate(): Verzögerung nach DebugEcho().  
 '21.02.2016 v2.10.1 - Suche nach jedit.jar geändert (siehe Tools_1.vbi 4.2):
 '                       Gesucht wird unter: - %JEDIT_HOME%
 '                                           - %PROGRAMFILES%\jedit

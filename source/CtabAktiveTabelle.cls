@@ -2009,6 +2009,7 @@ Private Sub App_WorkbookDeactivate(ByVal Wb As Excel.Workbook)
     Call UpdateGeoToolsRibbon(keinAktivesBlatt:=True)
     'MsgBox "Gleich gibt's keine aktive Mappe mehr!"
     DebugEcho "Kein Arbeitsblatt mehr aktiv."
+    Application.Wait Now + TimeSerial(0, 0, 0.1)
   End If
   On Error GoTo 0
 End Sub

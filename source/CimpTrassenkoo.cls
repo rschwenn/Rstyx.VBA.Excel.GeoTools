@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -1274,11 +1274,16 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               If ((vZ = "") And (vdH <> "") And (vGradHoehe <> "")) Then vZ = CDbl(vGradHoehe) + CDbl(vdH)
               If ((vGradHoehe = "") And (vdH <> "") And (vZ <> "")) Then vGradHoehe = CDbl(vZ) - CDbl(vdH)
             
-            'Bemerkung: Kommentar hat Vorrang vor Code.
-              if (trim(Kommentar) <> "") then
-                strBemerkung = Kommentar
-              else
+            'Bemerkung: Text und Kommentar verketten.
+              if (trim(Feld(W_Text)) <> "") then
                 strBemerkung = Feld(W_Text)
+                
+                if (trim(Kommentar) <> "") then
+                  strBemerkung = strBemerkung & ", " & trim(Kommentar)
+                end if
+                
+              else
+                strBemerkung = Kommentar
               end if
             
             'Ist-Überhöhung (nicht hier ermitteln => wird nachträglich gemacht)

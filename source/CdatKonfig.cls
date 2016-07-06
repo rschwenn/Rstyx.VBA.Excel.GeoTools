@@ -534,6 +534,7 @@ Public Sub LeseKonfiguration()
   
   Dim StatusScreen     As Boolean
   Dim StatusEvents     As Boolean
+  Dim StatusAlerts     As Boolean
   Dim StatusCalc       As Boolean
   Dim IsCfgOpen        As Boolean
   Dim Wbk              As Excel.Workbook
@@ -544,7 +545,9 @@ Public Sub LeseKonfiguration()
   
   StatusScreen = Application.ScreenUpdating
   StatusEvents = Application.EnableEvents
+  StatusAlerts = Application.DisplayAlerts
   Application.ScreenUpdating = False
+  Application.DisplayAlerts  = False
   
   On Error Resume Next
   Application.Workbooks.Open FileName:=cfg, ReadOnly:=True
@@ -576,8 +579,9 @@ Public Sub LeseKonfiguration()
   Application.EnableEvents = False
   WbkCfg.Close False
   
-  Application.EnableEvents = StatusEvents
+  Application.EnableEvents   = StatusEvents
   Application.ScreenUpdating = StatusScreen
+  Application.DisplayAlerts  = StatusAlerts
   
   Application.StatusBar = "GeoTools-Konfiguration gelesen. (" & cfg & ")."
   Call ClearStatusBarDelayed(StatusBarClearDelay)

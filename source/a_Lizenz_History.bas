@@ -39,6 +39,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'12.07.2016 v2.10.5 - Bugfix FehlerNachricht(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert;-)
+'                   - Bugfix frmStartExpim.GetFormatliste_XlVorlagen(): Eine nicht lesbare Vorlage
+'                     führt nicht mehr zum Abbruch der Vorlagenerkundung. 
 '06.07.2016 v2.10.4 - Beim Lesen der Konfiguration: Anzeige von Warnungen (DisplayAlerts) temporär deaktiviert
 '02.06.2016 v2.10.3 - CimpTrassenkoo: - A0, A1, A5: Text und Kommentar werden verkettet (bisher hatte Kommentar Vorrang).
 '30.05.2016 v2.10.2 - Bugfix: Die letzte Arbeitsmappe konnte nicht per Fernsteuerung geschlossen werden. 

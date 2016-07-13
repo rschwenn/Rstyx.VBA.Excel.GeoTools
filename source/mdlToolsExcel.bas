@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -36,9 +36,11 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   ' - "ErrMessage" (globale Variable, darf leer sein)
   'Danach wird der Fehler gelöscht.
   
-  On Error GoTo Fehler
-  Dim Titel   As String
-  Dim Message As String
+  Dim Titel     As String
+  Dim Message   As String
+  Dim ErrNumber As Long
+  
+  ErrNumber = Err.Number
   
   If (Err.Number <> 0) Then
     Titel = "FEHLER in: '" & Err.Source & "\" & FehlerQuelle & "'"
@@ -47,19 +49,23 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
               "Fehlerbeschreibung  : " & Err.Description
     Err.Clear
     If (ErrMessage <> "") Then Message = Message & vbNewLine & vbNewLine & "Bemerkung           : " & ErrMessage
+    DebugEcho Titel
   Else
     Titel = "FEHLER"
     If (ErrMessage <> "") Then Message = ErrMessage
   End If
   
+  ' Nicht eher, da sonst das Err-Objekt geleert wird:
+  On Error GoTo Fehler
+  
   'Protokolleintrag
-  If ((ErrMessage <> "") Or (Err.Number <> 0)) Then
+  If ((ErrMessage <> "") Or (ErrNumber <> 0)) Then
     'Fehlermeldung für Protokoll
     Application.Visible        = true
     Application.UserControl    = true
     Application.ScreenUpdating = true
     ErrEcho replace(Message, vbNewLine & vbNewLine, vbNewLine)
-   end if
+  end if
   
   'Dialog
   If (Message <> "") Then

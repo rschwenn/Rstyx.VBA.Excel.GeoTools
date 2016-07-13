@@ -1333,6 +1333,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim StatusCalc                As Boolean
     Dim RecentXLT_ok              As Boolean
     Dim DatumIdentisch            As Boolean
+    Dim XltInfo_OK                As Boolean
     Dim FormatPfadName()          As String
     Dim tmp()                     As String
     Dim XltPfad                   As Variant
@@ -1434,9 +1435,12 @@ Private Sub GetFormatliste_XlVorlagen()
      '   b, Liste der zuletzt vorhandenen XLT's neu erstellen (oRecentXLT_Neu)
     DebugEcho "Liste der XL-Vorlagen für Dialog-Listbox erstellen:"
     ReDim Liste_XLT_komplett(0 To UBound(FormatPfadName) - 1, 0 To 5) As String
+    iAnz = 0
     For i = LBound(FormatPfadName) To UBound(FormatPfadName)
+      
       AktFormatPfadName = FormatPfadName(i)
       DebugEcho "bearbeite Datei '" & AktFormatPfadName & "'"
+      XltInfo_OK = False
       
       'Datum der (auf der Festplatte) gefundenen Datei
         ErrMessage = "Datei existiert nicht !?!"  'Kann eigentlich nicht sein.
@@ -1460,45 +1464,58 @@ Private Sub GetFormatliste_XlVorlagen()
         DebugEcho " - Info's der zuletzt vorhandenen Datei werden verwendet"
         Titel = RecentXLT(idxTitel)
         Kategorien = RecentXLT(idxKategorien)
+        XltInfo_OK = True
       Else
         DebugEcho " - Info's der auf Festplatte gefundenen Datei werden ermittelt"
         Application.StatusBar = "XL-Vorlagen analysieren: " & AktFormatPfadName
         
-        'XLT öffnen, Info's lesen und schließen
-        
-        'Verhindern, dass die zu öffnende Datei selbständig tätig wird.
-        'Application.EnableEvents = False
+        'XLT öffnen.
+        On Error Resume Next
+        ErrMessage = "Fehler beim Erkunden einer Vorlage"
         Application.Workbooks.Add AktFormatPfadName
-        
-        Application.EnableEvents = True
-        ThisWorkbook.AktiveTabelle.Syncronisieren
-        Application.EnableEvents = False
-        
-        Titel = ThisWorkbook.AktiveTabelle.TabTitel
-        Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
-        Application.ActiveWorkbook.Close False
-        
-        DebugEcho " - Titel = '" & Titel & "'"
-        DebugEcho " - Kategorien = '" & Kategorien & "'"
-        
-        'Neu ermittelte Info's merken
-        RecentXLT_Neu(idxTitel) = Titel
-        RecentXLT_Neu(idxKategorien) = Kategorien
-        RecentXLT_Neu(idxAendDatum) = DateiAendDatum
-        RecentXLT = RecentXLT_Neu
+        If (Err.Number <> 0) Then
+            FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
+        Else
+          'XLT: Info's lesen und schließen
+          On Error GoTo Fehler
+          
+          XltInfo_OK = True
+          
+          Application.EnableEvents = True
+          ThisWorkbook.AktiveTabelle.Syncronisieren
+          Application.EnableEvents = False
+          
+          Titel = ThisWorkbook.AktiveTabelle.TabTitel
+          Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
+          Application.ActiveWorkbook.Close False
+          
+          DebugEcho " - Titel = '" & Titel & "'"
+          DebugEcho " - Kategorien = '" & Kategorien & "'"
+          
+          'Neu ermittelte Info's merken
+          RecentXLT_Neu(idxTitel) = Titel
+          RecentXLT_Neu(idxKategorien) = Kategorien
+          RecentXLT_Neu(idxAendDatum) = DateiAendDatum
+          RecentXLT = RecentXLT_Neu
+        End If
       End If
       
       'Vorlage in Array für Listbox eintragen
-      Liste_XLT_komplett(i - 1, idxFmtKurzname) = VorName(AktFormatPfadName)
-      Liste_XLT_komplett(i - 1, idxFmtID) = AktFormatPfadName
-      Liste_XLT_komplett(i - 1, idxFmtTitel) = Titel
-      Liste_XLT_komplett(i - 1, idxFmtKategorien) = Kategorien
-      Liste_XLT_komplett(i - 1, idxFmtDateifilter) = ""
-      Liste_XLT_komplett(i - 1, idxFmtIoTyp) = ""
-      
-      'Vorlage merken...
-      oRecentXLT_Neu.Add AktFormatPfadName, RecentXLT
+      If (XltInfo_OK) Then
+        iAnz = iAnz + 1
+        Liste_XLT_komplett(iAnz - 1, idxFmtKurzname) = VorName(AktFormatPfadName)
+        Liste_XLT_komplett(iAnz - 1, idxFmtID) = AktFormatPfadName
+        Liste_XLT_komplett(iAnz - 1, idxFmtTitel) = Titel
+        Liste_XLT_komplett(iAnz - 1, idxFmtKategorien) = Kategorien
+        Liste_XLT_komplett(iAnz - 1, idxFmtDateifilter) = ""
+        Liste_XLT_komplett(iAnz - 1, idxFmtIoTyp) = ""
+        
+        'Vorlage merken...
+        oRecentXLT_Neu.Add AktFormatPfadName, RecentXLT
+      End If
     Next
+    
+    ReDim Preserve Liste_XLT_komplett(0 To iAnz - 1, 0 To 5) As String
     
     '4. "Innere" Eigenschaften aller gefundenen Vorlagen zwischenspeichern:
     'a, im internen Cache

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -84,6 +84,43 @@ Fehler:
   ErrMessage = ""
 End Sub
 
+
+Sub ProgressbarAllgemein(ByVal MaxValue As Double, ByVal CurrentValue As Double, ByVal Text As String)
+  ' Zeigt in der Statuszeile den angegebenen Fortschritt incl. Text an.
+  ' MaxValue    :  Maximum value to process
+  ' CurrentValue:  Currently processed value
+  ' Text        :  Text to display right of progress bar
+  On Error GoTo Fehler
+  
+  Const SingleBAR = "|"   ' Character for progress bar
+  Const MaxBARS = 65      ' BAR count at 100%
+  
+  Dim Ratio     As Double
+  Dim Percent   As String
+  Dim Bar       As String
+  Dim BARcount  As Integer
+  
+  MaxValue = Abs(MaxValue)
+  CurrentValue = Abs(CurrentValue)
+  
+  If ((CurrentValue <= MaxValue) And (MaxValue > 0)) Then
+      
+      Ratio = CurrentValue / MaxValue
+      Percent = CStr(CInt(Ratio * 100)) & "%  "
+      BARcount = CInt(Ratio * MaxBARS)
+      Bar = Percent & String$(CInt(Ratio * MaxBARS), "|") & "   " & Text
+  Else
+      Bar = "100%  " & String$(CInt(Ratio * MaxBARS), "|") & "   " & Text
+  End If
+  
+  Application.DisplayStatusBar = True
+  Application.StatusBar = Bar
+  
+  Exit Sub
+  
+Fehler:
+  FehlerNachricht "frmBatchPDF.ProgressbarDateiLesen()"
+End Sub
 
 Sub ProgressbarDateiLesen(ByVal Dateinummer As Integer)
   'zeigt in der Statuszeile den Fortschritt des Einlesens einer Datei an.

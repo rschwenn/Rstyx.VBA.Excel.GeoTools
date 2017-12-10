@@ -253,8 +253,7 @@
                   getEnabled="GetEnabledTable"
                   imageMso="SpacingDouble" />
           
-          
-          <separator id="ToolsSeparator" />
+          <separator id="ToolsSeparator1" />
           
           <button id="EditFileButton"
                   label="Editor"
@@ -273,6 +272,18 @@
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="FooterInsertGallery" />
+          
+          <separator id="ToolsSeparator2" />
+          
+          <button id="BatchPDFButton"
+                  label="Batch PDF"
+                  size="large"
+                  screentip="Dialog-gesteuerter PDF-Stapel-Export von Excel-Dateien"
+                  supertip="Für jede im Dialog gewählte Excel-Datei wird eine PDF-Datei gleichen Namens erzeugt (im Ordner der Excel-Datei)."
+                  onAction="GeoToolsButtonAction"
+                  getEnabled="GetEnabledMacrosExecutable"
+                  imageMso="SendPdf" />
+                  
          </group>
       </tab>
     </tabs>

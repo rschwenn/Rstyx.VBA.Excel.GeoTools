@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -119,6 +119,7 @@ Private oRibbon As IRibbonUI
             Case "BlankLinesButton"             : Call InsertLines
             Case "EditFileButton"               : Call DateiBearbeiten
             Case "SetFooterButton"              : Call SchreibeFusszeile_1
+            Case "BatchPDFButton"               : Call BatchPDF
             Case "FormatContextMenuButton"      : Call FormatDaten
             Case Else                           : WarnEcho "mdlRibbon.GeoToolsButtonAction(): Unbekannte Control.ID = " & control.ID
         End select

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -32,7 +32,7 @@ Sub SchreibeProjektDaten()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.SchreibeProjektDaten()"
+  FehlerNachricht "mdlBefehle.SchreibeProjektDaten()"
 End Sub
 
 
@@ -43,7 +43,7 @@ Sub SchreibeFusszeile_1()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.SchreibeFusszeile_1()"
+  FehlerNachricht "mdlBefehle.SchreibeFusszeile_1()"
 End Sub
 
 
@@ -63,7 +63,7 @@ Sub LoeschenDaten()
   End If
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.LoeschenDaten()"
+  FehlerNachricht "mdlBefehle.LoeschenDaten()"
 End Sub
 
 
@@ -74,7 +74,7 @@ Sub FormatDaten()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.FormatDaten()"
+  FehlerNachricht "mdlBefehle.FormatDaten()"
 End Sub
 
 
@@ -85,7 +85,7 @@ Sub UebertragenFormeln()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.UebertragenFormeln()"
+  FehlerNachricht "mdlBefehle.UebertragenFormeln()"
 End Sub
 
 
@@ -96,7 +96,7 @@ Sub Mod_FehlerVerbesserung()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Mod_FehlerVerbesserung()"
+  FehlerNachricht "mdlBefehle.Mod_FehlerVerbesserung()"
 End Sub
 
 
@@ -107,7 +107,7 @@ Sub Mod_UeberhoehungAusBemerkung()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Mod_UeberhoehungAusBemerkung()"
+  FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
 End Sub
 
 
@@ -118,7 +118,7 @@ Sub Mod_Transfo_Tk2Gls()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Mod_Transfo_Tk2Gls()"
+  FehlerNachricht "mdlBefehle.Mod_Transfo_Tk2Gls()"
 End Sub
 
 
@@ -129,7 +129,7 @@ Sub Mod_Transfo_Gls2Tk()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Mod_Transfo_Gls2Tk()"
+  FehlerNachricht "mdlBefehle.Mod_Transfo_Gls2Tk()"
 End Sub
 
 
@@ -141,7 +141,7 @@ Sub TabellenStruktur()
   Set Dialog = Nothing
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.TabellenStruktur()"
+  FehlerNachricht "mdlBefehle.TabellenStruktur()"
 End Sub
 
 
@@ -152,7 +152,7 @@ Sub Selection2Interpolationsformel()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Selection2Interpolationsformel()"
+  FehlerNachricht "mdlBefehle.Selection2Interpolationsformel()"
 End Sub
 
 
@@ -165,7 +165,7 @@ Sub Selection2MarkDoppelteWerte()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Selection2MarkDoppelteWerte()"
+  FehlerNachricht "mdlBefehle.Selection2MarkDoppelteWerte()"
 End Sub
 
 
@@ -178,7 +178,7 @@ Sub InsertLines()
   Exit Sub
 Fehler:
   Set oDialog = Nothing
-  FehlerNachricht "mdlUserInterface.insertLines()"
+  FehlerNachricht "mdlBefehle.insertLines()"
 End Sub
 
 
@@ -205,7 +205,7 @@ Sub DateiBearbeiten()
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.DateiBearbeiten()"
+  FehlerNachricht "mdlBefehle.DateiBearbeiten()"
 End Sub
 
 
@@ -234,7 +234,7 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
   Exit Sub
 Fehler:
   Set oExpimGlobal = Nothing
-  FehlerNachricht "mdlUserInterface.Import_Trassenkoo()"
+  FehlerNachricht "mdlBefehle.Import_Trassenkoo()"
 End Sub
 
 
@@ -262,7 +262,7 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
   Exit Sub
 Fehler:
   Set oExpimGlobal = Nothing
-  FehlerNachricht "mdlUserInterface.Import_CSV()"
+  FehlerNachricht "mdlBefehle.Import_CSV()"
 End Sub
 
 
@@ -288,8 +288,21 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
   Exit Sub
 Fehler:
   Set oExpimGlobal = Nothing
-  FehlerNachricht "mdlUserInterface.ExpimManager()"
+  FehlerNachricht "mdlBefehle.ExpimManager()"
 End Sub
+
+
+Sub BatchPDF()
+  ' Dialog "BatchPDF" anzeigen.
+  Dim Dialog    As frmBatchPDF
+  Set Dialog = New frmBatchPDF
+  Dialog.Show vbModeless
+  Set Dialog = Nothing
+  Exit Sub
+Fehler:
+  FehlerNachricht "mdlBefehle.BatchPDF()"
+End Sub
+
 
 Sub Protokoll()
   Call ShowConsole
@@ -307,7 +320,7 @@ Sub Hilfe_Komplett()
   ThisWorkbook.SysTools.StarteDatei hlp
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.Hilfe_Komplett()"
+  FehlerNachricht "mdlBefehle.Hilfe_Komplett()"
 End Sub
 
 
@@ -324,7 +337,7 @@ Sub GeoTools_Info()
   Call MsgBox(Meldung, vbOKOnly, Titel)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.GeoTools_Info()"
+  FehlerNachricht "mdlBefehle.GeoTools_Info()"
 End Sub
 
 
@@ -336,7 +349,7 @@ Sub InfoKeineKonfig()
   Call MsgBox(ThisWorkbook.Konfig.InfoKeineKonfig, vbExclamation, Titel)
   Exit Sub
 Fehler:
-  FehlerNachricht "mdlUserInterface.InfoKeineKonfig()"
+  FehlerNachricht "mdlBefehle.InfoKeineKonfig()"
 End Sub
 
 

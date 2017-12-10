@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -597,7 +597,7 @@ Private Function FindFiles_R(ByVal FileFilterList As String, ByVal FolderList As
   ' Rückgabe            = gefundene Dateien als Keys in einem unsortierten Dictionary (Item = Dateiname ohne Pfad)
   '-------------------------------------------------------------------------------------------
   
-  On Error GoTo Fehler
+  'On Error GoTo Fehler
   ErrMessage = "unspezifischer Fehler bei Dateisuche ..."
   
   'ACHTUNG: Statische Deklaration:

@@ -15,7 +15,7 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "2.2.0"
+Public Const VersionNr    As String = "2.11.0"
 Public Const VersionDate  As String = "Dezember 2017"
 Public Const Copyright    As String = "© 2003 - 2017  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"

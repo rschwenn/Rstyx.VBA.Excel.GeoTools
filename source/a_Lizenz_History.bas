@@ -39,7 +39,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'10.12.2017 v2.2.0  - Neu: BatchPDF
+'10.12.2017 v2.11.0 - Neu: BatchPDF
 '                   - Neu: mdlToolsExcel.ProgressbarAllgemein()
 '                   - Bugfix ErrEcho(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert ;-)
 '12.07.2016 v2.10.5 - Bugfix FehlerNachricht(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert ;-)

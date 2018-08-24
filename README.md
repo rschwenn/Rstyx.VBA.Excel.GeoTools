@@ -11,6 +11,7 @@ Funktionen für beliebige Tabellen
  - Doppelte Werte in einer Spalte markieren.
  - Leerzeilen im Intervall einfügen
  - Strukturierung der Tabelle in Datenbereich und Kopf
+ - PDF-Stapel-Export
 
 Funktionen für bereits strukturierte Tabellen (-vorlagen)
 ---------------------------------------------------------

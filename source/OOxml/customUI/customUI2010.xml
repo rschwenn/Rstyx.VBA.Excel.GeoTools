@@ -268,7 +268,7 @@
                   label="Fußzeile"
                   size="normal"
                   screentip="Fußzeile einrichten"
-                  supertip="Die Fußzeile wird mit Standardeinträgen belegt. Der mittlere Teil wird aus dem Eintrag “FUSSZEILE_EXCEL_1” aus der Ini-Datei mit Ortsdaten gelesen (siehe Konfiguration)."
+                  supertip="Die Fußzeile wird neu belegt: Links = Kontaktdaten, Mitte = leer, Rechts = Seitennummer. Die Kontaktdaten werden aus dem Eintrag “FUSSZEILE_EXCEL_1” aus der Ini-Datei mit Ortsdaten gelesen (siehe Konfiguration)."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
                   imageMso="FooterInsertGallery" />

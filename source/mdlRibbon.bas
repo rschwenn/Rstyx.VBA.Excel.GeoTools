@@ -1,13 +1,13 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2018  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
 ' Modul mdlRibbon                                                                   
 '===============================================================================
-' Stellt Zugriff auf das Menüband sowie Ribbon-Calllbacks Verfügung.
+' Stellt Zugriff auf das Menüband sowie Ribbon-Callbacks Verfügung.
 
 Option Explicit
 

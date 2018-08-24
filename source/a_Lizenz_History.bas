@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2017 Robert Schwenn
+' Copyright (c) 2003-2018 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,9 +39,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'24.08.2018 v2.12.0 - CtabAktiveTabelle, Fußzeile eintragen: Änderung der Fußzeilen-Belegung
+'                     (Links = Kontaktdaten, Mitte = leer, Rechts = Seitennummer).
 '10.12.2017 v2.11.0 - Neu: BatchPDF
 '                   - Neu: mdlToolsExcel.ProgressbarAllgemein()
-'                   - Bugfix ErrEcho(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert ;-)
+'                   - Bugfix ErrEcho(): Das Err-Objekt wird jetzt erst nach dessen Auswertung geleert ;-)
 '12.07.2016 v2.10.5 - Bugfix FehlerNachricht(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert ;-)
 '                   - Bugfix frmStartExpim.GetFormatliste_XlVorlagen(): Eine nicht lesbare Vorlage
 '                     führt nicht mehr zum Abbruch der Vorlagenerkundung. 
@@ -252,10 +254,3 @@ Attribute VB_Name = "a_Lizenz_History"
 '                     dafür interaktives Festlegen des "Infoträgers" und des "Fliesskommabereiches"
 '
 '==================================================================================================
-'
-'
-'Wunschliste:      - Import/Export formatierter ASCII-Dateien.
-'============      - mehrzeiliger Infoträger
-'
-'==================================================================================================
-

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2018  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -812,8 +812,11 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
       '"rechts: " & .RightFooter & "  (" & Tx_FussRe & ")"
       
       'Neue Texte mit alter Schriftgröße setzen
-      .LeftFooter = Tx_FussLi & "&F (&A)"
-      .CenterFooter = Tx_FussMi & ThisWorkbook.Metadaten.Ort_Fusszeile_Excel_1
+      '.LeftFooter = Tx_FussLi & "&F (&A)"
+      '.CenterFooter = Tx_FussMi & ThisWorkbook.Metadaten.Ort_Fusszeile_Excel_1
+      
+      .LeftFooter = Tx_FussLi & ThisWorkbook.Metadaten.Ort_Fusszeile_Excel_1
+      .CenterFooter = ""
       .RightFooter = Tx_FussRe & "Seite &P von &N"
     End With
   End If

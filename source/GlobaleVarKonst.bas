@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2018  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "2.12.0"
-Public Const VersionDate  As String = "August 2018"
-Public Const Copyright    As String = "© 2003 - 2018  Robert Schwenn"
+Public Const VersionNr    As String = "2.13.0"
+Public Const VersionDate  As String = "Februar 2019"
+Public Const Copyright    As String = "© 2003 - 2019  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
@@ -130,6 +130,8 @@ Public Const SpN_Pkt_Erl_L                   As String = "Pkt.Erl.L"
 Public Const SpN_S_Tra_Radius                As String = "S.Tra.Radius"
 Public Const SpN_S_Tra_Richtung              As String = "S.Tra.Richtung"
 Public Const SpN_S_Tra_SO                    As String = "S.Tra.SO"
+Public Const SpN_S_Tra_RaLGS                 As String = "S.Tra.RaLGS"
+Public Const SpN_S_Tra_AbLGS                 As String = "S.Tra.AbLGS"
 Public Const SpN_S_Tra_u                     As String = "S.Tra.u"
 Public Const SpN_S_Tra_Heb                   As String = "S.Tra.Heb"
 
@@ -151,6 +153,7 @@ Public Const SpN_TK_HGT                      As String = "TK.HGT"
 Public Const SpN_TK_QGS                      As String = "TK.QGS"
 Public Const SpN_TK_HGS                      As String = "TK.HGS"
 Public Const SpN_TK_KmStatus                 As String = "TK.KmStatus"
+Public Const SpN_TK_KmText                   As String = "TK.KmText"
 
 Public Const SpN_Tra_NameGra                 As String = "Tra.NameGra"
 Public Const SpN_Tra_NameKML                 As String = "Tra.NameKML"

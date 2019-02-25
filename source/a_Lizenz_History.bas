@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2018 Robert Schwenn
+' Copyright (c) 2003-2019 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,15 +39,18 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.
+'                                     - A5: Unterstützung des Formates A5 wird aufgegeben!
+'                                     - Dateifilter voreingestellt auf "*.A0"
 '24.08.2018 v2.12.0 - CtabAktiveTabelle, Fußzeile eintragen: Änderung der Fußzeilen-Belegung
 '                     (Links = Kontaktdaten, Mitte = leer, Rechts = Seitennummer).
 '10.12.2017 v2.11.0 - Neu: BatchPDF
 '                   - Neu: mdlToolsExcel.ProgressbarAllgemein()
 '                   - Bugfix ErrEcho(): Das Err-Objekt wird jetzt erst nach dessen Auswertung geleert ;-)
-'12.07.2016 v2.10.5 - Bugfix FehlerNachricht(): Das Err-Objekt wird jetzt erst nach desen Auswertung geleert ;-)
+'12.07.2016 v2.10.5 - Bugfix FehlerNachricht(): Das Err-Objekt wird jetzt erst nach dessen Auswertung geleert ;-)
 '                   - Bugfix frmStartExpim.GetFormatliste_XlVorlagen(): Eine nicht lesbare Vorlage
 '                     führt nicht mehr zum Abbruch der Vorlagenerkundung. 
-'06.07.2016 v2.10.4 - Beim Lesen der Konfiguration: Anzeige von Warnungen (DisplayAlerts) temporär deaktiviert
+'06.07.2016 v2.10.4 - Beim Lesen der Konfiguration: Anzeige von Warnungen (DisplayAlerts) temporär deaktiviert.
 '02.06.2016 v2.10.3 - CimpTrassenkoo: - A0, A1, A5: Text und Kommentar werden verkettet (bisher hatte Kommentar Vorrang).
 '30.05.2016 v2.10.2 - Bugfix: Die letzte Arbeitsmappe konnte nicht per Fernsteuerung geschlossen werden. 
 '                     => CtabAktiveTabelle.App_WorkbookDeactivate(): Verzögerung nach DebugEcho().  

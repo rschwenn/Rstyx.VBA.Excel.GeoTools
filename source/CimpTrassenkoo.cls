@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -26,14 +26,14 @@ Attribute VB_Exposed = False
 '                   - Ab Spalte 83/84 kann eine Punktinfo stehen (max. 13-stellig).
 ' 
 '      - iTrassePC: - Programmversion: 2.0.2 (final)
-'                   - Ausgabeformate A1 und A5
+'                   - Ausgabeformat A1
 '                   - Am Zeilenende kann nach einem "#" ein Kommentar stehen,
 '                     der als Punktinfo gewertet wird
 '                   - Die Eingabedatei darf mehrere Ausgaben (auch verschiedener Formate) enthalten.
 '                     Die dazugehörigen Kommentarblöcke müssen komplett erhalten sein!
 ' 
-'      - iGeo:      - Programmversion: 1.2
-'                   - Ausgabeformate A0, A1 und A5
+'      - iGeo:      - Programmversion: Trassenbibliothek V227
+'                   - Ausgabeformate A0 und A1
 '==================================================================================================
 
 
@@ -42,12 +42,11 @@ Option Explicit
 'Modulkonstanten
 Const strKlasse_Name                    As String = "CimpTrassenkoo"
 
-Const strTitel                          As String = "Trassenkoo': Verm.esn und iGeo/iTrassePC A0, A1, A5"
+Const strTitel                          As String = "Trassenkoo': Verm.esn und iGeo/iTrassePC A0 und A1"
 Const strKategorien                     As String = "tabTK_is_B;Punktbeschreibung;Koordinaten (Trasse);Trassenparameter;Koordinaten (rechtwinklig)"
 
-'Const strQuelle_AsciiDatei_DialogFilter As String = "Textdateien (*.txt),*.txt, iTrassePC A1-A5 (*.a?),*.a?, Alle Dateien (*.*),*.*, iTrassePC A1 (*.a1),*.a1, iTrassePC A2 (*.a2),*.a2, iTrassePC A3 (*.a3),*.a3, iTrassePC A4 (*.a4),*.a4, iTrassePC A5 (*.a5),*.a5"
-'Const strQuelle_AsciiDatei_DialogFilter As String = "Textdateien (*.txt),*.txt, iGeo/iTrassePC A1 (*.a1),*.a1, iGeo/iTrassePC A5 (*.a5),*.a5, Alle Dateien (*.*),*.*"
-Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' Verm.esn (*.txt),*.txt, Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Trassenkoo' iGeo A5 (*.a5),*.a5, Alle Dateien (*.*),*.*"
+'Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' Verm.esn (*.txt),*.txt, Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Alle Dateien (*.*),*.*"
+Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Trassenkoo' Verm.esn (*.txt),*.txt, Alle Dateien (*.*),*.*"
 
 Const strZiel_Typ                       As String = io_Typ_Puffer
 Const strZiel_XLTabKlasse               As String = ""
@@ -120,9 +119,12 @@ Dim TK_HGT()             As String
 Dim TK_QGS()             As String
 Dim TK_HGS()             As String
 Dim TK_KmStatus()        As String
+Dim TK_KmText()          As String
 Dim DGM_HDGM()           As String
 Dim DGM_ZDGM()           As String
 Dim Tra_Heb()            As String
+Dim Tra_RaLGS()          As String
+Dim Tra_AbLGS()          As String
 
 Dim oDictKopfDat         As Scripting.Dictionary     'Dictionary, das alle Kopfdaten der Importdatei enthält
 
@@ -182,8 +184,11 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_TK_HGS, "m"
   
   Me.Quelle_Einheiten.Add SpN_TK_KmStatus, "ohne"
+  Me.Quelle_Einheiten.Add SpN_TK_KmText, "ohne"
   
   Me.Quelle_Einheiten.Add SpN_S_Tra_Heb, "mm"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_RaLGS, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_AbLGS, "m"
   Me.Quelle_Einheiten.Add SpN_Tra_NameUeb, "ohne"
   Me.Quelle_Einheiten.Add SpN_Tra_NameReg, "ohne"
   Me.Quelle_Einheiten.Add SpN_Tra_NameTun, "ohne"
@@ -377,7 +382,7 @@ End Sub
 
 Private Function LeseDatei(ByVal Dateiname As String) As Boolean
   '-----------------------------------------------------------------------------------------------
-  'Liest eine Datei mit Verm.esn-Umformungen oder Ausgaben von iGeo/iTrassePC (A0, A1 und A5),
+  'Liest eine Datei mit Verm.esn-Umformungen oder Ausgaben von iGeo/iTrassePC (A0 und A1),
   'und schreibt alle nötigen Daten in die aktive Tabelle
   '-----------------------------------------------------------------------------------------------
   'Eingabe:  "DateiName" = gültiger Pfad\Name der zu lesenden Datei.
@@ -385,7 +390,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
   '          - False, falls kein Punkt gelesen wurde
   '-----------------------------------------------------------------------------------------------
   'Analysiert jede gelesene Zeile (ZeilenNr), um den Beginn einer Verm.esn-Umformung
-  'oder einer Ausgabe von iGeo/iTrassePC (A0, A1 und A5) festzustellen. Bei Erfolg wird
+  'oder einer Ausgabe von iGeo/iTrassePC (A0 und A1) festzustellen. Bei Erfolg wird
   'die passende Funktion zum Einlesen der Trassenkoordinaten aufgerufen.
   'Nach deren Ende (d.h. Ende eines Blockes mit TK) geht's hier weiter im Kreis.
   '-----------------------------------------------------------------------------------------------
@@ -435,9 +440,12 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim TK_QGS(1 To 1)
     ReDim TK_HGS(1 To 1)
     ReDim TK_KmStatus(1 To 1)
+    ReDim TK_KmText(1 To 1)
     ReDim DGM_HDGM(1 To 1)
     ReDim DGM_ZDGM(1 To 1)
     ReDim Tra_Heb(1 To 1)
+    ReDim Tra_RaLGS(1 To 1)
+    ReDim Tra_AbLGS(1 To 1)
     ReDim N_UebBand(1 To 1)
     ReDim N_RegPrf(1 To 1)
     ReDim N_TunPrf(1 To 1)
@@ -536,7 +544,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     
     Me.Fehlerniveau   = Fehlerniveau_Kritisch
     Me.Meldung_Titel  = "Fehler beim Import von Trassenkoordinaten"
-    Me.Meldung_Inhalt = Me.Quelle_AsciiDatei_Name & " enthält keine gültigen Trassenkoordinaten (Umformung Verm.esn oder Ausgabe iGeo/iTrassePC A0, A1 und A5)!" _
+    Me.Meldung_Inhalt = Me.Quelle_AsciiDatei_Name & " enthält keine gültigen Trassenkoordinaten (Umformung Verm.esn oder Ausgabe iGeo/iTrassePC A0 und A1)!" _
                         & vbNewline & "siehe Protokoll!"
   elseif (AnzErr > 0) then
     Echo "==> Trassenkoordinaten MIT FEHLERN gelesen."
@@ -596,7 +604,10 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       Me.Quelle_Datenpuffer.Add SpN_TK_QGS, TK_QGS
       Me.Quelle_Datenpuffer.Add SpN_TK_HGS, TK_HGS
       Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus, TK_KmStatus
+      Me.Quelle_Datenpuffer.Add SpN_TK_KmText,   TK_KmText
       Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,   Tra_Heb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS, Tra_RaLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS, Tra_AbLGS
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb, N_UebBand
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg, N_RegPrf
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun, N_TunPrf
@@ -642,9 +653,12 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim TK_QGS(0)
       ReDim TK_HGS(0)
       ReDim TK_KmStatus(0)
+      ReDim TK_KmText(0)
       ReDim DGM_HDGM(0)
       ReDim DGM_ZDGM(0)
       ReDim Tra_Heb(0)
+      ReDim Tra_RaLGS(0)
+      ReDim Tra_AbLGS(0)
       ReDim N_UebBand(0)
       ReDim N_RegPrf(0)
       ReDim N_TunPrf(0)
@@ -683,7 +697,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
    '  - Es ist bereits die Zeile "# Format : xxxx" der nächsten iGeo/iTrassePC-Ausgabe derselben Datei gelesen, oder:
    '  - Dateiende ist erreicht.
    '
-  ' ==> unterstützte Ausgabeformate: A0, A1 und A5 (iTrasse finale Version 2.0.2, iGeo 1.2).
+  ' ==> unterstützte Ausgabeformate: A0 und A1 (iTrasse finale Version 2.0.2, iGeo Trassenbibliothek V227).
   ' ==> Ein am Zeilenende platzierter (mit "#" eingeleiteter) Kommentar wird als Punktinfo gespeichert.
   ' -----------------------------------------------------------------------------------------------
   
@@ -736,6 +750,8 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim W_H             As Integer
     Dim W_HSOK          As Integer
     Dim W_ZSOK          As Integer
+    Dim W_RaLGS         As Integer
+    Dim W_AbLGS         As Integer
     Dim W_QG            As Integer
     Dim W_HG            As Integer
     Dim W_RG            As Integer
@@ -745,6 +761,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim W_QGS           As Integer
     Dim W_HGS           As Integer
     Dim W_KmStatus      As Integer
+    Dim W_KmText        As Integer
     Dim W_QB            As Integer
     Dim W_HB            As Integer
     Dim W_UebLi         As Integer
@@ -770,7 +787,6 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
   'Unterstützte Formatkennungen
     Const Fmt_A0 = "A0 : Alles EDV"
     Const Fmt_A1 = "A1 : PktNr  Y  X  Z  St/Km"  ' kleinster gemeinsamer Nenner von iTrassePC und iGeo
-    Const Fmt_A5 = "A5 : Alles"
     
   'Variableninitialisierung
     const TkEntstehung   As String = "Ausgabe"
@@ -804,6 +820,8 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_H         = 0
     W_HSOK      = 0
     W_ZSOK      = 0
+    W_RaLGS     = 0
+    W_AbLGS     = 0
     W_QG        = 0
     W_HG        = 0
     W_RG        = 0
@@ -813,6 +831,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_QGS       = 0
     W_HGS       = 0
     W_KmStatus  = 0
+    W_KmText    = 0
     W_QB        = 0
     W_HB        = 0
     W_UebLi     = 0
@@ -831,7 +850,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_Kommentar = 0
     
   'Format-Kennung prüfen!
-  If ((TkFormat = Fmt_A0) Or (entspricht(Fmt_A1, TkFormat)) Or (TkFormat = Fmt_A5)) Then
+  If ((TkFormat = Fmt_A0) Or entspricht(Fmt_A1, TkFormat)) Then
     
     TkFormat_ok = true
     
@@ -842,7 +861,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     ErrEcho " *** Fehler:       Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "'."
     call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr - 1, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "'.", _
                                 "Unterstützte Formatkennungen:" & vbNewLine & _
-                                Fmt_A0 & vbNewLine & Fmt_A1 & vbNewLine & Fmt_A5 & vbNewLine & _
+                                Fmt_A0 & vbNewLine & Fmt_A1 & vbNewLine & _
                                 "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus iGeo (CimpTrassenkoo.LeseTKiGeo())", _
                                 blnFehlerKonsolidieren)
   End If
@@ -917,7 +936,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
                 F_Ueb = 1000
                 
                 NF = splitWords(FieldNamesString, Feld, "[^|]+")    'awk-like Splitting
-                Feld(0) = ""                                                 'Index 0 wird unten verwendet!
+                Feld(0) = ""                                        'Index 0 wird unten verwendet!
                 
                 MinAnzWort = NF
                 
@@ -991,6 +1010,12 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
                     W_HGS = i
                   ElseIf (FieldName = "KmStatus") Then
                     W_KmStatus = i
+                  ElseIf (FieldName = "KmText") Then
+                    W_KmText = i
+                  ElseIf (FieldName = "RaLGS") Then
+                    W_RaLGS = i
+                  ElseIf (FieldName = "AbLGS") Then
+                    W_AbLGS = i
                   ElseIf (FieldName = "Text") Then
                     W_Text = i
                   ElseIf (FieldName = "Kommentar") Then
@@ -1022,84 +1047,12 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               end if
               W_Text   = 8
               
-            ElseIf (TkFormat = Fmt_A5) Then
-              
-              If (TkHerkunft = "iTrassePC") Then
-                MinAnzWort = 23
-                W_Text = 24
-              else
-                MinAnzWort = 34
-                W_Text = 35
-              end if
-              F_Ueb   =  1000
-              
-              W_PktNr =  1
-              W_Y     =  2
-              W_X     =  3
-              W_Z     =  4
-              W_St    =  5
-              W_Q     =  7
-              W_Ri    = 17
-              W_Ra    = 18
-              
-              if (NKML <> "") then
-                W_Km = 6
-              'else if (StAlsKm) then
-              '  W_Km = W_St
-              end if
-              
-              if (NUeb <> "") then
-                W_UebLi = 12
-                W_UebRe = 13
-                W_Ueb   = 14
-                W_Heb   = 15
-              end if
-              
-              if (NGra <> "") then
-                W_H = 8
-                'W_G = 16
-                
-                if (NUeb <> "") then
-                  W_HSOK =  9
-                  W_QG   = 10
-                  W_HG   = 11
-                end if
-                if (NRegel <> "") then
-                  W_V = 19
-                end if
-                if (NTunnel <> "") then
-                  W_R = 20
-                  W_L = 21
-                end if
-              end if
-              
-              if (NDGM <> "") then
-                W_HDGM = 22
-                W_ZDGM = 23
-              end if
-              
-              if (TkHerkunft = "iGeo") Then
-                if ((NGra <> "") And (NUeb <> "")) Then
-                  W_ZSOK = 26
-                  if ((NGlsPrf <> "")) then
-                    W_RG = 28
-                    W_LG = 29
-                  end if
-                end if
-                
-                W_QGT = 30
-                W_HGT = 31
-                W_QGS = 32
-                W_HGS = 33
-                W_KmStatus = 34
-              end if
-              
             Else
               Erfolg = false
               ErrEcho " *** Programmfehler: Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "' (zu spät festgestellt :-( )."
               Call ThisWorkbook.SysTools.FileErrorsAdd("F", Me.Quelle_AsciiDatei_Name, ZeilenNr - 1, 0, 0, "Nicht unterstütztes Ausgabeformat von iGeo/iTrassePC: '" & TkFormat & "' (zu spät festgestellt :-( ).", _
                                            "Unterstützte Formatkennungen:" & vbNewLine & _
-                                           Fmt_A0 & vbNewLine & Fmt_A1 & vbNewLine & Fmt_A5 & vbNewLine & _
+                                           Fmt_A0 & vbNewLine & Fmt_A1 & vbNewLine & _
                                            "Quelle dieser Meldung: Einlesen einer Datei mit Trassenkoordinaten aus iGeo/iTrassePC (CimpTrassenkoo.LeseTKiGeo())", _
                                            blnFehlerKonsolidieren)
               exit do
@@ -1215,48 +1168,54 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve TK_QGS(1 To AnzPkt)
               ReDim Preserve TK_HGS(1 To AnzPkt)
               ReDim Preserve TK_KmStatus(1 To AnzPkt)
+              ReDim Preserve TK_KmText(1 To AnzPkt)
               ReDim Preserve DGM_HDGM(1 To AnzPkt)
               ReDim Preserve DGM_ZDGM(1 To AnzPkt)
               ReDim Preserve Tra_Heb(1 To AnzPkt)
+              ReDim Preserve Tra_RaLGS(1 To AnzPkt)
+              ReDim Preserve Tra_AbLGS(1 To AnzPkt)
               
             'Doku:  Zuordnungen  Kürzel_iGeo/iTrassePC ... Array
-              'PktNr ... PktNr
-              'Y     ... Y
-              'X     ... X
-              'Z     ... Z
-              'St    ... stat
-              'Km    ... Km
-              'Q     ... Abst
-              'HSOK  ... dH
-              'ZSOK  ... GradHoehe
-              'Ueb   ... u
-              'Ri    ... Ri (umrechnen rad => gon)
-              'Ra    ... Radius
-              'Code  ... Bemerkung
+              'PktNr    ... PktNr
+              'Y        ... Y
+              'X        ... X
+              'Z        ... Z
+              'St       ... stat
+              'Km       ... Km
+              'Q        ... Abst
+              'HSOK     ... dH
+              'ZSOK     ... GradHoehe
+              'Ueb      ... u
+              'Ri       ... Ri (umrechnen rad => gon)
+              'Ra       ... Radius
+              'Code     ... Bemerkung
               
               'Spalten, die der Datenpuffer nur durch iGeo/iTrassePC erhält.
-              'QG    ... AbstRed
-              'HG    ... dHRed
-              'H     ... TK_H
-              'Heb   ... Tra_Heb
-              'V     ... TK_V
-              'R     ... TK_R
-              'L     ... TK_L
-              'RG    ... TK_RG
-              'LG    ... TK_LG
-              'QGT   ... TK_QGT
-              'HGT   ... TK_HGT
-              'QGS   ... TK_QGS
-              'HGS   ... TK_HGS
-              'KmStatus  ... TK_KmStatus
-              'HDGM  ... DGM_HDGM
-              'ZDGM  ... DGM_ZDGM
+              'QG       ... AbstRed
+              'HG       ... dHRed
+              'H        ... TK_H
+              'Heb      ... Tra_Heb
+              'RaLGS    ... Tra_RaLGS
+              'AbLGS    ... Tra_AbLGS
+              'V        ... TK_V
+              'R        ... TK_R
+              'L        ... TK_L
+              'RG       ... TK_RG
+              'LG       ... TK_LG
+              'QGT      ... TK_QGT
+              'HGT      ... TK_HGT
+              'QGS      ... TK_QGS
+              'HGS      ... TK_HGS
+              'KmStatus ... TK_KmStatus
+              'KmText   ... TK_KmText
+              'HDGM     ... DGM_HDGM
+              'ZDGM     ... DGM_ZDGM
               
-              'QB    ... ==> ignorieren
-              'HB    ... ==> ignorieren
-              'UebLi ... ==> ignorieren
-              'UebRe ... ==> ignorieren
-              'G     ... ==> ignorieren (Steigungswinkel)
+              'QB       ... ==> ignorieren
+              'HB       ... ==> ignorieren
+              'UebLi    ... ==> ignorieren
+              'UebRe    ... ==> ignorieren
+              'G        ... ==> ignorieren (Steigungswinkel)
             '
             'Fehler tolerieren, da Datenwörter am Zeilenende fehlen dürfen.
             On Error Resume Next
@@ -1301,41 +1260,45 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               end if
             
             'Felder belegen
-              PktNr(AnzPkt) = Feld(W_PktNr)
-              Y(AnzPkt) = vY
-              X(AnzPkt) = vX
-              Z(AnzPkt) = vZ
-              Bemerkung(AnzPkt) = strBemerkung
+              PktNr(AnzPkt)       = Feld(W_PktNr)
+              Y(AnzPkt)           = vY
+              X(AnzPkt)           = vX
+              Z(AnzPkt)           = vZ
+              Bemerkung(AnzPkt)   = strBemerkung
               
-              Km(AnzPkt)   = GetValue(Feld(W_Km))
-              stat(AnzPkt) = GetValue(Feld(W_St))
-              Abst(AnzPkt) = GetValue(Feld(W_Q))
-              'AbstKm(AnzPkt) = GetValue(Feld(W_QKm))
-              dH(AnzPkt)   = vdH
-              TK_H(AnzPkt) = GetValue(Feld(W_H))
+              Km(AnzPkt)          = GetValue(Feld(W_Km))
+              Stat(AnzPkt)        = GetValue(Feld(W_St))
+              Abst(AnzPkt)        = GetValue(Feld(W_Q))
+              'AbstKm(AnzPkt)     = GetValue(Feld(W_QKm))
+              dH(AnzPkt)          = vdH
+              TK_H(AnzPkt)        = GetValue(Feld(W_H))
               
-              'AbstRed(AnzPkt) = GetValue(Feld(W_QG))
-              'dHRed(AnzPkt)   = GetValue(Feld(W_HG))
+              'AbstRed(AnzPkt)    = GetValue(Feld(W_QG))
+              'dHRed(AnzPkt)      = GetValue(Feld(W_HG))
               
-              GradHoehe(AnzPkt) = vGradHoehe
-              Radius(AnzPkt) = GetValue(Feld(W_Ra))
+              GradHoehe(AnzPkt)   = vGradHoehe
+              Radius(AnzPkt)      = GetValue(Feld(W_Ra))
               
-              TK_V(AnzPkt) = GetValue(Feld(W_V))
-              TK_R(AnzPkt) = GetValue(Feld(W_R))
-              TK_L(AnzPkt) = GetValue(Feld(W_L))
+              TK_V(AnzPkt)        = GetValue(Feld(W_V))
+              TK_R(AnzPkt)        = GetValue(Feld(W_R))
+              TK_L(AnzPkt)        = GetValue(Feld(W_L))
               
-              TK_RG(AnzPkt) = GetValue(Feld(W_RG))
-              TK_LG(AnzPkt) = GetValue(Feld(W_LG))
+              TK_RG(AnzPkt)       = GetValue(Feld(W_RG))
+              TK_LG(AnzPkt)       = GetValue(Feld(W_LG))
               
-              TK_QGT(AnzPkt) = GetValue(Feld(W_QGT))
-              TK_HGT(AnzPkt) = GetValue(Feld(W_HGT))
-              TK_QGS(AnzPkt) = GetValue(Feld(W_QGS))
-              TK_HGS(AnzPkt) = GetValue(Feld(W_HGS))
+              TK_QGT(AnzPkt)      = GetValue(Feld(W_QGT))
+              TK_HGT(AnzPkt)      = GetValue(Feld(W_HGT))
+              TK_QGS(AnzPkt)      = GetValue(Feld(W_QGS))
+              TK_HGS(AnzPkt)      = GetValue(Feld(W_HGS))
+              
+              Tra_RaLGS(AnzPkt)   = GetValue(Feld(W_RaLGS))
+              Tra_AbLGS(AnzPkt)   = GetValue(Feld(W_AbLGS))
               
               TK_KmStatus(AnzPkt) = GetValue(Feld(W_KmStatus))
+              TK_KmText(AnzPkt)   = GetValue(Feld(W_KmText))
               
-              DGM_HDGM(AnzPkt) = GetValue(Feld(W_HDGM))
-              DGM_ZDGM(AnzPkt) = GetValue(Feld(W_ZDGM))
+              DGM_HDGM(AnzPkt)    = GetValue(Feld(W_HDGM))
+              DGM_ZDGM(AnzPkt)    = GetValue(Feld(W_ZDGM))
               
               if (isNumeric(Feld(W_Ri))) then
                 Ri_tmp = Feld(W_Ri) * rho

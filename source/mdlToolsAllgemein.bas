@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsAllgemein"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -518,6 +518,9 @@ Sub Transfo_Tk2Gls(ByVal Radius, ByVal u, ByVal BasisUeb, ByVal Abst, ByVal dH, 
   Dim X0        As Double
   Dim Y0        As Double
   Dim phi       As Double
+  Dim X         As Double
+  Dim CosPhi    As Double
+  Dim SinPhi    As Double
     
   'Rückgabewerte, falls nicht berechenbar
   AbstRed = ""
@@ -526,18 +529,31 @@ Sub Transfo_Tk2Gls(ByVal Radius, ByVal u, ByVal BasisUeb, ByVal Abst, ByVal dH, 
   'Berechnung
   If (IsNumeric(Radius) And IsNumeric(u) And IsNumeric(Abst) And IsNumeric(dH)) Then
     'Kein Eingabewert ist leer.
-    sf = Sgn(Radius)
-    phi = sf * Atn(u / BasisUeb) * (-1)
-    X0  = abs(BasisUeb/2 * sin(phi))
-    Y0  = sf * (BasisUeb/2 - (BasisUeb/2 * cos(phi)))
+    
+    'sf  = Sgn(Radius)
+    'phi = sf * Atn(u / BasisUeb) * (-1)
+    'X0  = abs(BasisUeb/2 * sin(phi))
+    'Y0  = sf * (BasisUeb/2 - (BasisUeb/2 * cos(phi)))
+    
+    ' 21.08.2019 (Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2)
+    sf     = Sgn(Radius) * Sgn(u)
+    X      = Abs(u) / BasisUeb
+    phi    = sf  *  Atn(X / Sqr(-X * X + 1))  *  (-1)    ' Arcsin(X) = Atn(X / Sqr(-X * X + 1))
+    CosPhi = Cos(phi)
+    SinPhi = Sin(phi)
+    X0     = Abs(u) / 2
+    Y0     = 0.0
     
     'Reduktion (bzw. Koordinatenumformung)
     If (u = 0) Then
       AbstRed = Abst
       dHRed   = dH
     ElseIf (sf <> 0) Then
-      AbstRed = (Abst - Y0) * Cos(phi) + (dH - X0) * Sin(phi)
-      dHRed   = (dH - X0) * Cos(phi) - (Abst - Y0) * Sin(phi)
+      'AbstRed = (Abst - Y0) * Cos(phi) + (dH - X0) * Sin(phi)
+      'dHRed   = (dH - X0) * Cos(phi) - (Abst - Y0) * Sin(phi)
+      
+      AbstRed = (Abst - Y0) * CosPhi + (dH - X0) * SinPhi
+      dHRed   = (dH - X0) * CosPhi - (Abst - Y0) * SinPhi
     End If
   End If
 End Sub
@@ -558,8 +574,9 @@ Sub Transfo_Gls2Tk(ByVal Radius, ByVal u, ByVal BasisUeb, ByVal AbstRed, ByVal d
   Dim X0        As Double
   Dim Y0        As Double
   Dim phi       As Double
-  Dim cp        As Double
-  Dim sp        As Double
+  Dim X         As Double
+  Dim CosPhi    As Double
+  Dim SinPhi    As Double
   
   'Rückgabewerte, falls nicht berechenbar
   Abst = ""
@@ -568,20 +585,33 @@ Sub Transfo_Gls2Tk(ByVal Radius, ByVal u, ByVal BasisUeb, ByVal AbstRed, ByVal d
   'Berechnung
   If (IsNumeric(Radius) And IsNumeric(u) And IsNumeric(AbstRed) And IsNumeric(dHRed)) Then
     'Kein Eingabewert ist leer.
-    sf  = Sgn(Radius)
-    phi = sf * Atn(u / BasisUeb) * (-1)
-    X0  = abs(BasisUeb/2 * sin(phi))
-    Y0  = sf * (BasisUeb/2 - (BasisUeb/2 * cos(phi)))
-    cp  = Cos(phi)
-    sp  = Sin(phi)
+    
+    'sf  = Sgn(Radius)
+    'phi = sf * Atn(u / BasisUeb) * (-1)
+    'X0  = abs(BasisUeb/2 * sin(phi))
+    'Y0  = sf * (BasisUeb/2 - (BasisUeb/2 * cos(phi)))
+    'cp  = Cos(phi)
+    'sp  = Sin(phi)
+    
+    ' 21.08.2019 (Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2)
+    sf     = Sgn(Radius) * Sgn(u)
+    X      = Abs(u) / BasisUeb
+    phi    = sf  *  Atn(X / Sqr(-X * X + 1))  *  (-1)    ' Arcsin(X) = Atn(X / Sqr(-X * X + 1))
+    CosPhi = Cos(phi)
+    SinPhi = Sin(phi)
+    X0     = Abs(u) / 2
+    Y0     = 0.0
     
     'Reduktion (bzw. Koordinatenumformung)
     If (u = 0) Then
       Abst = AbstRed
       dH = dHRed
     ElseIf (sf <> 0) Then
-      dH = X0 + (AbstRed / cp + dHRed / sp) / (cp / sp + sp / cp)
-      Abst = Y0 + AbstRed / cp - (dH - X0) * sp
+      'dH = X0 + (AbstRed / cp + dHRed / sp) / (cp / sp + sp / cp)
+      'Abst = Y0 + AbstRed / cp - (dH - X0) * sp
+      
+      dH   = X0 + (AbstRed / CosPhi + dHRed / SinPhi) / (CosPhi / SinPhi + SinPhi / CosPhi)
+      Abst = Y0 + (AbstRed - (dH - X0) * SinPhi) / CosPhi
     End If
   End If
 

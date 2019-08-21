@@ -39,6 +39,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'21.08.2019 v2.14.0 - Transfo_Tk2Gls() und Transfo_Gls2Tk():
+'                     Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2.
 '25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.
 '                                     - A5: Unterstützung des Formates A5 wird aufgegeben!
 '                                     - Dateifilter voreingestellt auf "*.A0"

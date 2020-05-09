@@ -3,6 +3,20 @@ Attribute VB_Name = "test"
 
 
 
+Sub showColor()
+    
+    'ActiveCell.Interior.Color = RGB(234, 234, 234)
+    'ActiveCell.Interior.ColorIndex = 39
+
+    ActiveCell.value = ActiveCell.Interior.ColorIndex
+End Sub
+
+
+
+
+
+
+
 Sub FileNew()
   'Startet direkt den Dialog "Vorlage wählen" im Listenmodus.
   On Error Resume Next

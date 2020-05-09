@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2016  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -135,7 +135,7 @@ Private Sub UserForm_Initialize()
   'Anfangswerte setzen
   Call SetzeAnfangswerte
   
-  ClearStatusBarDelayed (3)
+  Call ClearStatusBarDelayed(StatusBarClearDelay)
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -931,17 +931,32 @@ End Sub
 Private Function GetXLVorlagen(DateiMaske As String) As String
   'Erzeugt eine Liste aller verfügbarer XL-Vorlagen, die der Dateimaske
   'entsprechen und in den üblichen Verzeichnissen zu finden sind.
-  '   "DateiMaske"   = DateiMaske ohne Pfadangabe (mit Wildcards)
+  '   "DateiMaske"   = DateiMaske ohne Pfadangabe (mit Wildcards, z.B. "*.xltx,*xltm")
   '   Rückgabe       = Dateiliste, durch Semikolons getrennt.
   
-  Dim VerzListe       As String
-  Dim VorlagenListe   As String
-  Dim oVorlagenListe  As Scripting.Dictionary
+  Const PersonalTemplates_RegValue = "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Options\PersonalTemplates"
+  
+  Dim PersonalTemplates As String
+  Dim VerzListe         As String
+  Dim VorlagenListe     As String
+  Dim oVorlagenListe    As Scripting.Dictionary
   
   VerzListe = ""
   VorlagenListe = ""
+  PersonalTemplates = ""
+  
+  ' Ab Office 2016 (zumindest Office 365 am 01.05.2020 ;-):
+  ' - Application.NetworkTemplatesPath ist scheinbar immer leer
+  ' - Application.TemplatesPath zeigt auf "C:\Users\<USER>\AppData\Roaming\Microsoft\Templates\",
+  '   dort liegende Vorlagen sind für den Anwender aber nicht sichtbar!
+  If (ThisWorkbook.SysTools.RegValueExists(PersonalTemplates_RegValue)) Then
+    PersonalTemplates = ThisWorkbook.SysTools.RegRead(PersonalTemplates_RegValue)
+  End If
+  
   If (Application.NetworkTemplatesPath <> "") Then VerzListe = VerzListe & ";" & Application.NetworkTemplatesPath
-  If (Application.TemplatesPath <> "") Then VerzListe = VerzListe & ";" & Application.TemplatesPath
+  If (Application.TemplatesPath <> "")        Then VerzListe = VerzListe & ";" & Application.TemplatesPath
+  If (PersonalTemplates <> "")                Then VerzListe = VerzListe & ";" & PersonalTemplates
+  
   VerzListe = Mid(VerzListe, 2)
   Set oVorlagenListe = ThisWorkbook.SysTools.FindFiles(DateiMaske, VerzListe, True)
   Call SortDictionary(oVorlagenListe, 1, 1, False)
@@ -1330,6 +1345,7 @@ Private Sub GetFormatliste_XlVorlagen()
   'Deklarationen
     Dim StatusScreen              As Boolean
     Dim StatusEvents              As Boolean
+    Dim StatusAutoSec             As Variant
     Dim StatusCalc                As Boolean
     Dim RecentXLT_ok              As Boolean
     Dim DatumIdentisch            As Boolean
@@ -1353,9 +1369,10 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim NF                        As Long
     Dim i                         As Long
     Dim iAnz                      As Long
+    Dim CurrentTemplate           As Workbook
     Dim oFS                       As New Scripting.FileSystemObject
     Dim oTS_XltCache              As Scripting.TextStream
-  
+  '
   Const NameXltCache As String = "GeoTools_xltcache.txt"
   DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen zusammenstellen..."
   
@@ -1369,12 +1386,14 @@ Private Sub GetFormatliste_XlVorlagen()
     Const idxAltStartupPath     As Long = 2
     Const idxStartupPath        As Long = 3
     
-    StatusScreen = Application.ScreenUpdating
-    StatusEvents = Application.EnableEvents
+    StatusScreen  = Application.ScreenUpdating
+    StatusEvents  = Application.EnableEvents
+    StatusAutoSec = Application.AutomationSecurity
     'Wenn Ereignisse ausgeschaltet werden, läuft diese Routine mindestens doppelt so schnell,
     'aber Symbolleisten der temporär geöffneten Dateien bleiben als Leichen zurück.
     Application.EnableEvents = False
     Application.ScreenUpdating = False
+    Application.AutomationSecurity = msoAutomationSecurityForceDisable
     
     On Error Resume Next
     Computername = ThisWorkbook.SysTools.Computername
@@ -1436,6 +1455,14 @@ Private Sub GetFormatliste_XlVorlagen()
     DebugEcho "Liste der XL-Vorlagen für Dialog-Listbox erstellen:"
     ReDim Liste_XLT_komplett(0 To UBound(FormatPfadName) - 1, 0 To 5) As String
     iAnz = 0
+    
+  
+    Dim success2       As Long
+    Dim ProgressBar    As frmProgressBar
+    Set ProgressBar = New frmProgressBar
+    ProgressBar.Show vbModeless
+    success2 = ThisWorkbook.SysTools.SetTopMostWindow(ThisWorkbook.SysTools.GetUserformHwnd(ProgressBar))
+    
     For i = LBound(FormatPfadName) To UBound(FormatPfadName)
       
       AktFormatPfadName = FormatPfadName(i)
@@ -1472,7 +1499,9 @@ Private Sub GetFormatliste_XlVorlagen()
         'XLT öffnen.
         On Error Resume Next
         ErrMessage = "Fehler beim Erkunden einer Vorlage"
-        Application.Workbooks.Add AktFormatPfadName
+        Set CurrentTemplate = Application.Workbooks.Open(FileName:=AktFormatPfadName, ReadOnly:=True, UpdateLinks:=0 , AddToMru:=False) 
+        'Application.Workbooks.Add AktFormatPfadName
+        
         If (Err.Number <> 0) Then
             FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
         Else
@@ -1481,13 +1510,15 @@ Private Sub GetFormatliste_XlVorlagen()
           
           XltInfo_OK = True
           
-          Application.EnableEvents = True
+          'Application.EnableEvents = True
           ThisWorkbook.AktiveTabelle.Syncronisieren
-          Application.EnableEvents = False
+          'Application.EnableEvents = False
           
           Titel = ThisWorkbook.AktiveTabelle.TabTitel
           Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
-          Application.ActiveWorkbook.Close False
+          
+          'Application.ActiveWorkbook.Close SaveChanges:=False
+          CurrentTemplate.Close SaveChanges:=False
           
           DebugEcho " - Titel = '" & Titel & "'"
           DebugEcho " - Kategorien = '" & Kategorien & "'"
@@ -1515,15 +1546,15 @@ Private Sub GetFormatliste_XlVorlagen()
       End If
     Next
     
+    Unload ProgressBar
+    
     ReDim Preserve Liste_XLT_komplett(0 To iAnz - 1, 0 To 5) As String
     
     '4. "Innere" Eigenschaften aller gefundenen Vorlagen zwischenspeichern:
     'a, im internen Cache
     ThisWorkbook.Konfig.Cache.Add "RecentXLT", oRecentXLT_Neu
     
-    'b, persistent
-    'In jedes verwendete Stammverzeichnis wird eine Cache-Datei geschrieben (vorhandene überschreiben).
-    'Im Netzwerk kann es zu konkurrierenden Zugriffen kommen => Fehler tolerieren, aber protokollieren.
+    'b, persistent (Cache-Datei).
     DebugEcho "GetFormatliste_XlVorlagen(): Cache der aktuell verfügbaren XL-Vorlagen schreiben..."
     DebugEcho vbNewLine & "Cache schreiben in Datei: '" & PfadNameXltCache & "'"
     Set oTS_XltCache = ThisWorkbook.SysTools.OpenTextFile(PfadNameXltCache, ForWriting, NewFileIfNotExist_yes, OpenAsSystemDefault)
@@ -1551,6 +1582,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Call ClearStatusBarDelayed(StatusBarClearDelay)
     Application.EnableEvents = StatusEvents
     Application.ScreenUpdating = StatusScreen
+    Application.AutomationSecurity = StatusAutoSec
     'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
     DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen vollständig."
     Exit Sub
@@ -1561,6 +1593,7 @@ Fehler:
   Application.StatusBar = False
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
+  Application.AutomationSecurity = StatusAutoSec
   'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
 End Sub

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -215,7 +215,7 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
   if (not oExpimGlobal is Nothing) then
-    Application.Visible        = true
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     msgbox "Es ist bereits eine Export / Import - Aktion aktiv. => Eine zweite kann nicht gestartet werden!" , vbOKOnly, "Import Trassenkoordinaten"
@@ -244,7 +244,7 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
   if (not oExpimGlobal is Nothing) then
-    Application.Visible        = true
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     msgbox "Es ist bereits eine Export / Import - Aktion aktiv. => Eine zweite kann nicht gestartet werden!" , vbOKOnly, "Import CSV-Datei"
@@ -271,7 +271,7 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
   '=> Diese Routine wird (fast?) nur interaktiv verwendet (Menü GeoTools -> Import / Exports).
   On Error GoTo Fehler
   if (not oExpimGlobal is Nothing) then
-    Application.Visible        = true
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     msgbox "Es ist bereits eine Export / Import - Aktion aktiv. => Eine zweite kann nicht gestartet werden!" , vbOKOnly, "Export / Import allgemein"
@@ -326,6 +326,7 @@ End Sub
 
 Sub GeoTools_Info()
   'Anzeige von Versions- und Lizenzinformationen.
+  'Wiederbelebung der Statusleiste (durch Zurücksetzen).
   On Error GoTo Fehler
   Dim Titel       As String
   Dim Meldung     As String
@@ -334,7 +335,10 @@ Sub GeoTools_Info()
             "Version"   & vbTab & vbTab & VersionNr & "  (" & VersionDate & ")" & vbLf & vbLf & _
             "Lizenz"    & vbTab & vbTab & "The MIT License" & vbLf & _
             "Copyright" & vbTab & vbTab & Copyright & "  (" & eMail & ")"
+  Application.StatusBar = ProgName & " " & VersionNr
   Call MsgBox(Meldung, vbOKOnly, Titel)
+  Application.StatusBar = False
+  
   Exit Sub
 Fehler:
   FehlerNachricht "mdlBefehle.GeoTools_Info()"

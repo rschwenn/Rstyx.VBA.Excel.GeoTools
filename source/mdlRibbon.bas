@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2018  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -17,7 +17,8 @@ Private oRibbon As IRibbonUI
 ' Region "Ribbon-Objekt (Referenz, Update)"
     
     ' Siehe http://social.msdn.microsoft.com/Forums/office/en-US/99a3f3af-678f-4338-b5a1-b79d3463fb0b/how-to-get-the-reference-to-the-iribbonui-in-vba
-    Public Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (lpDest As Any, lpSource As Any, ByVal cBytes&)
+    'Public Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (lpDest As Any, lpSource As Any, ByVal cBytes&)
+    Public Declare PtrSafe Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (ByRef lpDest As Any, ByRef lpSource As Any, ByVal cBytes As Long)
     
     ' Bei Initialisierung der RibbonUI: Speichern einer Referenz auf das Ribbon-Objekt
     ' und als Backup eines entsprechenden Integer-Zeigers in die Add-In-interne Tabelle.
@@ -26,7 +27,7 @@ Private oRibbon As IRibbonUI
         tabGeoTools.Range("A1").Value = ObjPtr(ribbon)
     End Sub
     
-    ' Beziehen einer Referenz auf das Ribbon-Objekt (Sollte auch nach Fehler im Add-In funktionieren).
+    ' x64: Beziehen einer Referenz auf das Ribbon-Objekt (Sollte auch nach Fehler im Add-In funktionieren).
     Function getGeoToolsRibbon() As IRibbonUI
         ' "oRibbon" ist normalerweise nur dann "Nothing", wenn das AddIn wegen eines Fehlers gestoppt wurde.
         ' Dann kann der vorher gespeicherte Zeiger verwendet werden.
@@ -34,12 +35,14 @@ Private oRibbon As IRibbonUI
         '       => Dann stürzt Excel ab und nichts geht mehr.
         If (oRibbon Is Nothing) Then
             If (ThisWorkbook.ReadOnly) Then
-                Dim ribbonPointer As Long
-                ribbonPointer = tabGeoTools.Range("A1").value
-                If (ribbonPointer > 0) Then
-                    On Error Resume Next  ' Nützt nix!
-                    Call CopyMemory(oRibbon, ribbonPointer, 4)
-                    On Error GoTo 0
+                If (Not tabGeoTools Is Nothing) Then
+                    Dim ribbonPointer As LongPtr
+                    ribbonPointer = tabGeoTools.Range("A1").value
+                    If (ribbonPointer > 0) Then
+                        On Error Resume Next  ' Nützt nix!
+                        Call CopyMemory(oRibbon, ribbonPointer, LenB(ribbonPointer))
+                        On Error GoTo 0
+                    End If
                 End If
             End If
         End If
@@ -47,9 +50,28 @@ Private oRibbon As IRibbonUI
         Set getGeoToolsRibbon = oRibbon
     End Function
     
+    ' x32: Beziehen einer Referenz auf das Ribbon-Objekt (Sollte auch nach Fehler im Add-In funktionieren).
+    'Function getGeoToolsRibbon() As IRibbonUI
+        '' "oRibbon" ist normalerweise nur dann "Nothing", wenn das AddIn wegen eines Fehlers gestoppt wurde.
+        '' Dann kann der vorher gespeicherte Zeiger verwendet werden.
+        '' ABER: Wenn das AddIn nicht schreibgeschützt ist, kann der Zeiger auch veraltet sein.
+        ''       => Dann stürzt Excel ab und nichts geht mehr.
+        'If (oRibbon Is Nothing) Then
+        '    If (ThisWorkbook.ReadOnly) Then
+        '        Dim ribbonPointer As Long
+        '        ribbonPointer = tabGeoTools.Range("A1").value
+        '        If (ribbonPointer > 0) Then
+        '            On Error Resume Next  ' Nützt nix!
+        '            Call CopyMemory(oRibbon, ribbonPointer, 4)
+        '            On Error GoTo 0
+        '        End If
+        '    End If
+        'End If
+        '
+        'Set getGeoToolsRibbon = oRibbon
+    'End Function
+    
     ' Status-Aktualisierung aller Ribbon-Steuerelemente erzwingen.
-    ' Falls das AddIn gestoopt wurde, impliziert diese Routine auch dessen Neustart
-    ' durch die Verwendung der Eigenschaft ThisWorkbook.AktiveTabelle...
     Public Sub UpdateGeoToolsRibbon(Optional ByVal keinAktivesBlatt As Boolean = False)
         On Error Resume Next
         getGeoToolsRibbon().Invalidate

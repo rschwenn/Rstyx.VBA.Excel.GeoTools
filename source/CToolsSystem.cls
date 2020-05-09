@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -46,6 +46,7 @@ Attribute VB_Exposed = False
   '  
   '  GL ArbeitsVerz         ... Pfad\Name des Arbeitsverzeichnisses.
   '  G  DezimalTrenner      ... Dezimaltrennzeichen (lt. System-Ländereinstellungen).
+  '  G  TausenderTrenner    ... Tausender-Trennzeichen (lt. System-Ländereinstellungen).
   '  G  ListenTrenner       ... Listentrennzeichen  (lt. System-Ländereinstellungen).
   '  G  LangID              ... Language ID (dezimal, lt. System-Ländereinstellungen).
   '                         
@@ -123,12 +124,13 @@ Attribute VB_Exposed = False
  '            - rudimentäre OS-Info (Property "OS")
  '            - FindFiles() zeigt Aktivität in Statuszeile
  '21.02.2016  - Suche nach jedit.jar geändert (siehe Tools_1.vbi 4.2):
- '                 Gesucht wird unter: - %JEDIT_HOME%
+ '                 Gesucht wird unter:  - %JEDIT_HOME%
  '                                      - %PROGRAMFILES%\jedit
  '                                      - %PROGRAMFILES(X86)%\jedit
  '                                      - %PROGRAMW6432%\jedit
  '                                      - ThisWorkbook.Konfig.JEDIT_HOME
- '              - StartJEdit() verwendet keine speuiellen Kommandozeilenschalter mehr
+ '              - StartJEdit() verwendet keine speziellen Kommandozeilenschalter mehr
+ '20.04.2020  - Umstellung "Declare" auf 64 bit.
 '====================================================================================
 
 Option Explicit
@@ -157,6 +159,7 @@ Public  UEditExe               As String
 Public  CEditExe               As String
 Public  ListenTrenner          As String
 Public  DezimalTrenner         As String
+Public  TausenderTrenner       As String
 Public  LangID                 As String
 Public  Editoren               As Variant
 
@@ -179,13 +182,40 @@ Private oFileErrors            As Scripting.Dictionary
 
 
 'Declarations for getFileNameFromDialog()
-Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
-Private Declare Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
+'Private Declare Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+'Private Declare Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
+'Private Type OPENFILENAME
+  'lStructSize        As Long
+  'hwndOwner          As Long
+  'hInstance          As Long
+  'lpstrFilter        As String
+  'lpstrCustomFilter  As String
+  'nMaxCustFilter     As Long
+  'nFilterIndex       As Long
+  'lpstrFile          As String
+  'nMaxFile           As Long
+  'lpstrFileTitle     As String
+  'nMaxFileTitle      As Long
+  'lpstrInitialDir    As String
+  'lpstrTitle         As String
+  'flags              As Long
+  'nFileOffset        As Integer
+  'nFileExtension     As Integer
+  'lpstrDefExt        As String
+  'lCustData          As Long
+  'lpfnHook           As Long
+  'lpTemplateName     As String
+'End Type
 
+
+Private Declare PtrSafe Function GetOpenFileName Lib "comdlg32.dll" Alias "GetOpenFileNameA" (pOpenfilename As OPENFILENAME) As Long
+Private Declare PtrSafe Function GetSaveFileName Lib "comdlg32.dll" Alias "GetSaveFileNameA" (pOpenfilename As OPENFILENAME) As Long
+
+' siehe https://www.jkp-ads.com/articles/apideclarations.asp:
 Private Type OPENFILENAME
   lStructSize        As Long
-  hwndOwner          As Long
-  hInstance          As Long
+  hwndOwner          As LongPtr 
+  hInstance          As LongPtr 
   lpstrFilter        As String
   lpstrCustomFilter  As String
   nMaxCustFilter     As Long
@@ -200,10 +230,54 @@ Private Type OPENFILENAME
   nFileOffset        As Integer
   nFileExtension     As Integer
   lpstrDefExt        As String
-  lCustData          As Long
-  lpfnHook           As Long
+  lCustData          As LongPtr
+  lpfnHook           As LongPtr
   lpTemplateName     As String
 End Type
+
+Private Declare PtrSafe Function FindWindow Lib "User32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As LongPtr
+
+Private Declare PtrSafe Function SetWindowPos Lib "user32" Alias "SetWindowPos" (ByVal hwnd            As LongPtr, _
+                                                                                 ByVal hWndInsertAfter As LongPtr, _
+                                                                                 ByVal x               As Long, _
+                                                                                 ByVal y               As Long, _
+                                                                                 ByVal cx              As Long, _
+                                                                                 ByVal cy              As Long, _
+                                                                                 ByVal wFlags          As Long  _
+                                                                                ) As Long
+
+
+Public Function GetUserformHwnd(ByVal TargetForm As MSForms.UserForm) As LongPtr
+  Dim hwnd        As LongPtr
+  Dim SaveCaption As String
+  
+  SaveCaption = TargetForm.Caption
+  
+  ' Give the userform a unique caption.
+  Randomize
+  TargetForm.Caption = CStr(Rnd)
+  
+  ' Get window handle.
+  hwnd = FindWindow("ThunderDFrame", TargetForm.Caption)
+  'hwnd = FindWindow(vbNullString, TargetForm.Caption)
+  
+  TargetForm.Caption = SaveCaption
+  
+  GetUserformHwnd = hwnd
+End Function
+
+
+Public Function SetTopMostWindow(hwnd As LongPtr) As Long
+  'Make the window topmost
+  Const HWND_TOP       =  0
+  Const HWND_TOPMOST   = -1
+  Const HWND_NOTOPMOST = -2
+  Const SWP_NOMOVE     =  2
+  Const SWP_NOSIZE     =  1
+  Const FLAGS          = SWP_NOMOVE Or SWP_NOSIZE
+  SetTopMostWindow = SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, FLAGS)
+End Function
+
 '
 
 
@@ -240,7 +314,7 @@ Private Sub Class_Initialize()
   DebugEcho "UserDomain = '" & UserDomain & "',  Computername = '" & Computername & "',  Username = '" & Username & "'"
   DebugEcho "VBA-Host:    Name = '" & VBAHostName & "',  Version = '" & VBAHostVersion & "'"
   'DebugEcho "VBA-Projekt: Name = '" & VBAProjectName & "',  Dateipfad = '" & VBAProjectFileName & "'"
-  DebugEcho  "Language ID= '" & LangID & "'  DezimalTrenner= '" & DezimalTrenner & "'  ListenTrenner = '" & ListenTrenner & "'."
+  DebugEcho  "Language ID= '" & LangID & "'  DezimalTrenner= '" & DezimalTrenner & "'  TausenderTrenner= '" & TausenderTrenner & "'  ListenTrenner = '" & ListenTrenner & "'."
   DebugEcho "JAVA_HOME = '" & JAVA_HOME & "'."
   DebugEcho "JEDIT_HOME = '" & JEDIT_HOME & "'  JEDIT_SETTINGS = '" & JEDIT_SETTINGS & "'."
   DebugEcho "Exe Java = '" & JavaExe & "'."
@@ -1581,9 +1655,12 @@ Private sub GetInternational()
   'Listentrennzeichen und Dezimaltrennzeichen. (bei Fehler ist der Rückgabewert = "?")
   '==> in Excel geht's auch so: Application.International(xlListSeparator)
   'On Error Resume Next
-  Const Locale_RegValue   = "HKEY_CURRENT_USER\Control Panel\International\Locale"
-  Const sList_RegValue    = "HKEY_CURRENT_USER\Control Panel\International\sList"
-  Const sDecimal_RegValue = "HKEY_CURRENT_USER\Control Panel\International\sDecimal"
+  Const Locale_RegValue    = "HKEY_CURRENT_USER\Control Panel\International\Locale"
+  Const sList_RegValue     = "HKEY_CURRENT_USER\Control Panel\International\sList"
+  Const sDecimal_RegValue  = "HKEY_CURRENT_USER\Control Panel\International\sDecimal"
+  Const sThousand_RegValue = "HKEY_CURRENT_USER\Control Panel\International\sThousand"
+  
+  
   
   If (RegValueExists(Locale_RegValue)) Then
     LangID = WSHShell.RegRead(Locale_RegValue)
@@ -1608,6 +1685,12 @@ Private sub GetInternational()
     DezimalTrenner = RegRead(sDecimal_RegValue)
   Else
     DezimalTrenner = "?"
+  End If
+  
+  If (RegValueExists(sThousand_RegValue)) Then
+    TausenderTrenner = RegRead(sThousand_RegValue)
+  Else
+    TausenderTrenner = "?"
   End If
   
   On Error GoTo 0

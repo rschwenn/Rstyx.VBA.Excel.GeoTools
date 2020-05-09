@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "2.14.0"
-Public Const VersionDate  As String = "August 2019"
-Public Const Copyright    As String = "© 2003 - 2019  Robert Schwenn"
+Public Const VersionNr    As String = "3.0.0"
+Public Const VersionDate  As String = "Mai 2020"
+Public Const Copyright    As String = "© 2003 - 2020  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
@@ -35,7 +35,7 @@ Public Const Std_ExpimSchlussMeldung         As Boolean = true
 
 
 'Namen der unterstützten Anwender
-Public Const Anw_intermetric                 As String = "intermetric"
+'Public Const Anw_intermetric                 As String = "intermetric"
 
 'Namen benannter Zellbereiche.
 Public Const strInfoTraeger                  As String = "Daten.InfoTraeger"

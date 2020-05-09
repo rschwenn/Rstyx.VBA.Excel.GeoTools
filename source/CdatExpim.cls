@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -49,6 +49,7 @@ Attribute VB_Exposed = False
  '  - GL Meldung_Titel                   ... Schlussmeldung
 '
 'Historie:
+ '02.05.2020  Anpassungen für Excel 2016/365: Application.Visible ersetzt durch SetApplicationVisible()
  '31.12.2013  Anpassungen für Excel 2010:
  '            - Speichern der Arbeitsmappe im aktuellen Standardformat.
  '09.11.2008  - Methoden zum Speichern und Wiederherstellen von Einstellungen (nur Datenquelle)
@@ -407,7 +408,8 @@ Sub AktionsManager()
   If (DialogAnzeigen) Then
     'Sicherstellen, dass Excel sichtbar ist.
     '(Bei Fernsteuerung via xlM.vbs wird Excel erst sichtbar geschaltet, wenn das Makro fertig ist...)
-    Application.Visible        = true
+    
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     

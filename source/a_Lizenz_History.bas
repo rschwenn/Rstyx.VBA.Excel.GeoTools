@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2019 Robert Schwenn
+' Copyright (c) 2003-2020 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,7 @@ Attribute VB_Name = "a_Lizenz_History"
 'Modul Lizenz_History  (Dieses Modul enthält keinen Quelltext, sondern nur Kommentare)
 '==================================================================================================
 '
-'Nötige Verweise:   - Microsoft ActiveX Data Objects 2.1 Library
-'                   - Microsoft Scripting Runtime
+'Nötige Verweise:   - Microsoft Scripting Runtime
 '                   - Windows Script Host Object Model
 '                   - Microsoft VBScript Regular Expressions 5.5
 '                   - Optional (für Protokollierung): Actions.NET-AddIn
@@ -39,6 +38,15 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'01.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
+'                     - Umstellung "Declare"-Anweisungen auf 64 bit: 
+'                       - CToolsSystem: GetOpenFileName(), GetSaveFileName(), Type OPENFILENAME
+'                       - mdlRibbon:    CopyMemory(), getGeoToolsRibbon()
+'                   - Unterstützung für Office 2016:
+'                     - Vorlagensuche (frmStartExpim.frm) auch via Registry-Key:
+'                       "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Options\PersonalTemplates"
+'                   - CToolsSystem: Neue Eigenschaft "TausenderTrenner" 
+'                   - CdatMetaDaten: Unterstützung für Alt-iGeo-Projektdaten aufgegeben (GetAktPrjDat_iGEO(), ADODB)
 '21.08.2019 v2.14.0 - Transfo_Tk2Gls() und Transfo_Gls2Tk():
 '                     Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2.
 '25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.

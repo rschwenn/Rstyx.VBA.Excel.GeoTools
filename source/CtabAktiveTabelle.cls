@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2018  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -566,11 +566,11 @@ Public Sub FormatDaten()
     If (Me.FormatDatenOhneFuellung) Then oRangeQuelle.Interior.ColorIndex = xlNone
     
     If (Me.FormatDatenMitStreifen) Then
-      'Der mit RGB() gelieferte Farbwert wird nicht unverändert verwendet, sondern es wird
-      'die in der Farbpalette der Arbeitsmappe verfügbare, ähnlichste Farbe verwendet!
+      'Excel verwendet nicht den mit RGB() gelieferten Farbwert, sondern
+      'die in der Farbpalette der Arbeitsmappe verfügbare, ähnlichste Farbe!
       'DESHALB: Sicherstellen, daß die richtige Farbpalette zur Verfügung steht.
-      'Nicht sehr rücksichtsvoll, aber mit Wirkung:
-      ActiveWorkbook.Colors = ThisWorkbook.Colors
+      'Nicht sehr rücksichtsvoll, aber mit Wirkung (und Nebenwirkungen):
+      'ActiveWorkbook.Colors = ThisWorkbook.Colors
       
       '2. Datenzeile: Format der 1. Datenzeile übertragen und grau einfärben
       'Set oRangeZiel = oRangeQuelle.Resize(RowSize:=2)
@@ -581,8 +581,8 @@ Public Sub FormatDaten()
       
       'Set oRangeZiel = oRangeQuelle.Offset(rowoffset:=1)
       With oRangeZiel.Interior
-        '.Color = RGB(234, 234, 234)
-        .ColorIndex = 39
+        .Color = RGB(234, 234, 234)
+        '.ColorIndex = 39
         .Pattern = xlSolid
       End With
       
@@ -819,6 +819,7 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
       .CenterFooter = ""
       .RightFooter = Tx_FussRe & "Seite &P von &N"
     End With
+    Application.StatusBar = "Fußzeile eingerichtet."
   End If
   'Application.ScreenUpdating = StatusScreen
   'ActiveSheet.EnableCalculation = StatusCalc

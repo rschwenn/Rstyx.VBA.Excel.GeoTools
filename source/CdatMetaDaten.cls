@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -571,111 +571,16 @@ Private Sub GetAktPrjDat()
   Me.KooSystem    = ""
   Me.TraBasisUeb  = ThisWorkbook.Konfig.TkBasisUeberhoehung
   
-  Select Case ThisWorkbook.Konfig.Anwender
-    Case Anw_intermetric
-         Call GetAktPrjDat_iGEO    'Projektdaten des aktiven iGEO-Projektes ermitteln
-    Case Else
-         'keine Projektdaten
-  End Select
+  'Select Case ThisWorkbook.Konfig.Anwender
+  '  Case Anw_intermetric
+  '       'Call GetAktPrjDat_iGEO    'Projektdaten des aktiven iGEO-Projektes ermitteln
+  '  Case Else
+  '       'keine Projektdaten
+  'End Select
   Exit Sub
 
 Fehler:
   FehlerNachricht "CdatMetaDaten.GetAktPrjDat()"
-End Sub
-
-
-
-
-'==== interne Routinen, anwenderspezifisch ====================================
-
-
-Private Sub GetAktPrjDat_iGEO()
-  'Anwender: intermetric.
-  'Ermittelt folgende Daten des aktiven iGEO-Projektes:
-  ' - AuftragNr
-  ' - Projektbez1
-  ' - Projektbez2
-  ' - Projektbez3
-  
-  Dim DBconn           As ADODB.Connection
-  Dim RS               As ADODB.Recordset
-  Dim geo_home         As String
-  Dim aktPrjName       As String
-  Dim DBVerz           As String
-  Dim TreiberStringEng As String
-  Dim TreiberStringDeu As String
-  Dim ConnectStringEnd As String
-  Dim SQL              As String
-  
-  DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Daten des aktiven iGEO-Projektes ermitteln."
-  On Error Resume Next
-  
-  On Error GoTo Fehler
-  
-  aktPrjName = iGEO_aktPrjName
-  Me.AuftragNr = aktPrjName
-  
-  On Error Resume Next
-  
-  If ((aktPrjName <> "?") And (aktPrjName <> "")) Then
-    geo_home = Environ("GEO_HOME")
-    DBVerz = geo_home & "\PRJVW"
-    TreiberStringEng = "Driver=Microsoft Paradox Driver (*.db )"
-    TreiberStringDeu = "Driver=Microsoft Paradox-Treiber (*.db )"
-    ConnectStringEnd = ";DBQ=" & DBVerz & ";CollatingSequence=International;"
-    SQL = "SELECT * FROM Verzprj WHERE PrjID='" & aktPrjName & "';"
-    
-    'Set DBconn = CreateObject("ADODB.Connection")
-    Set DBconn = New ADODB.Connection
-    DBconn.Provider = "MSDASQL"   '"MSDASQL" steht für ODBC und ist optional, da Standard.
-    DBconn.Mode = adModeRead
-    DBconn.ConnectionString = TreiberStringEng & ConnectStringEnd
-    DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Versuche, DB-Verbindung herzustellen: " & DBconn.ConnectionString
-    DBconn.Open
-    If (DBconn.State <> adStateOpen) Then
-      DBconn.ConnectionString = TreiberStringDeu & ConnectStringEnd
-      DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Verbindung konnte nicht hergestellt werden."
-      DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Versuche, DB-Verbindung herzustellen: " & DBconn.ConnectionString
-      DBconn.Open
-    End If
-    'DB-Statuskonstanten: adStateClosed, adStateOpen, adStateConnecting
-    
-    If (DBconn.State <> adStateOpen) Then
-      DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Verbindung konnte nicht hergestellt werden."
-    else
-      DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Verbindung hergestellt."
-      DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Abfrage: '" & SQL & "'"
-      Set RS = DBconn.Execute(SQL)
-      If (RS Is Nothing) Then
-        DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Abfrage lieferte keinen Datensatz. PrjID '" & aktPrjName & "' existiert wahrscheinlich nicht."
-      else
-        DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): DB-Abfrage lieferte einen Datensatz => wird ausgewertet:"
-        Do While Not RS.EOF
-          'PrjID   = RS("PrjID")
-          'Me.AuftragNr   = RS("PrjNr")
-          Me.Projektbez1 = RS("Prjbez1")
-          Me.Projektbez2 = RS("Prjbez2")
-          Me.Projektbez3 = RS("Prjbez3")
-          'msgbox & Me.AuftragNr & ", " & Me.Projektbez1 & ", " & Me.Projektbez2 & ", " & Me.Projektbez3 & vbNewLine
-          RS.MoveNext
-        Loop
-        DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO():   Projektbez1 = '" & Me.Projektbez1 & "'"
-        DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO():   Projektbez2 = '" & Me.Projektbez2 & "'"
-        DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO():   Projektbez3 = '" & Me.Projektbez3 & "'"
-        Set RS = Nothing
-      End If
-      Set DBconn = Nothing
-    End If
-  Else
-    DebugEcho "CdatMetaDaten.GetAktPrjDat_iGEO(): Aktives iGEO-Projekt ist unbekannt."
-  End If
-  
-  Exit Sub
-  
-Fehler:
-  Set DBconn = Nothing
-  Set RS = Nothing
-  'FehlerNachricht "CdatMetaDaten.GetAktPrjDat_iGEO()"
 End Sub
 
 

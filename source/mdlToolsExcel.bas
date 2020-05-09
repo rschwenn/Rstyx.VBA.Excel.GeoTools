@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -24,6 +24,21 @@ Fehler:
   Err.Clear
   IsMacrosExecutable = False
 End Function
+
+
+Sub SetApplicationVisible(ByVal Visible As Boolean)
+  ' 02.05.2020: Wenn Excel sichtbar geschaltet wird, obwohl es das bereits ist,
+  ' dann wird ein extra Fenster geöffnet, und Excel lässt sich nur mit Trick 17 schließen!
+  On Error GoTo Fehler
+  If (Visible) Then
+    If (Not Application.Visible) Then Application.Visible = True
+  Else
+    If (Application.Visible) Then Application.Visible = False
+  End If
+  Exit Sub
+Fehler:
+  Err.Clear
+End Sub
 
 
 '***  Abteilung Statuszeile und Meldungen  ***************************************
@@ -61,7 +76,7 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   'Protokolleintrag
   If ((ErrMessage <> "") Or (ErrNumber <> 0)) Then
     'Fehlermeldung für Protokoll
-    Application.Visible        = true
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     ErrEcho replace(Message, vbNewLine & vbNewLine, vbNewLine)
@@ -69,7 +84,7 @@ Public Sub FehlerNachricht(ByVal FehlerQuelle As String)
   
   'Dialog
   If (Message <> "") Then
-    Application.Visible        = true
+    SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     MsgBox Message, vbExclamation, Titel
@@ -193,6 +208,9 @@ End Sub
 '***  Abteilung Dateien  **************************************************************************
 
 Public Function FindeXLVorlage(ByVal FileName As String) As String
+  '
+  ' ACHTUNG: 01.05.2020: nicht mehr aktuell, siehe frmStartExpim.frm\GetXLVorlagen()
+  '
   'Gibt den vollständigen Namen incl. Pfad der zuerst gefundenen Vorlage zurück.
   'Existiert keine entsprechende Datei, wird "" zurückgegeben.
   '   "FileName"     = Dateiname ohne absolute oder relative Pfadangabe (keine Wildcards)

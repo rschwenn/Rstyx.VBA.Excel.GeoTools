@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -57,24 +57,14 @@ End Sub
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     'MsgBox "Workbook_BeforeClose()"
     
-    ' Altlasten aus Vorgängerversionen entfernen.
-    Call UIAltlastenBeseitigung()
+    ' Backup des Ribbon-Pointer entfernen
+    tabGeoTools.Range("A1").Value = vbEmpty
     
     Set oRegExp = Nothing
     Set oKonfig = Nothing
     Set oMetadaten = Nothing
     Set oAktiveTabelle = Nothing
     Set oSysTools = Nothing
-End Sub
-
-Sub UIAltlastenBeseitigung()
-  ' GUI-Altlasten aus Vorgängerversionen entfernen (Kontextmenü-Einträge und Icon-Container).
-  On Error Resume Next
-  Application.CommandBars("cell").Controls("Datenbereich formatieren").Delete
-  Application.CommandBars("cell").Controls("Bedingte Formatierung...").Delete
-  Application.CommandBars("cell").Controls("Datei öffnen (Name in Zelle)").Delete
-  Application.CommandBars("gtDummy_Icons").Delete
-  On Error Goto 0
 End Sub
 
 

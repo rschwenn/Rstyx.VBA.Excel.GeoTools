@@ -945,10 +945,57 @@ Private Function GetXLVorlagen(DateiMaske As String) As String
   VorlagenListe = ""
   PersonalTemplates = ""
   
-  ' Ab Office 2016 (zumindest Office 365 am 01.05.2020 ;-):
-  ' - Application.NetworkTemplatesPath ist scheinbar immer leer
-  ' - Application.TemplatesPath zeigt auf "C:\Users\<USER>\AppData\Roaming\Microsoft\Templates\",
-  '   dort liegende Vorlagen sind für den Anwender aber nicht sichtbar!
+  ' Vorlagen-Ordner in Office 365 am 10.05.2020 :
+  '----------------------------------------------
+  '
+  ' Benutzerdefinierte Office-Vorlagen
+  '   - Standard:              "Benutzerdefinierte Office-Vorlagen" als (hart kodiertes) Unterverzeichnis
+  '                            von C:\Users\<USERNAME>\Documents\
+  '   - Einstellung in Word:   Optionen -> Erweitert -> Allgemein -> Dateispeicherorte -> Dokumente
+  '   - Einstellung in Excel:  nicht möglich => wird von Word übernommen
+  '   - VBA Objektmodell:      ?
+  '   - Registry:              HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Personal
+  '   - Anmerkungen:
+  '     - Dort liegende Vorlagen sind für den Anwender NICHT SICHTBAR !
+  '     - Beim Speichern als Vorlage startet dort der Dateidialog in Word und Excel,
+  '       falls kein "Standardspeicherort für persönliche Vorlagen" festgelegt ist.
+  '
+  '
+  ' Benutzervorlagen
+  '   - Standard:              C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Templates\
+  '   - Einstellung in Word:   Optionen -> Erweitert -> Allgemein -> Dateispeicherorte -> Benutzervorlagen
+  '   - Einstellung in Excel:  nicht möglich => wird von Word übernommen
+  '   - VBA Objektmodell:      Application.TemplatesPath
+  '   - Registry:              HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\General\UserTemplates
+  '   - Anmerkungen:
+  '     - Dort liegende Vorlagen sind für den Anwender NICHT SICHTBAR !
+  '     - Dort schreibt Word die Normal.dotm.
+  '     - Der Registry-Value existiert nur, wenn der Inhalt nicht dem Standard entspricht.
+  '
+  '
+  ' Arbeitsgruppenvorlagen
+  '   - Standard:              <leer>
+  '   - Einstellung in Word:   Optionen -> Erweitert -> Allgemein -> Dateispeicherorte -> Arbeitsgruppenvorlagen
+  '   - Einstellung in Excel:  nicht möglich => wird von Word übernommen
+  '   - VBA Objektmodell:      Application.NetworkTemplatesPath
+  '   - Registry:              HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\General\SharedTemplates
+  '                            => benutzerabhängig !
+  '   - Anmerkungen:
+  '     - Dort liegende Vorlagen sind für den Anwender SICHTBAR ***
+  '
+  '
+  ' Standardspeicherort für persönliche Vorlagen
+  '   - Standard:              <leer>
+  '   - Einstellung in Word:   Optionen -> Speichern -> Standardspeicherort für persönliche Vorlagen
+  '   - Einstellung in Excel:  Optionen -> Speichern -> Standardspeicherort für persönliche Vorlagen
+  '   - VBA Objektmodell:      ?
+  '   - Registry:              HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Word\Options\PersonalTemplates
+  '   - Anmerkungen: 
+  '     - Dort liegende Vorlagen sind für den Anwender SICHTBAR ***
+  '     - Word und Excel verwalten diese Einstellung getrennt voneinander !
+  '     - Beim Speichern als Vorlage startet dort der Dateidialog in Word und Excel.
+  ' 
+  
   If (ThisWorkbook.SysTools.RegValueExists(PersonalTemplates_RegValue)) Then
     PersonalTemplates = ThisWorkbook.SysTools.RegRead(PersonalTemplates_RegValue)
   End If
@@ -1369,9 +1416,13 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim NF                        As Long
     Dim i                         As Long
     Dim iAnz                      As Long
+    Dim TemplatesCount            As Long
+    Dim lb                        As Long
+    Dim ub                        As Long
     Dim CurrentTemplate           As Workbook
     Dim oFS                       As New Scripting.FileSystemObject
     Dim oTS_XltCache              As Scripting.TextStream
+    Dim oXlApp2                   As Excel.Application
   '
   Const NameXltCache As String = "GeoTools_xltcache.txt"
   DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen zusammenstellen..."
@@ -1453,17 +1504,13 @@ Private Sub GetFormatliste_XlVorlagen()
      '   mit dem der gefundenen Datei übereinstimmt, ansonsten XLT öffnen ...
      '   b, Liste der zuletzt vorhandenen XLT's neu erstellen (oRecentXLT_Neu)
     DebugEcho "Liste der XL-Vorlagen für Dialog-Listbox erstellen:"
-    ReDim Liste_XLT_komplett(0 To UBound(FormatPfadName) - 1, 0 To 5) As String
+    ub = UBound(FormatPfadName)
+    lb = LBound(FormatPfadName)
+    ReDim Liste_XLT_komplett(0 To ub - 1, 0 To 5) As String
     iAnz = 0
+    TemplatesCount = ub - lb + 1
     
-  
-    Dim success2       As Long
-    Dim ProgressBar    As frmProgressBar
-    Set ProgressBar = New frmProgressBar
-    ProgressBar.Show vbModeless
-    success2 = ThisWorkbook.SysTools.SetTopMostWindow(ThisWorkbook.SysTools.GetUserformHwnd(ProgressBar))
-    
-    For i = LBound(FormatPfadName) To UBound(FormatPfadName)
+    For i = lb To ub
       
       AktFormatPfadName = FormatPfadName(i)
       DebugEcho "bearbeite Datei '" & AktFormatPfadName & "'"
@@ -1494,13 +1541,17 @@ Private Sub GetFormatliste_XlVorlagen()
         XltInfo_OK = True
       Else
         DebugEcho " - Info's der auf Festplatte gefundenen Datei werden ermittelt"
-        Application.StatusBar = "XL-Vorlagen analysieren: " & AktFormatPfadName
+        Call ProgressbarAllgemein(TemplatesCount, i - lb + 1, "GeoTools analysiert Vorlage:     " & AktFormatPfadName)
         
-        'XLT öffnen.
+        'XLT öffnen mit neuer Excel-Instanz.
+        If (oXlApp2 Is Nothing) Then
+          Set oXlApp2 = New Excel.Application
+          oXlApp2.EnableEvents = False
+          'oXlApp2.Visible = False  (ist von vornherein unsichtbar)
+        End If
         On Error Resume Next
         ErrMessage = "Fehler beim Erkunden einer Vorlage"
-        Set CurrentTemplate = Application.Workbooks.Open(FileName:=AktFormatPfadName, ReadOnly:=True, UpdateLinks:=0 , AddToMru:=False) 
-        'Application.Workbooks.Add AktFormatPfadName
+        Set CurrentTemplate = oXlApp2.Workbooks.Open(FileName:=AktFormatPfadName, ReadOnly:=True, UpdateLinks:=0 , AddToMru:=False) 
         
         If (Err.Number <> 0) Then
             FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
@@ -1508,26 +1559,21 @@ Private Sub GetFormatliste_XlVorlagen()
           'XLT: Info's lesen und schließen
           On Error GoTo Fehler
           
-          XltInfo_OK = True
+          Titel      = CurrentTemplate.BuiltinDocumentProperties("title").value
+          Kategorien = GetKategorien(oXlApp2.ActiveSheet)
           
-          'Application.EnableEvents = True
-          ThisWorkbook.AktiveTabelle.Syncronisieren
-          'Application.EnableEvents = False
-          
-          Titel = ThisWorkbook.AktiveTabelle.TabTitel
-          Kategorien = ThisWorkbook.AktiveTabelle.Kategorien
-          
-          'Application.ActiveWorkbook.Close SaveChanges:=False
           CurrentTemplate.Close SaveChanges:=False
           
           DebugEcho " - Titel = '" & Titel & "'"
           DebugEcho " - Kategorien = '" & Kategorien & "'"
           
           'Neu ermittelte Info's merken
-          RecentXLT_Neu(idxTitel) = Titel
+          RecentXLT_Neu(idxTitel)      = Titel
           RecentXLT_Neu(idxKategorien) = Kategorien
-          RecentXLT_Neu(idxAendDatum) = DateiAendDatum
+          RecentXLT_Neu(idxAendDatum)  = DateiAendDatum
           RecentXLT = RecentXLT_Neu
+          
+          XltInfo_OK = True
         End If
       End If
       
@@ -1546,7 +1592,9 @@ Private Sub GetFormatliste_XlVorlagen()
       End If
     Next
     
-    Unload ProgressBar
+    If (Not (oXlApp2 Is Nothing)) Then
+      oXlApp2.Quit
+    End If
     
     ReDim Preserve Liste_XLT_komplett(0 To iAnz - 1, 0 To 5) As String
     
@@ -1579,6 +1627,7 @@ Private Sub GetFormatliste_XlVorlagen()
   'Nachbereitung
     Set oFS = Nothing
     Set oTS_XltCache = Nothing
+    Set oXlApp2 = Nothing
     Call ClearStatusBarDelayed(StatusBarClearDelay)
     Application.EnableEvents = StatusEvents
     Application.ScreenUpdating = StatusScreen
@@ -1597,6 +1646,66 @@ Fehler:
   'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
 End Sub
+
+
+Private Function GetKategorien(Optional oTab As Worksheet = Nothing) As String
+  'Ermittelt alle unterschiedlichen Spalten-Kategorien der angegebenen Tabelle
+  'und den Kodenamen der Tabelle als erste Kategorie.
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
+  'Rückgabe: Liste durch Semikolons getrennt.
+  
+  On Error GoTo Fehler
+  
+  Dim DictTmp           As Scripting.Dictionary
+  Dim oZellname         As Scripting.Dictionary
+  Dim SpaltenName       As Variant
+  Dim Liste             As String
+  Dim ListeKeys         As String
+  Dim ZellnamePur       As String
+  Dim Feld()            As String
+  Dim NF                As Long
+  
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
+  Set DictTmp   = New Scripting.Dictionary
+  Set oZellname = New Scripting.Dictionary
+  
+  ' Kodename der Tabelle.
+  Liste = substitute("[0-9]+$", "", oTab.CodeName, False, False)
+  
+  ' Kategorien aus Spaltennamen.
+  Set oZellname = GetFelderAusTabelle(PrefixSpaltenname, oTab)
+  If (Not (oZellname Is Nothing)) Then
+    On Error Resume Next
+    For Each SpaltenName In oZellname
+      If (Len(SpaltenName) > Len(PrefixSpaltenname)) Then
+        ' Prefix ".Spalte" entfernen.
+        ZellnamePur = Mid(SpaltenName, Len(PrefixSpaltenname) + 1)
+        ' Einheit entfernen.
+        NF = SplitDelim(ZellnamePur, Feld, TrennerEinheit)
+        If (NF > 1) Then
+          ZellnamePur = Feld(1)
+        End If
+        If (ThisWorkbook.Konfig.SpaltenKategorie(ZellnamePur) <> "") Then DictTmp.Add ThisWorkbook.Konfig.SpaltenKategorie(ZellnamePur), "*"
+      End If
+    Next
+    On Error GoTo 0
+    ListeKeys = ListeDerKeys(DictTmp)
+    If (ListeKeys <> "") Then Liste = Liste & ";" & ListeKeys
+  End If
+  Set DictTmp   = Nothing
+  Set oZellname = Nothing
+  GetKategorien = Liste
+  Exit Function
+  
+Fehler:
+  GetKategorien = ""
+  Set DictTmp   = Nothing
+  Set oZellname = Nothing
+  FehlerNachricht "frmStartExpim.GetKategorien()"
+End Function
 
 
 Private Function GetKlassennamen(Prefix As String) As String

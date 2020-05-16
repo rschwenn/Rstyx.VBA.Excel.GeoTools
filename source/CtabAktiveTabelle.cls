@@ -895,12 +895,14 @@ End Sub
 
 
 
-Public Function GetProjektDaten() As Scripting.Dictionary
-  'Liest alle verfügbaren Projektdaten aus der aktiven Tabelle und
+Public Function GetProjektDaten(Optional oTab As Worksheet = Nothing) As Scripting.Dictionary
+  'Liest alle verfügbaren Projektdaten aus der angegebenen Tabelle und
   'gibt diese als Dictionary (oder nothing) zurück.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
-  set GetProjektDaten = GetFelderAusTabelle("Prj.")
+  set GetProjektDaten = GetFelderAusTabelle("Prj.", oTab)
   Exit Function
 
 Fehler:
@@ -909,12 +911,14 @@ End Function
 
 
 
-Public Function GetExtraDaten() As Scripting.Dictionary
-  'Liest alle verfügbaren Extradaten aus der aktiven Tabelle und
+Public Function GetExtraDaten(Optional oTab As Worksheet = Nothing) As Scripting.Dictionary
+  'Liest alle verfügbaren Extradaten aus der angegebenen Tabelle und
   'gibt diese als Dictionary (oder nothing) zurück.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
-  set GetExtraDaten = GetFelderAusTabelle("x.")
+  set GetExtraDaten = GetFelderAusTabelle("x.", oTab)
   Exit Function
 
 Fehler:
@@ -1858,7 +1862,7 @@ Private Sub GetSpaltenInfo(ByVal Prefix As String, oZellen As Scripting.Dictiona
   '  Prefix         ... Es werden nur Namen berücksichtigt, die damit beginnen.
   'Ausgabeparameter:
   '  oZellen        ... Alle gefundenen Zellen als Range.
-  '  oZellEinheiten ... Die Einheit zu jeder gefundenen Zelle, falls verfügbar; sonst="ohne".
+  '  oZellEinheiten ... Die Einheit  zu jeder gefundenen Zelle, falls verfügbar; sonst="ohne".
   '  oZellFormate   ... Formatangabe zu jeder gefundenen Zelle, falls verfügbar; sonst="ohne".
   '  ==> Der Key der 3 Dictionaries ist der reine Zellname ohne Prefix und Einheitenangabe.
   '  ==> Alle Dictionaries werden zunächst geleert!

@@ -108,24 +108,27 @@ Sub ProgressbarAllgemein(ByVal MaxValue As Double, ByVal CurrentValue As Double,
   On Error GoTo Fehler
   
   Const SingleBAR = "|"   ' Character for progress bar
-  Const MaxBARS = 65      ' BAR count at 100%
+  Const MaxBARS   = 50    ' BAR count at 100%
   
-  Dim Ratio     As Double
-  Dim Percent   As String
-  Dim Bar       As String
-  Dim BARcount  As Integer
+  Dim Ratio       As Double
+  Dim Percent     As String
+  Dim Bar         As String
+  Dim BARcount    As Integer
+  Dim SpaceCount  As Integer
   
   MaxValue = Abs(MaxValue)
   CurrentValue = Abs(CurrentValue)
   
   If ((CurrentValue <= MaxValue) And (MaxValue > 0)) Then
       
-      Ratio = CurrentValue / MaxValue
-      Percent = CStr(CInt(Ratio * 100)) & "%  "
-      BARcount = CInt(Ratio * MaxBARS)
-      Bar = Percent & String$(CInt(Ratio * MaxBARS), "|") & "   " & Text
+      Ratio      = CurrentValue / MaxValue
+      Percent    = CStr(CInt(Ratio * 100)) & "%  "
+      BARcount   = CInt(Ratio * MaxBARS)
+      SpaceCount = MaxBARS - BARcount - 1
+      If (SpaceCount < 0) Then SpaceCount = 0
+      Bar        = Percent & String$(BARcount, "|") & String$(SpaceCount, " ") & "|     " & Text
   Else
-      Bar = "100%  " & String$(CInt(Ratio * MaxBARS), "|") & "   " & Text
+      Bar = "100%  " & String$(MaxBARS, "|") & "     " & Text
   End If
   
   Application.DisplayStatusBar = True
@@ -134,7 +137,7 @@ Sub ProgressbarAllgemein(ByVal MaxValue As Double, ByVal CurrentValue As Double,
   Exit Sub
   
 Fehler:
-  FehlerNachricht "frmBatchPDF.ProgressbarDateiLesen()"
+  FehlerNachricht "mdlToolsExcel.ProgressbarAllgemein()"
 End Sub
 
 Sub ProgressbarDateiLesen(ByVal Dateinummer As Integer)
@@ -381,23 +384,26 @@ Public Sub ZellNamensListe()
 End Sub
 
 
-Public Function isLokalerZellName(oName As Name) As Boolean
-  'Stellt fest, ob der benannte Bereich "oName" im aktiven Tabellenblatt liegt.
+Public Function isLokalerZellName(oName As Name, Optional oTab As Worksheet = Nothing) As Boolean
+  'Stellt fest, ob der benannte Bereich "oName" im angegebenen Tabellenblatt liegt.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error Resume Next
   Dim Adresse        As String
   Dim TabName        As String
-  'Dim oName          As Range
+  
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
     
-  'Adresse = oName(index).RefersToRange.Address(External:=True)
-  'Set oName = Application.Range(oName(index).RefersTo)
   If (oName Is Nothing) Then
     isLokalerZellName = False
   Else
-    Adresse = Application.Range(oName.RefersTo).Address(External:=True)
+    Adresse = oTab.Application.Range(oName.RefersTo).Address(External:=True)
     Adresse = substitute("'\[", "\[", Adresse, False, False)
     Adresse = substitute("'!", "!", Adresse, False, False)
-    TabName = "[" & ActiveWorkbook.Name & "]" & ActiveSheet.Name & "!"
+    TabName = "[" & oTab.Parent.Name & "]" & oTab.Name & "!"
     If (InStr(Adresse, TabName)) Then
       'in der mit (External:=True) ermittelten Adresse ist immer der "TabName" enthalten.
       isLokalerZellName = True
@@ -406,7 +412,6 @@ Public Function isLokalerZellName(oName As Name) As Boolean
     End If
   End If
   On Error GoTo 0
-  'Set oName = Nothing
   
 End Function
 
@@ -440,10 +445,12 @@ Fehler:
 End Function
 
 
-Function GetLokalerZellname(ByVal Name As String) As Range
-  'Gibt den in der aktiven Tabelle liegenden benannten Zellbereich "Name" zurück.
-  'Bezieht sich der benannte Bereich nicht auf die aktive Tabelle, oder existiert
+Function GetLokalerZellname(ByVal Name As String, Optional oTab As Worksheet = Nothing) As Range
+  'Gibt den in der angegebenen Tabelle liegenden benannten Zellbereich "Name" zurück.
+  'Bezieht sich der benannte Bereich nicht auf die angegebenen Tabelle, oder existiert
   'er gar nicht, so wird "nothing" zurückgegeben.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error Resume Next
   
@@ -453,19 +460,23 @@ Function GetLokalerZellname(ByVal Name As String) As Range
   Dim i                 As Long
   Dim blnNameGefunden   As Boolean
   
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
   Set oRange = Nothing
   blnNameGefunden = False
-  If (Not (ActiveCell Is Nothing)) Then
-    Set benannteZellen = ActiveWorkbook.Names
+  If (oTab.Type = xlWorksheet) Then
+    Set benannteZellen = oTab.Parent.Names
     i = 1
     Do While ((i <= benannteZellen.Count) And (Not blnNameGefunden))
       Zellname = benannteZellen(i).Name
-      If (isLokalerZellName(benannteZellen(i))) Then
-        'Bereichsname existiert im aktiven (!) Tabellenblatt.
-        'ZellName kann trotzdem den Tabellennamen enthalten. Dies steuert Excel automatisch...
+      If (isLokalerZellName(benannteZellen(i), oTab)) Then
+        'Bereichsname existiert im angegebenen Tabellenblatt.
+        'ZellName kann den Tabellennamen enthalten. Dies steuert Excel automatisch...
         If ((Zellname = Name) Or (entspricht("!" & Name & "$", Zellname))) Then
           blnNameGefunden = True
-          Set oRange = Application.Range(benannteZellen(i).RefersTo)
+          Set oRange = oTab.Application.Range(benannteZellen(i).RefersTo)
         End If
       End If
       i = i + 1
@@ -541,9 +552,10 @@ Fehler:
 End Function
 
 
-Public Function GetFelderAusTabelle(ByVal Prefix As String) As Scripting.Dictionary
-  'Findet alle benannten Zellen der Arbeitsmappe, die sich auf die aktive Tabelle
-  'beziehen und deren Namen mit "Prefix" beginnen.
+Public Function GetFelderAusTabelle(ByVal Prefix As String, Optional oTab As Worksheet = Nothing) As Scripting.Dictionary
+  'Findet alle benannten Zellen der Arbeitsmappe, in der sich die angegebene Tabelle befindet
+  'und die sich auf die angegebene Tabelle beziehen und deren Namen mit "Prefix" beginnen.
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   '  Prefix   ... Es werden nur Namen berücksichtigt, die damit beginnen.
   '  Rückgabe ... Dictionary (Key=Feldname, Item=Inhalt)
   
@@ -560,6 +572,10 @@ Public Function GetFelderAusTabelle(ByVal Prefix As String) As Scripting.Diction
   Dim oRange                As Range
   Dim oFelder               As Scripting.Dictionary
   
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
   Set oRange    = Nothing
   Set oFelder   = New Scripting.Dictionary
   
@@ -567,18 +583,18 @@ Public Function GetFelderAusTabelle(ByVal Prefix As String) As Scripting.Diction
   RegExZellname = "^(.*!)?"                        'reg. Ausdruck für einen Zellnamen
   RegExZellnamePrefix = "^(.*!)?" & RegExPrefix    'reg. Ausdruck für einen Zellnamen mit Präfix
   
-  If (Not (ActiveCell Is Nothing)) Then
-    Set benannteZellen = ActiveWorkbook.Names
+  If (oTab.Type = xlWorksheet) Then
+    Set benannteZellen = oTab.Parent.Names
     i = 1
     Do While (i <= benannteZellen.Count)
       Zellname = benannteZellen(i).Name
-      If (isLokalerZellName(benannteZellen(i))) Then
-        'Bereichsname existiert im aktiven (!) Tabellenblatt.
-        'ZellName kann trotzdem den Tabellennamen enthalten. Dies steuert Excel nach eigenem Willen...
+      If (isLokalerZellName(benannteZellen(i), oTab)) Then
+        'Bereichsname existiert im angegebenen Tabellenblatt.
+        'ZellName kann den Tabellennamen enthalten. Dies steuert Excel automatisch...
         If (entspricht(RegExZellnamePrefix, Zellname)) Then
           'Zellname gefunden, der mit dem gesuchten Präfix beginnt.
           ZellnamePur = substitute(RegExZellname, "", Zellname, False, False)  'Ergebnis z.B. = "Prj.KooSystem"
-          Set oRange  = Application.Range(benannteZellen(i).RefersTo)
+          Set oRange  = oTab.Application.Range(benannteZellen(i).RefersTo)
           oFelder.add ZellnamePur, oRange.Value
         End If
       End If

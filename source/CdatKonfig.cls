@@ -554,7 +554,7 @@ Public Sub LeseKonfiguration()
   On Error GoTo Fehler
   
   'Wird Excel per Automation gestartet (und das Laden der Startup-Add-Ins ebenso gesteuert),
-  'so erzeugt der gescheiterte Versuch, eine nicht vorhandenen Arbeitsmappe zu öffnen,
+  'so erzeugt der gescheiterte Versuch, eine nicht vorhandene Arbeitsmappe zu öffnen,
   'keinen Fehler (bzw. der Versuch findet gar nicht erst statt, auch wenn die Datei vorhanden
   'ist). Deshalb:
   IsCfgOpen = False

@@ -100,8 +100,16 @@ End Sub
     
     Public Property Get Konfig() As CdatKonfig
         If (oKonfig Is Nothing) Then
+            
+            ' Bringt nichts:
+            'Dim StatusVisible As Boolean
+            'StatusVisible = Application.Visible
+            'SetApplicationVisible(False)
+            
             Set oKonfig = New CdatKonfig
             oKonfig.LeseKonfiguration
+            
+            'SetApplicationVisible(StatusVisible)
             If (Not oKonfig.KonfigDateiGelesen) Then
                 WarnEcho "Keine Konfiguration verfügbar (Konfigurationsdatei nicht gelesen)."
                 Application.StatusBar = Application.StatusBar & " (Keine Konfiguration verfügbar!)"

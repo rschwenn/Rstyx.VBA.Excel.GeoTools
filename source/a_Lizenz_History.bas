@@ -38,15 +38,18 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'01.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
+'18.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
 '                     - Umstellung "Declare"-Anweisungen auf 64 bit: 
 '                       - CToolsSystem: GetOpenFileName(), GetSaveFileName(), Type OPENFILENAME
 '                       - mdlRibbon:    CopyMemory(), getGeoToolsRibbon()
 '                   - Unterstützung für Office 2016:
 '                     - Vorlagensuche (frmStartExpim.frm) auch via Registry-Key:
 '                       "HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Options\PersonalTemplates"
-'                   - CToolsSystem: Neue Eigenschaft "TausenderTrenner" 
+'                   - CToolsSystem:  Neue Eigenschaft "TausenderTrenner" 
 '                   - CdatMetaDaten: Unterstützung für Alt-iGeo-Projektdaten aufgegeben (GetAktPrjDat_iGEO(), ADODB)
+'                   - frmStartExpim: Öffnen zu erkundender Vorlagen erfolgt wieder unsichtbar (zweite Excel-Instanz)
+'                   - AddIn "Actions.NET.xll" wird jetzt beim Laden der GeoTools nachgeladen und registriert,
+'                     und zwar aus dem GeoTools-Ressourcen-Ordner.
 '21.08.2019 v2.14.0 - Transfo_Tk2Gls() und Transfo_Gls2Tk():
 '                     Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2.
 '25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.
@@ -74,8 +77,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '22.11.2015 v2.10.0 Kompatibilität mit Win7 und anderen Installations-Orten:
 '                   - Anfälligkeit gegenüber "Geschützter Ansicht" (deaktivierte Makros) verringert.
 '                   - Vorlagencache wird jetzt als eine einzige Datei in TEMP-Ordner geschrieben.
-'                   - Konfiguration und Hilfe werden jetzt nicht mehr im übergeordneten verzeichnis
-'                     gesucht, sondern im Unterverzeichnis "GeoToolsRes".
+'                   - Konfiguration und Hilfe werden jetzt nicht mehr im übergeordneten Verzeichnis
+'                     gesucht, sondern im GeoTools-Ressourcen-Ordner (Unterverzeichnis "GeoToolsRes").
 '12.06.2015 v2.9.5  - Bugfix CimpTrassenkoo: - A0 darf jetzt mit absolut leerem Kommentar enden.
 '                     - Schwerer Performanceeinbruch, wegen GetValue() seit V 2.8.0
 '11.06.2015 v2.9.4  - Bugfix: Expim-Dialog deaktivierte die Formelberechnung in aktiver Tabelle.
@@ -94,7 +97,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '                                        - Unterstützung für iGeo-Format A0
 '                                        - Umbenamnnt in LeseTKiGeo()
 '16.02.2014 v2.7.0  - Umstellung der Oberfläche von Controls/2003 auf Ribbon/2010
-'                   - Umstellung der Konfigurationsdatei auf .xlx
+'                   - Umstellung der Konfigurationsdatei auf .xlsx
 '                   - Umstellung globaler Objekte auf Eigenschaften von ThisWorkbook, damit
 '                     Excel nicht neu gestartet weden muss, wenn AddIn wegen Fehler gestoppt wurde.
 '                   - mdlUserInterface umbenannt in mdlBefehle, da es keinen UI-kode mehr enthält.

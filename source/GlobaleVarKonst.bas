@@ -23,6 +23,7 @@ Public Const eMail        As String = "devel@rstyx.de"
 
 'Installation
 Public Const ResourcesSubFolder              As String = "GeoToolsRes"
+Public Const LoggingAddInName                As String = "Actions.NET.xll"
 
 'Standard-Einstellungen
 Public Const Std_TkBasisUeberhoehung         As Double  = 1.500

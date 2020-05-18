@@ -24,6 +24,9 @@ Option Explicit
 Private InitMsg                 As String
 Private strVBAHostNameVersion   As String
 Private strAddInName            As String
+Private strLoggingInfo          As String
+Private LoggingAddInPath        As String
+Private LoggingAddInLoaded      As Boolean
 Private oAktiveTabelle          As CtabAktiveTabelle
 Private oKonfig                 As CdatKonfig
 Private oMetadaten              As CdatMetaDaten
@@ -35,15 +38,33 @@ Private Sub Workbook_Open()
     'Initialisierung des Add-Ins ("Workbook_AddinInstall()" funktioniert nicht).
     On Error GoTo Fehler
     
+    InitMsg = "GeoTools " & VersionNr & " aktiviert"
+    
+    ' AddIn mit LoggingConsole laden (Actions.NET).
+    LoggingAddInPath   = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & LoggingAddInName
+    LoggingAddInLoaded = Application.RegisterXLL(LoggingAddInPath)
+    If (LoggingAddInLoaded) Then
+        DebugEcho "GeoTools-Protokollierung erfolgreich initialisiert (" & LoggingAddInPath & " geladen und registriert)."
+        strLoggingInfo = "AddIn '" & LoggingAddInPath & "' wurde erfolgreich geladen." & vbLf & vbLf & _
+                         "==> Protokollierung sollte zur Verfügung stehen."
+    Else
+        ' Protokollierung geht ins Leere, macht also keinen Sinn.
+        strLoggingInfo = "AddIn '" & LoggingAddInPath & "' konnte nicht geladen werden." & vbLf & vbLf & _
+                         "Mögliche Ursachen:." & vbLf & _
+                         "  1. Die Datei existiert nicht." & vbLf & _
+                         "  2. Excel wurde ferngesteuert gestartet." & vbLf & vbLf & _
+                         "==> Protokollierung steht dadurch nicht zur Verfügung."
+        InitMsg = InitMsg & "  (Keine Protokollierung verfügbar)"
+    End If
+    
     ' Arbeitsverzeichnis setzen und Schlussmeldung
     Call SetArbeitsverzeichnis
     DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
     
+    
     ' Konfiguration initialisieren (und Mißerfog in Statuszeile dokumentieren)
-    If (Me.Konfig.KonfigDateiGelesen) Then
-        InitMsg = "GeoTools " & VersionNr & " aktiviert"
-    Else
-        InitMsg = "GeoTools " & VersionNr & " aktiviert (Keine Konfiguration verfügbar!)"
+    If (Not Me.Konfig.KonfigDateiGelesen) Then
+        InitMsg = InitMsg & "  (Keine Konfiguration verfügbar!)"
     End If
     Application.StatusBar = InitMsg
     call ClearStatusBarDelayed(StatusBarClearDelay)
@@ -85,6 +106,11 @@ End Sub
         End If
         AddInName = strAddInName
     End Property
+    
+    Public Property Get LoggingInfo() As String
+        LoggingInfo = strLoggingInfo
+    End Property
+    
 '
 
 ' Region "Add-In-weit verfügbare Objekte"

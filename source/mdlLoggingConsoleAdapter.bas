@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlLoggingConsoleAdapter"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -90,7 +90,7 @@ Sub ShowConsole()
     
     Exit Sub
     Catch:
-    MsgBox "Protokollierung steht nicht zur Verfügung!" & vbNewLine & "(Eventuell wurde Excel per Automation gestartet)"
+    Call InfoNoLogging()
 End Sub
 
 Sub TrackError()
@@ -98,6 +98,23 @@ Sub TrackError()
     If (FailedTrialsCount > MAX_TRIALS) Then
         IsLoggingNotAvailable = True
     End If
+End Sub
+
+Sub InfoNoLogging()
+    ' Displays Information about absense of logging.
+    On Error GoTo Catch
+    Dim Title As String
+    Dim Msg   As String
+    Title = "Kein Protokoll verfügbar."
+    Msg   = ThisWorkbook.LoggingInfo 
+    If (Msg = "") Then
+        Msg = "Protokollierung steht nicht zur Verfügung!"
+    End If
+    Call MsgBox(Msg, vbExclamation, Title)
+    
+    Exit Sub
+    Catch:
+    FehlerNachricht "mdlLoggingConsoleAdapter.InfoNoLogging()"
 End Sub
 
 

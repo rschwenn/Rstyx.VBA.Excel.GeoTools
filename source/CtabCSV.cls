@@ -499,7 +499,7 @@ Private Function LeseDatei() As Integer
   End If
   
   'Kontrolle über Statuszeile an Excel zurückgeben.
-  'Application.StatusBar = False
+  'Application.StatusBar = ""
   LeseDatei = lfdNrTotal
   Exit Function
 

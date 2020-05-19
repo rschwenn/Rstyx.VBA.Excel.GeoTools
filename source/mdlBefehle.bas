@@ -337,7 +337,7 @@ Sub GeoTools_Info()
             "Copyright" & vbTab & vbTab & Copyright & "  (" & eMail & ")"
   Application.StatusBar = ProgName & " " & VersionNr
   Call MsgBox(Meldung, vbOKOnly, Titel)
-  Application.StatusBar = False
+  Application.StatusBar = ""
   
   Exit Sub
 Fehler:

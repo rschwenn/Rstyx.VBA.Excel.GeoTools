@@ -1639,7 +1639,7 @@ Private Sub GetFormatliste_XlVorlagen()
 Fehler:
   Set oFS = Nothing
   Set oTS_XltCache = Nothing
-  Application.StatusBar = False
+  Application.StatusBar = ""
   Application.EnableEvents = StatusEvents
   Application.ScreenUpdating = StatusScreen
   Application.AutomationSecurity = StatusAutoSec

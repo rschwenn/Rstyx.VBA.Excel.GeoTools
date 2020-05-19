@@ -190,7 +190,7 @@ End Sub
 Sub ClearStatusBar()
   'This method is needed for ClearStatusBarDelayed()...
   On Error GoTo Fehler
-  Application.StatusBar = False
+  Application.StatusBar = ""
   Exit Sub
 Fehler:
   Err.Clear

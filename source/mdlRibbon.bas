@@ -75,6 +75,7 @@ Private oRibbon As IRibbonUI
     Public Sub UpdateGeoToolsRibbon(Optional ByVal keinAktivesBlatt As Boolean = False)
         On Error Resume Next
         getGeoToolsRibbon().Invalidate
+        call ClearStatusBarDelayed(1)
         On Error Goto 0
     End Sub
     
@@ -188,7 +189,7 @@ Private oRibbon As IRibbonUI
     
     ' Verfügbar, wenn Makros nicht deaktiviert sind.
     Sub GetEnabledMacrosExecutable(control As IRibbonControl, ByRef returnedVal)
-        returnedVal = IsMacrosExecutable
+        returnedVal = IsMacrosExecutable()
     End Sub
     
     ' Verfügbar, wenn das aktive Blatt eine Tabelle ist und Makros nicht deaktiviert sind.
@@ -204,7 +205,7 @@ Private oRibbon As IRibbonUI
             End If
         End If
         
-        returnedVal = (returnedVal And IsMacrosExecutable)
+        returnedVal = (returnedVal And IsMacrosExecutable())
     End Sub
     
     ' Verfügbar, wenn der Infotraeger definiert ist ("GeoTools-Tabelle").

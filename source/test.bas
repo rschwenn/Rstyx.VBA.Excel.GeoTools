@@ -206,7 +206,7 @@ Sub test_y()
 'Application.DisplayStatusBar = True
 'Application.StatusBar = "Import läuft |||||     |||||     ||||||||||||"
 'Workbooks.Open FileName:="GROSS.XLS"
-'Application.StatusBar = False
+'Application.StatusBar = ""
 'Application.DisplayStatusBar = True
 
 'Set oRangeZiel = oInfotraeger.Offset(rowoffset:=1).Resize(RowSize:=ZeAnz - 1)
@@ -414,7 +414,7 @@ Sub test_Mod_XlTabAktiv()
   oExpim.Datenpuffer.Mod_FehlerVerbesserung
   
   oExpim.SchreibeDatenpuffer_XlTabAktiv
-  Application.StatusBar = False
+  Application.StatusBar = ""
   Set oExpim = Nothing
 Exit Sub
 Fehler:

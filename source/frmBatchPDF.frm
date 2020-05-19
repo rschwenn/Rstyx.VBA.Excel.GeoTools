@@ -260,7 +260,7 @@ Private Sub ExportPDF()
 Catch:
     IsBusy = False
     IsCancellationRequested = False
-    Application.StatusBar = False
+    Application.StatusBar = ""
     Application.EnableEvents = StatusEvents
     Application.ScreenUpdating = StatusScreen
     ErrMessage = "Fehler beim Erzeugen der PDF-Datei(en) => ABBRUCH"

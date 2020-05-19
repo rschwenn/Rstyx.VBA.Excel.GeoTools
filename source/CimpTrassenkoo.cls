@@ -672,7 +672,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
   
 Fehler:
   Close #Kanal
-  Application.StatusBar = False
+  Application.StatusBar = ""
   Me.AktionErfolgreich = False
   Me.Fehlerniveau   = Fehlerniveau_Kritisch
   FehlerNachricht "CimpTrassenkoo.LeseDatei()"

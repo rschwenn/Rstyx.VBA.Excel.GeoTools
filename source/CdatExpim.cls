@@ -708,7 +708,7 @@ Sub AktionsManager()
     
     
     'Kontrolle über Statuszeile an Excel zurückgeben, Status Bildschirmaufbau und Berechnung wiederherstellen.
-    'Application.StatusBar = False
+    'Application.StatusBar = ""
     Application.ScreenUpdating = StatusScreen
     
   End If
@@ -797,7 +797,7 @@ Function GetQuelldaten_XlTabAktiv() As Long
   End If
   
   Set oInfotraeger = Nothing
-  'Application.StatusBar = False
+  'Application.StatusBar = ""
   GetQuelldaten_XlTabAktiv = Anzahl
   
   Exit Function

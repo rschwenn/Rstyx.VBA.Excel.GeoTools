@@ -38,7 +38,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'18.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
+'19.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
 '                     - Umstellung "Declare"-Anweisungen auf 64 bit: 
 '                       - CToolsSystem: GetOpenFileName(), GetSaveFileName(), Type OPENFILENAME
 '                       - mdlRibbon:    CopyMemory(), getGeoToolsRibbon()
@@ -50,6 +50,10 @@ Attribute VB_Name = "a_Lizenz_History"
 '                   - frmStartExpim: Öffnen zu erkundender Vorlagen erfolgt wieder unsichtbar (zweite Excel-Instanz)
 '                   - AddIn "Actions.NET.xll" wird jetzt beim Laden der GeoTools nachgeladen und registriert,
 '                     und zwar aus dem GeoTools-Ressourcen-Ordner.
+'                   - Fix: Statusleiste blockiert nicht mehr mit "FALSE".
+'                     Auslöser für das Problem ist Ribbon.Invalidate(). Ursache unklar.
+'                     Workaround: UpdateGeoToolsRibbon() ruft ClearStatusBarDelayed(1) auf und setzt damit
+'                     die Statusleiste nach dem Ribbon-Update zurück.
 '21.08.2019 v2.14.0 - Transfo_Tk2Gls() und Transfo_Gls2Tk():
 '                     Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2.
 '25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.

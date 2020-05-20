@@ -1,7 +1,7 @@
 Rstyx.VBA.Excel.GeoTools
 ========================
 
-Eine Sammlung von Werkzeugen für Excel 2003 und 2010, die insbesondere das Arbeiten mit einfachen Listen einschließlich CSV-Import effizienter gestalten sollen, im einzelnen:
+Eine Sammlung von Werkzeugen für Excel 2016 (64 bit), die insbesondere das Arbeiten mit einfachen Listen einschließlich CSV-Import effizienter gestalten sollen, im einzelnen:
 
 
 Funktionen für beliebige Tabellen
@@ -26,8 +26,7 @@ Funktionen für bereits strukturierte Tabellen (-vorlagen)
 
 Zugriff auf die Funktionen der GeoTools
 ---------------------------------------
- - Excel 2003: Hauptmenü-Punkt "GeoTools" sowie Symbolleisten
- - Excel 2010: Menüband-Register "GeoTools"
+ - Menüband-Register "GeoTools"
 
 Dokumentation
 -------------
@@ -40,8 +39,7 @@ Lizenz
 
 Abhängigkeiten
 --------------
- - Excel 2003 oder 2010
+ - Excel 2016 (64 bit)
  - Microsoft Scripting Runtime
  - Windows Script Host Object Model
- - Version 2003: Microsoft Windows Common Controls 6.0 (MSComctl.ocx)
- - Version 2010: Actions.Net-AddIn (https://github.com/rschwenn/Rstyx.Excel) (optional für Protokollierung)
+ - Actions.Net-AddIn (https://github.com/rschwenn/Rstyx.Excel) (optional für Protokollierung)

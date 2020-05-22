@@ -335,9 +335,12 @@ Sub GeoTools_Info()
             "Version"   & vbTab & vbTab & VersionNr & "  (" & VersionDate & ")" & vbLf & vbLf & _
             "Lizenz"    & vbTab & vbTab & "The MIT License" & vbLf & _
             "Copyright" & vbTab & vbTab & Copyright & "  (" & eMail & ")"
-  Application.StatusBar = ProgName & " " & VersionNr
+  
+  If (Application.ActiveProtectedViewWindow Is Nothing) Then
+    Application.StatusBar = ProgName & " " & VersionNr
+    ClearStatusBarDelayed(StatusBarClearDelay)
+  End If
   Call MsgBox(Meldung, vbOKOnly, Titel)
-  Application.StatusBar = ""
   
   Exit Sub
 Fehler:

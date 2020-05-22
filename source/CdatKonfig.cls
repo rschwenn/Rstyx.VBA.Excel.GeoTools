@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2015  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -549,9 +549,13 @@ Public Sub LeseKonfiguration()
   Application.ScreenUpdating = False
   Application.DisplayAlerts  = False
   
+  ' Fehlersuche wegen SDI: Wenn cfg geöffnet wird, bleibt nach dem Excel-Start
+  ' mit einer Datei zweites, leeres Fenster offen.
+  DebugEcho "CdatKonfig.LeseKonfiguration(): Vor Öffnen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
   On Error Resume Next
   Application.Workbooks.Open FileName:=cfg, ReadOnly:=True
   On Error GoTo Fehler
+  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Öffnen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
   
   'Wird Excel per Automation gestartet (und das Laden der Startup-Add-Ins ebenso gesteuert),
   'so erzeugt der gescheiterte Versuch, eine nicht vorhandene Arbeitsmappe zu öffnen,
@@ -574,10 +578,12 @@ Public Sub LeseKonfiguration()
     
   Call LeseEinstellungen
   Call LeseSpaltenKonfig
+  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Lesen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
   
   ' Mit aktiven Ereignissen scheitert dies gern mal (diverse Interferenzen)
   Application.EnableEvents = False
   WbkCfg.Close False
+  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Schließen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
   
   Application.EnableEvents   = StatusEvents
   Application.ScreenUpdating = StatusScreen

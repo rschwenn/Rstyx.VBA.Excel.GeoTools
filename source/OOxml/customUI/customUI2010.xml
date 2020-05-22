@@ -7,7 +7,7 @@
   
   <ribbon>
     <tabs>
-      <tab id="GeoToolsTab" label="GeoTools">
+      <tab id="GeoToolsTab" label="GeoTools" keytip="g" >
         
         <group id="GeneralGroup" label="Allgemein" imageMso="GroupTaskListTags" >
           
@@ -29,6 +29,7 @@
                     size="normal"
                     screentip="Über GeoTools"
                     onAction="GeoToolsButtonAction"
+                    keytip="o"
                     imageMso="TaskSuggestionsShow" />
             
             <button id="HelpButton"
@@ -36,6 +37,7 @@
                     size="normal"
                     screentip="GeoTools-Hilfe"
                     onAction="GeoToolsButtonAction"
+                    keytip="y"
                     imageMso="Help" />
             
             <button id="LogButton"
@@ -44,6 +46,7 @@
                     screentip="GeoTools-Protokoll"
                     onAction="GeoToolsButtonAction"
                     getEnabled="GetEnabledMacrosExecutable"
+                    keytip="k"
                     imageMso="GroupCreateOther" />
           </box>
           
@@ -56,6 +59,7 @@
                   supertip="Es wird eine neue Datei anhand einer Vorlage erzeugt. Die dorthin geschriebenen Daten stammen aus einer Spezial-ASCII/CSV-Datei oder aus der aktiven Tabelle"
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledMacrosExecutable"
+                  keytip="x"
                   imageMso="SyncTool" />
           
           <button id="TableStructureButton"
@@ -65,6 +69,7 @@
                   supertip="Für die Nutzung der meisten GeoTools-Funktionen wird eine GeoTools-interne Strukturierung der Tabelle benötigt. Diese kann hiermit erzeugt und verwaltet werden."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="t"
                   imageMso="CatalogMergeCreateList" />
         </group>
         
@@ -77,6 +82,7 @@
                   supertip="Das Format der ersten Zeile des Datenbereiches (laut Tabellenstruktur) wird auf alle weiteren Zeilen übertragen. Dabei werden die Optionen berücksichtigt."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
+                  keytip="f"
                   imageMso="FormatPainter" />
           
           <toggleButton id="FmtOptStripesButton"
@@ -88,6 +94,7 @@
                   onAction="GeoToolsToggleButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
                   getPressed="GeoToolsToggleButtonGetPressed"
+                  keytip="s"
                   imageMso="AlignJustify" />
           
           <toggleButton id="FmtOptBackgroundButton"
@@ -99,6 +106,7 @@
                   onAction="GeoToolsToggleButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
                   getPressed="GeoToolsToggleButtonGetPressed"
+                  keytip="h"
                   imageMso="BlackAndWhiteDontShow" />
                   
           <box id="FmtOptPrecisionBox" boxStyle="horizontal">
@@ -112,6 +120,7 @@
                     onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledFloatingPoint"
                     getPressed="GeoToolsToggleButtonGetPressed"
+                    keytip="n"
                     imageMso="CalculatedNumber" />
             
             <comboBox id="FmtOptPrecisionNumber"
@@ -145,6 +154,7 @@
                   screentip="verschiedene Berechnungen"
                   supertip="Funktionsprinzip: Falls die gewählte Berechnung erfolgreich war, werden die Ergebnisse in die dafür vorgesehenen Spalten (falls vorhanden) eingetragen. Dabei werden die aktiven Optionen berücksichtigt. Es werden keine Fehlermeldungen angezeigt (evtl. enthält das Protokoll Hinweise)."
                   getEnabled="GetEnabledGeoToolsTable"
+                  keytip="b"
                   imageMso="EquationEdit"
                   >
                   <button id="CalcDiffsButton"
@@ -188,6 +198,7 @@
                     onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledGeoToolsTable"
                     getPressed="GeoToolsToggleButtonGetPressed"
+                    keytip="u"
                     imageMso="Delete" />
             
             <toggleButton id="CalcOptKeepFormulasButton"
@@ -199,6 +210,7 @@
                     onAction="GeoToolsToggleButtonAction"
                     getEnabled="GetEnabledGeoToolsTable"
                     getPressed="GeoToolsToggleButtonGetPressed"
+                    keytip="e"
                     imageMso="FunctionLookup" />
           </box>
           
@@ -211,6 +223,7 @@
                   supertip="Die Formeln des 'Formelbereiches' der ersten Datenzeile (laut Tabellenstruktur) werden auf alle weiteren Zeilen übertragen."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledFormula"
+                  keytip="a"
                   imageMso="Formula" />
           
           <button id="DeleteButton"
@@ -220,6 +233,7 @@
                   supertip="Die Inhalte der ersten Zeile des Datenbereiches (laut Tabellenstruktur) werden gelöscht. Alle weiteren Zeilen werden komplett entfernt."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledGeoToolsTable"
+                  keytip="l"
                   imageMso="DeleteTable" />
           
         </group>
@@ -233,6 +247,7 @@
                   supertip="Wenn 3 Zellen markiert sind, zwei davon in der gleichen Spalte (x-Werte), dann wird in die dritte Zelle die Interpolationsformel eingetragen (Spalte mit Funktionswerten)."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="i"
                   imageMso="ZIndex" />
           
           <button id="DuplicatesButton"
@@ -242,6 +257,7 @@
                   supertip="Ab der markierten Zelle werden alle wiederholt auftretenden Werte hervorgehoben (mit Hilfe der Bedingten Formatierung)."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="d"
                   imageMso="QuickStylesSets" />
           
           <button id="BlankLinesButton"
@@ -251,6 +267,7 @@
                   supertip="In einem per Dialog festzulegenden Intervall werden Leerzeilen eingefügt."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="z"
                   imageMso="SpacingDouble" />
           
           <separator id="ToolsSeparator1" />
@@ -262,6 +279,7 @@
                   supertip="Wenn die aktive Zelle einen vollständigen Dateinamen enthält, wird diese Datei im Editor geöffnet."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="r"
                   imageMso="EditDocument" />
           
           <button id="SetFooterButton"
@@ -271,6 +289,7 @@
                   supertip="Die Fußzeile wird neu belegt: Links = Kontaktdaten, Mitte = leer, Rechts = Seitennummer. Die Kontaktdaten werden aus dem Eintrag “FUSSZEILE_EXCEL_1” aus der Ini-Datei mit Ortsdaten gelesen (siehe Konfiguration)."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
+                  keytip="ß"
                   imageMso="FooterInsertGallery" />
           
           <separator id="ToolsSeparator2" />
@@ -282,6 +301,7 @@
                   supertip="Für jede im Dialog gewählte Excel-Datei wird eine PDF-Datei gleichen Namens erzeugt (im Ordner der Excel-Datei)."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledMacrosExecutable"
+                  keytip="p"
                   imageMso="SendPdf" />
                   
          </group>

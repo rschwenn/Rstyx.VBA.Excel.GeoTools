@@ -38,6 +38,15 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'27.05.2020 v3.0.2  - Neu: CtabTabelle als Helfer für eine nicht aktive Tabelle
+'                     - Grundlage: CtabAktiveTabelle
+'                     - stark abgespeckt: bislang nur lesende Funktionen
+'                     - Anlass: Lesen der Konfigurationsdatei im Hintergrund:
+'                   - Die Konfigurationsdatei wird nicht mehr als aktive Datei geöffnet, sondern
+'                     mit einer zweiten Excel-Instanz (siehe v3.0.0 frmStartExpim). Dadurch startet
+'                     Excel ohne zweites Geister-Fenster, wenn es mit einem Datei-Argument aufgerufen wird.
+'22.05.2020 v3.0.1  - Tastaturbedienung verbessert (KeyTips)
+'                   - Geschützte Ansicht des aktiven Fensters wird erkannt ...
 '19.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
 '                     - Umstellung "Declare"-Anweisungen auf 64 bit: 
 '                       - CToolsSystem: GetOpenFileName(), GetSaveFileName(), Type OPENFILENAME

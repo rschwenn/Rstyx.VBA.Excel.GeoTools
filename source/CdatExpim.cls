@@ -809,6 +809,81 @@ Fehler:
 End Function
 
 
+Function GetQuelldaten_XlTab(oTab As Excel.Worksheet) As Long
+  'Ermittelt die Struktur der angegebenen Tabelle, liest alle Datenspalten (Werte und Formeln),
+  'belegt damit den Datenpuffer und liest alle in der Tabelle enthaltenen Projektdaten.
+  'Rückgabe: Anzahl der gelesenen Zeilen.
+  '
+  'Diese Routine wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
+  '=> Die Verwendung der (erst danach initialisierten) globalen Objekte vermeiden!
+  
+  On Error GoTo Fehler
+  
+  Dim Anzahl             As Long
+  Dim ZeAnz              As Long
+  Dim Spalte             As Variant
+  Dim i                  As Variant
+  Dim k                  As Variant
+  Dim Feld()             As String
+  Dim Faktor             As Double
+  Dim oGeoToolsTab       As CtabTabelle
+  
+  DebugEcho "CdatExpim.GetQuelldaten_XlTab(): startet ..."
+  
+  Set oGeoToolsTab = New CtabTabelle
+  Set oGeoToolsTab.ZielTabelle = oTab
+  
+  ZeAnz = oGeoToolsTab.AnzahlDatenZeilen
+  
+  ' Datenpuffer leeren.
+  Me.Datenpuffer.Daten_LoeschenAlleSpalten
+  ReDim Feld(1 To ZeAnz, DP2lb To DP2ub)
+  
+  ' Analyse der Tabelle: Ermitteln von Datenspalten, Einheiten und Faktoren der Quelldaten.
+  oGeoToolsTab.Syncronisieren
+  'oGeoToolsTab.ZeigeSpalten
+  
+  ' Benannte Spalten der Tabelle lesen und normiert in den Datenpuffer schreiben.
+  If (Not oGeoToolsTab.SpaltenErsteZellen Is Nothing) Then
+    If (oGeoToolsTab.SpaltenErsteZellen.Count > 0) Then
+      For Each Spalte In oGeoToolsTab.SpaltenErsteZellen
+        Application.StatusBar = "Lese Spalte: " & Spalte
+        For i = LBound(Feld) To UBound(Feld)
+          For k = DP2lb To DP2ub
+            Feld(i, k) = ""
+          Next
+        Next
+        ' "GetQuelldaten_XlTab" wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
+        ' Zu diesem Zeitpunkt existiert ThisWorkbook.Konfig noch nicht:
+        If (Not ThisWorkbook.Konfig Is Nothing) Then
+          Faktor = ThisWorkbook.Konfig.FaktorDerEinheit(oGeoToolsTab.SpaltenEinheiten(Spalte))
+        Else
+          Faktor = 0
+        End If
+        'MsgBox "oGeoToolsTab.SpaltenEinheiten(Spalte)=" & oGeoToolsTab.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
+        Call Spalte_XL2DP(Feld, oGeoToolsTab.SpaltenErsteZellen(Spalte), Faktor)
+        Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
+      Next
+      Anzahl = ZeAnz
+    End If
+  Else
+    Anzahl = 0
+  End If
+  oGeoToolsTab = Nothing
+  
+  DebugEcho "CdatExpim.GetQuelldaten_XlTab(): fertig ..."
+  'Application.StatusBar = ""
+  GetQuelldaten_XlTab = Anzahl
+  
+  Exit Function
+  
+Fehler:
+  GetQuelldaten_XlTab = 0
+  oGeoToolsTab = Nothing
+  FehlerNachricht "CdatExpim.GetQuelldaten_XlTab()"
+End Function
+
+
 Function SchreibeDatenpuffer_XlTabAktiv() As Long
   'Ermittelt die Struktur der aktiven Tabelle (Zieltabelle) und schreibt alle
   'verfügbaren Daten des Datenpuffers in die passenden Spalten der Tabelle.

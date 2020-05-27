@@ -15,7 +15,7 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "3.0.1"
+Public Const VersionNr    As String = "3.0.2"
 Public Const VersionDate  As String = "Mai 2020"
 Public Const Copyright    As String = "© 2003 - 2020  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
@@ -91,6 +91,7 @@ Public Const Fehlerniveau_Kritisch           As Long = 2
 'Fehler: Nummern und Zusatzmeldungen
 Public Const ErrNumTabSchutz                 As Long = 50001
 Public Const ErrNumKeineAktiveTabelle        As Long = 50002
+Public Const ErrNumKeineZielTabelle          As Long = 50008
 Public Const ErrNumTabKlasseUngueltig        As Long = 50003
 Public Const ErrNumZellnameProtected         As Long = 50004
 Public Const ErrNumXLVorlageFehlt            As Long = 50005
@@ -98,6 +99,7 @@ Public Const ErrNumNoRangeSelection          As Long = 50006
 Public Const ErrNumFktAufrufUngueltig        As Long = 50007
                                              
 Public Const ErrMsgKeineAktiveTabelle        As String = "Es ist keine Tabelle aktiv!"
+Public Const ErrMsgKeineZielTabelle          As String = "Es ist keine Tabelle angegeben!"
 Public Const ErrMsgTabKlasseUngueltig        As String = "Die Tabellenvorlage und der Programmkode passen nicht zusammen!"
 Public Const ErrMsgXLVorlageFehlt            As String = "Die angegebene Tabellenvorlage wird benötigt, kann aber weder in den Office-Vorlagenordnern noch in den Excel-Startordnern gefunden werden."
 

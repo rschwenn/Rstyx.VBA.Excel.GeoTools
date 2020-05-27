@@ -895,14 +895,12 @@ End Sub
 
 
 
-Public Function GetProjektDaten(Optional oTab As Worksheet = Nothing) As Scripting.Dictionary
+Public Function GetProjektDaten() As Scripting.Dictionary
   'Liest alle verfügbaren Projektdaten aus der angegebenen Tabelle und
   'gibt diese als Dictionary (oder nothing) zurück.
-  '
-  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
-  set GetProjektDaten = GetFelderAusTabelle("Prj.", oTab)
+  set GetProjektDaten = GetFelderAusTabelle("Prj.")
   Exit Function
 
 Fehler:
@@ -911,14 +909,12 @@ End Function
 
 
 
-Public Function GetExtraDaten(Optional oTab As Worksheet = Nothing) As Scripting.Dictionary
+Public Function GetExtraDaten() As Scripting.Dictionary
   'Liest alle verfügbaren Extradaten aus der angegebenen Tabelle und
   'gibt diese als Dictionary (oder nothing) zurück.
-  '
-  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
-  set GetExtraDaten = GetFelderAusTabelle("x.", oTab)
+  set GetExtraDaten = GetFelderAusTabelle("x.")
   Exit Function
 
 Fehler:

@@ -312,12 +312,18 @@ End Function
 
 '***  Abteilung Excel-Tabellen  *******************************************************************
 
-Public Function isTabellenSchutz() As Boolean
+Public Function isTabellenSchutz(Optional oTab As Worksheet = Nothing) As Boolean
+  'Stellt fest, ob das angegebene Tabellenblatt geschützt ist (vor wem auch immer).
   '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   On Error GoTo Fehler
   
-  If (Not (ActiveSheet Is Nothing)) Then
-    With ActiveWorkbook.ActiveSheet
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
+  If (Not (oTab Is Nothing)) Then
+    With oTab
       If (.ProtectDrawingObjects = True Or _
         .ProtectContents = True Or _
         .ProtectScenarios = True) Then
@@ -447,7 +453,7 @@ End Function
 
 Function GetLokalerZellname(ByVal Name As String, Optional oTab As Worksheet = Nothing) As Range
   'Gibt den in der angegebenen Tabelle liegenden benannten Zellbereich "Name" zurück.
-  'Bezieht sich der benannte Bereich nicht auf die angegebenen Tabelle, oder existiert
+  'Bezieht sich der benannte Bereich nicht auf die angegebene Tabelle, oder existiert
   'er gar nicht, so wird "nothing" zurückgegeben.
   '
   'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
@@ -492,22 +498,28 @@ Fehler:
 End Function
 
 
-Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary) As Boolean
-  'Schreibt von allen verfügbaren Items des Dictionary diejenigen in die aktive Tabelle,
+Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary, Optional oTab As Worksheet = Nothing) As Boolean
+  'Schreibt von allen verfügbaren Items des Dictionary diejenigen in die angegebene Tabelle,
   'für die entsprechend benannte Zellen existieren, d.h. lokaler Zellname = Key.
   'Parameter:  oDictionary: Typ =Scripting.Dictionary
   '                         Key =Feldname (Zielzelle)
   '                         Item=Feldwert (zu schreibender Wert)
   'Rückgabe: True, wenn zumindest ein Feld gefunden und beschrieben wurde.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
   Dim Feld             As Variant
   Dim FeldGeschrieben  As Boolean
   Dim oRangeName       As Range
   
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
   FeldGeschrieben = False
   For Each Feld In oDictionary
-    Set oRangeName = GetLokalerZellname(Feld)
+    Set oRangeName = GetLokalerZellname(Feld, oTab)
     If (Not oRangeName Is Nothing) Then
       FeldGeschrieben = True
       oRangeName.value = oDictionary(Feld)
@@ -522,22 +534,28 @@ Fehler:
 End Function
 
 
-Public Function LesenFelderAusTabelle(oDictionary As Scripting.Dictionary) As Boolean
-  'Belegt alle Items des Dictionary mit Zellinhalten der aktive Tabelle,
+Public Function LesenFelderAusTabelle(oDictionary As Scripting.Dictionary, Optional oTab As Worksheet = Nothing) As Boolean
+  'Belegt alle Items des Dictionary mit Zellinhalten der angegebenen Tabelle,
   'wenn lokaler Zellname = Key des Dictionary.
   'Parameter:  oDictionary: Typ =Scripting.Dictionary
   '                         Key =Feldname (Quellzelle)
   '                         Item=Feldwert (zu belegender Wert)
   'Rückgabe: True, wenn zumindest ein Feld gefunden wurde.
+  '
+  'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
   
   On Error GoTo Fehler
   Dim Feld             As Variant
   Dim FeldGelesen      As Boolean
   Dim oRangeName       As Range
   
+  If (oTab Is Nothing) Then
+    Set oTab = ActiveSheet
+  End If
+  
   FeldGelesen = False
   For Each Feld In oDictionary
-    Set oRangeName = GetLokalerZellname(Feld)
+    Set oRangeName = GetLokalerZellname(Feld, oTab)
     If (Not oRangeName Is Nothing) Then
       FeldGelesen = True
       oDictionary(Feld) = oRangeName.value

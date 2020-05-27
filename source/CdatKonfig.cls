@@ -13,11 +13,11 @@ Attribute VB_Exposed = False
 '**************************************************************************************************
 
 '====================================================================================
- 'Klasse CdatKonfig
+' Klasse CdatKonfig
 '====================================================================================
 ' Stellt die Konfiguration zur Verfügung.
-' Wenn möglich, wird GeoTools_cfg.xlsx gelesen (eine Verzeichnisebene höher
-' als GeoTools.xlam), wodurch einige Standardwerte überschrieben werden.
+' Wenn möglich, wird GeoTools_cfg.xlsx gelesen,
+' wodurch einige Standardwerte überschrieben werden.
 
 
 Option Explicit
@@ -182,7 +182,7 @@ Private Sub Class_Initialize()
 
 Fehler:
   ErrMessage = "Fehler beim Initialisieren der Konfiguration"
-  FehlerNachricht "CdatKonfig.Class_Initialize()"
+  ErrEcho "CdatKonfig.Class_Initialize()"
 End Sub
 
 
@@ -454,7 +454,7 @@ Property Get SpNameAttr(ByVal inpSpName As String) As Scripting.Dictionary
 Fehler:
   'set SpNameAttr = nothing
   'set oAttribute = nothing
-  FehlerNachricht "CdatKonfig.SpNameAttr()"
+  ErrEcho "CdatKonfig.SpNameAttr()"
 End Property
 
 
@@ -493,7 +493,7 @@ Property Get FaktorDerEinheit(NameDerEinheit As String) As Double
 
 Fehler:
   FaktorDerEinheit = 0
-  FehlerNachricht "CdatKonfig.FaktorDerEinheit()"
+  ErrEcho "CdatKonfig.FaktorDerEinheit()"
 End Property
 
 
@@ -522,7 +522,7 @@ Function EinheitExists(NameDerEinheit As String) As Boolean
   
 Fehler:
   EinheitExists = false
-  FehlerNachricht "CdatKonfig.EinheitExists()"
+  ErrEcho "CdatKonfig.EinheitExists()"
 End Function
 
 
@@ -536,58 +536,43 @@ Public Sub LeseKonfiguration()
   Dim StatusEvents     As Boolean
   Dim StatusAlerts     As Boolean
   Dim StatusCalc       As Boolean
-  Dim IsCfgOpen        As Boolean
-  Dim Wbk              As Excel.Workbook
-  Dim WbkCfg           As Excel.Workbook
+  Dim oWbkCfg          As Excel.Workbook
+  Dim oXlApp2          As Excel.Application
   
   On Error GoTo Fehler
   DebugEcho "CdatKonfig.LeseKonfiguration(): Lese Konfigurationsdatei '" & cfg & "'."
   
-  StatusScreen = Application.ScreenUpdating
-  StatusEvents = Application.EnableEvents
-  StatusAlerts = Application.DisplayAlerts
-  Application.ScreenUpdating = False
-  Application.DisplayAlerts  = False
+  'StatusScreen = Application.ScreenUpdating
+  'StatusEvents = Application.EnableEvents
+  'StatusAlerts = Application.DisplayAlerts
+  'Application.ScreenUpdating = False
+  'Application.DisplayAlerts  = False
   
-  ' Fehlersuche wegen SDI: Wenn cfg geöffnet wird, bleibt nach dem Excel-Start
-  ' mit einer Datei zweites, leeres Fenster offen.
-  DebugEcho "CdatKonfig.LeseKonfiguration(): Vor Öffnen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
-  On Error Resume Next
-  Application.Workbooks.Open FileName:=cfg, ReadOnly:=True
+  ' Konfigurationsdatei öffnen mit neuer Excel-Instanz.
   On Error GoTo Fehler
-  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Öffnen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
-  
-  'Wird Excel per Automation gestartet (und das Laden der Startup-Add-Ins ebenso gesteuert),
-  'so erzeugt der gescheiterte Versuch, eine nicht vorhandene Arbeitsmappe zu öffnen,
-  'keinen Fehler (bzw. der Versuch findet gar nicht erst statt, auch wenn die Datei vorhanden
-  'ist). Deshalb:
-  IsCfgOpen = False
-  For Each Wbk In Application.Workbooks
-    If (lcase(Wbk.FullName) = lcase(cfg)) Then
-      IsCfgOpen = True
-      Set WbkCfg = Wbk
-      Exit For
-    End If
-  Next
-  
-  If (Not IsCfgOpen) Then
+  Set oXlApp2 = New Excel.Application
+  ErrMessage = "Fehler beim Öffnen der Konfigurationsdatei"
+  Set oWbkCfg = oXlApp2.Workbooks.Open(FileName:=cfg, ReadOnly:=True, UpdateLinks:=0 , AddToMru:=False) 
+  If (oWbkCfg is nothing) Then
     On Error GoTo Fehler
-    'ErrMessage = ErrMsgCfgFehlt
     Err.Raise ErrNumCfgFehlt + vbObjectError, , ThisWorkbook.Name & ": Konfigurationsdatei '" & cfg & "' nicht gefunden."
   End If
+  
     
-  Call LeseEinstellungen
-  Call LeseSpaltenKonfig
-  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Lesen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
+  ' Konfigurationsdatei lesen (zwei Tabellen).
+  Call LeseEinstellungen(oWbkCfg)
+  Call LeseSpaltenKonfig(oWbkCfg)
   
-  ' Mit aktiven Ereignissen scheitert dies gern mal (diverse Interferenzen)
-  Application.EnableEvents = False
-  WbkCfg.Close False
-  DebugEcho "CdatKonfig.LeseKonfiguration(): Nach Schließen von GeoTools_cfg.xlsx:  Anzahl Excel-Fenster = " & cstr(Application.Windows.Count) & "'."
   
-  Application.EnableEvents   = StatusEvents
-  Application.ScreenUpdating = StatusScreen
-  Application.DisplayAlerts  = StatusAlerts
+  ' Konfigurationsdatei und zweite Excel-Instanz schließen.
+  oWbkCfg.Close False
+  oXlApp2.Quit
+  Set oWbkCfg = nothing
+  Set oXlApp2 = nothing
+  
+  'Application.EnableEvents   = StatusEvents
+  'Application.ScreenUpdating = StatusScreen
+  'Application.DisplayAlerts  = StatusAlerts
   
   Application.StatusBar = "GeoTools-Konfiguration gelesen. (" & cfg & ")."
   Call ClearStatusBarDelayed(StatusBarClearDelay)
@@ -595,39 +580,44 @@ Public Sub LeseKonfiguration()
   
 Fehler:
   Application.ScreenUpdating = StatusScreen
-  'FehlerNachricht "CdatKonfig.LeseKonfiguration()"
-  DebugEcho "CdatKonfig.LeseKonfiguration(): *** mit Fehler beendet ***."
+  'ErrEcho "CdatKonfig.LeseKonfiguration()"
+  ErrEcho "CdatKonfig.LeseKonfiguration(): *** mit Fehler beendet ***."
 End Sub
 
 
 
-Private Sub LeseEinstellungen()
-  'liest die allgemeinen Einstellungen aus der Tabelle "Einstellungen".
+Private Sub LeseEinstellungen(oWbkCfg As Excel.Workbook)
+  ' Liest die allgemeinen Einstellungen aus der Tabelle "Einstellungen".
   
-  Dim lb           As Long
-  Dim ub           As Long
-  Dim i            As Long
-  Dim Spalte       As Variant
-  Dim oExpim       As CdatExpim
+  Dim lb              As Long
+  Dim ub              As Long
+  Dim i               As Long
+  Dim Anzahl          As Long
+  Dim Spalte          As Variant
+  Dim oExpim          As CdatExpim
+  Dim oSheetSettings  As Excel.Worksheet
   
   On Error Resume Next
   DebugEcho "CdatKonfig.LeseEinstellungen(): Lese allgemeine Einstellungen aus Tabelle '" & strTabNameEinstell & "'."
   
-  Sheets(strTabNameEinstell).Activate
-  If (Err.Number = 0) Then
-    Set oExpim = New CdatExpim
-    oExpim.GetQuelldaten_XlTabAktiv
-    lb = LBound(oExpim.Datenpuffer.Daten(strSpalteVariable), 1)
-    ub = UBound(oExpim.Datenpuffer.Daten(strSpalteVariable), 1)
-    For i = lb To ub
-      oEinstellungen(oExpim.Datenpuffer.Daten(strSpalteVariable)(i, DPidxWert)) = oExpim.Datenpuffer.Daten(strSpalteWert)(i, DPidxWert)
-    Next
-    Set oExpim = Nothing
-  Else
+  ' Tabelle finden.
+  Set oSheetSettings = oWbkCfg.Sheets(strTabNameEinstell)
+  If (Err.Number <> 0) Then
     On Error GoTo Fehler
     ErrMessage = ErrMsgTabEinst
     Err.Raise ErrNumTabEinst + vbObjectError, , "Tabelle '" & strTabNameEinstell & "' in Konfigurationsdatei '" & cfg & "' nicht gefunden."
   End If
+  
+  ' Tabelle lesen und Daten abspeichern.
+  Set oExpim = New CdatExpim
+  Anzahl = oExpim.GetQuelldaten_XlTab(oSheetSettings)
+  lb = LBound(oExpim.Datenpuffer.Daten(strSpalteVariable), 1)
+  ub = UBound(oExpim.Datenpuffer.Daten(strSpalteVariable), 1)
+  For i = lb To ub
+    oEinstellungen(oExpim.Datenpuffer.Daten(strSpalteVariable)(i, DPidxWert)) = oExpim.Datenpuffer.Daten(strSpalteWert)(i, DPidxWert)
+  Next
+  Set oExpim = Nothing
+  Set oSheetSettings = nothing
   
   DebugEcho "CdatKonfig.LeseEinstellungen(): Folgende allgemeine Einstellungen wurden gelesen:"
   DebugEcho ListeDictionary(oEinstellungen)
@@ -637,63 +627,74 @@ Private Sub LeseEinstellungen()
   Exit Sub
 
 Fehler:
-  FehlerNachricht "CdatKonfig.LeseEinstellungen()"
+  blnKonfigDateiGelesen = False
+  Set oSheetSettings = nothing
+  ErrEcho "CdatKonfig.LeseEinstellungen()"
 End Sub
 
 
 
-Private Sub LeseSpaltenKonfig()
+Private Sub LeseSpaltenKonfig(oWbkCfg As Excel.Workbook)
   'Liest die Spalten-Konfiguration aus der Tabelle "SpaltenKonfig".
   
   Dim lb                    As Long
   Dim ub                    As Long
   Dim i                     As Long
+  Dim Anzahl                As Long
   Dim Spalte                As String
   Dim Kategorie             As String
   Dim ErsatzZiel            As String
   Dim KategorieAlsFilter    As String
   Dim bool                  As Boolean
   Dim oExpim                As CdatExpim
+  Dim oSheetColumnConfig    As Excel.Worksheet
   
   DebugEcho "CdatKonfig.LeseSpaltenKonfig(): Lese Spalten-Konfiguration aus Tabelle '" & strTabNameSpalten & "'."
   On Error Resume Next
   
-  Sheets(strTabNameSpalten).Activate
-  If (Err.Number = 0) Then
-    Set oExpim = New CdatExpim
-    oExpim.GetQuelldaten_XlTabAktiv
-    lb = LBound(oExpim.Datenpuffer.Daten(strSpName), 1)
-    ub = UBound(oExpim.Datenpuffer.Daten(strSpName), 1)
-    For i = lb To ub
-      Spalte = oExpim.Datenpuffer.Daten(strSpName)(i, DPidxWert)
-      Kategorie = oExpim.Datenpuffer.Daten(strSpKategorie)(i, DPidxWert)
-      ErsatzZiel = oExpim.Datenpuffer.Daten(strSpErsatzZiel)(i, DPidxWert)
-      KategorieAlsFilter = oExpim.Datenpuffer.Daten(strSpKatAlsFilter)(i, DPidxWert)
-      oSpaltenBeschreibung.Add Spalte, oExpim.Datenpuffer.Daten(strSpBeschreibung)(i, DPidxWert)
-      oSpaltenMathGroesse.Add Spalte, oExpim.Datenpuffer.Daten(strSpMathGroesse)(i, DPidxWert)
-      oSpaltenKategorie.Add Spalte, Kategorie
-      oSpaltenErsatzZiel.Add Spalte, ErsatzZiel
-      If (Kategorie <> "") Then
-        If (Not oKategorieAlsFilter.Exists(Kategorie)) Then
-          If (KategorieAlsFilter <> "") Then bool = True Else bool = False
-          oKategorieAlsFilter.Add Kategorie, bool
-        End If
-      End If
-    Next
-    Set oExpim = Nothing
-  Else
+  ' Tabelle finden.
+  Err.Clear
+  Set oSheetColumnConfig = oWbkCfg.Sheets(strTabNameSpalten)
+  If (Err.Number <> 0) Then
     On Error GoTo Fehler
     ErrMessage = ErrMsgTabSpalten
     Err.Raise ErrNumTabSpalten + vbObjectError, , "Tabelle '" & strTabNameSpalten & "' in Konfigurationsdatei '" & cfg & "' nicht gefunden."
   End If
+    
+  ' Tabelle lesen und Daten abspeichern.
+  Set oExpim = New CdatExpim
+  Anzahl = oExpim.GetQuelldaten_XlTab(oSheetColumnConfig)
+  lb = LBound(oExpim.Datenpuffer.Daten(strSpName), 1)
+  ub = UBound(oExpim.Datenpuffer.Daten(strSpName), 1)
+  For i = lb To ub
+    Spalte = oExpim.Datenpuffer.Daten(strSpName)(i, DPidxWert)
+    Kategorie = oExpim.Datenpuffer.Daten(strSpKategorie)(i, DPidxWert)
+    ErsatzZiel = oExpim.Datenpuffer.Daten(strSpErsatzZiel)(i, DPidxWert)
+    KategorieAlsFilter = oExpim.Datenpuffer.Daten(strSpKatAlsFilter)(i, DPidxWert)
+    oSpaltenBeschreibung.Add Spalte, oExpim.Datenpuffer.Daten(strSpBeschreibung)(i, DPidxWert)
+    oSpaltenMathGroesse.Add Spalte, oExpim.Datenpuffer.Daten(strSpMathGroesse)(i, DPidxWert)
+    oSpaltenKategorie.Add Spalte, Kategorie
+    oSpaltenErsatzZiel.Add Spalte, ErsatzZiel
+    If (Kategorie <> "") Then
+      If (Not oKategorieAlsFilter.Exists(Kategorie)) Then
+        If (KategorieAlsFilter <> "") Then bool = True Else bool = False
+        oKategorieAlsFilter.Add Kategorie, bool
+      End If
+    End If
+  Next
+  Set oExpim = Nothing
+  Set oSheetColumnConfig = nothing
   
+  blnKonfigDateiGelesen = True
   DebugEcho "CdatKonfig.LeseSpaltenKonfig(): Gelesene Spaltenkonfiguration:"
   Call ZeigeSpaltenKonfig
   On Error GoTo 0
   Exit Sub
   
 Fehler:
-  FehlerNachricht "CdatKonfig.LeseSpaltenKonfig()"
+  blnKonfigDateiGelesen = False
+  Set oSheetColumnConfig = nothing
+  ErrEcho "CdatKonfig.LeseSpaltenKonfig()"
 End Sub
 
 

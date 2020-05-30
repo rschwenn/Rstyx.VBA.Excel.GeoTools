@@ -7,7 +7,10 @@
   
   <ribbon>
     <tabs>
-      <tab id="GeoToolsTab" label="GeoTools" keytip="g" >
+      <tab id="GeoToolsTab"
+           label="GeoTools"
+           insertAfterMso="TabView"
+           keytip="g" >
         
         <group id="GeneralGroup" label="Allgemein" imageMso="GroupTaskListTags" >
           

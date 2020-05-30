@@ -38,6 +38,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'30.05.2020 v3.0.3  - GeoTools-Ribbon-Tab hinter "Ansicht" positioniert.
 '27.05.2020 v3.0.2  - Neu: CtabTabelle als Helfer für eine nicht aktive Tabelle
 '                     - Grundlage: CtabAktiveTabelle
 '                     - stark abgespeckt: bislang nur lesende Funktionen

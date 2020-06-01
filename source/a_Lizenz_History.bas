@@ -38,6 +38,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'01.06.2020 v3.0.4  - Workbook_BeforeClose() entfernt, da es beim Entladen der GeoTools
+'                     im laufenden Excel störte (Excel friert ein).  
 '30.05.2020 v3.0.3  - GeoTools-Ribbon-Tab hinter "Ansicht" positioniert.
 '27.05.2020 v3.0.2  - Neu: CtabTabelle als Helfer für eine nicht aktive Tabelle
 '                     - Grundlage: CtabAktiveTabelle

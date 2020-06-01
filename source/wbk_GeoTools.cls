@@ -75,18 +75,20 @@ Fehler:
     FehlerNachricht "Workbook_Open()"
 End Sub
 
-Private Sub Workbook_BeforeClose(Cancel As Boolean)
+'Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    
+    ' *******************************************************************************
+    ' This routine causes Excel to hang if GeoTools.xlam is closed from living Excel. 
+    ' *******************************************************************************
+    
     'MsgBox "Workbook_BeforeClose()"
     
-    ' Backup des Ribbon-Pointer entfernen
-    tabGeoTools.Range("A1").Value = vbEmpty
-    
-    Set oRegExp = Nothing
-    Set oKonfig = Nothing
-    Set oMetadaten = Nothing
-    Set oAktiveTabelle = Nothing
-    Set oSysTools = Nothing
-End Sub
+    'Set oRegExp = Nothing
+    'Set oKonfig = Nothing
+    'Set oMetadaten = Nothing
+    'Set oAktiveTabelle = Nothing
+    'Set oSysTools = Nothing
+'End Sub
 
 
 ' Region "Add-In Umgebung"

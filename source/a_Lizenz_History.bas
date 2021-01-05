@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2020 Robert Schwenn
+' Copyright (c) 2003-2021 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'05.01.2021 v3.1.0  - Separatoren (Dezimal, Tausend, Liste) werden vor Aktionen mit
+'                     Berechnungen wie erfordert gesetzt und danach wieder hergestellt.
+'                     => SetRequiredSeparators(), RestoreLastSeparators().
 '01.06.2020 v3.0.4  - Workbook_BeforeClose() entfernt, da es beim Entladen der GeoTools
 '                     im laufenden Excel störte (Excel friert ein).  
 '30.05.2020 v3.0.3  - GeoTools-Ribbon-Tab hinter "Ansicht" positioniert.

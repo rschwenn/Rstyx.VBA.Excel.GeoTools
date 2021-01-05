@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -11,6 +11,17 @@ Attribute VB_Name = "mdlToolsExcel"
 
 
 Option Explicit
+
+
+Private SavedSystemSeparator_Decimal  As String
+Private SavedSystemSeparator_List     As String
+Private SavedSystemSeparator_Thousand As String
+Private SavedExcelSeparator_Decimal   As String
+Private SavedExcelSeparator_Thousand  As String
+Private SavedXLUsesSystemSeparators   As Boolean
+Private ChangedSystemSeparators       As Boolean
+Private ChangedExcelSeparators        As Boolean
+Private SavedSeparatorsInitialized    As Boolean
 
 
 
@@ -252,6 +263,68 @@ End Function
 
 
 '***  Abteilung Excel-Global  *********************************************************************
+
+Public Function SetRequiredSeparators() As Boolean
+    ' Setzt die für GeoTools erforderlichen Separatoren der Windows-Regionaleinstellungen
+    ' und speichert vorher die aktuellen Einstellungen.
+    ' Rückgabe: Erfolg
+    On Error Goto 0
+    
+    Dim success As Boolean
+    
+    ' Aktuelle Einstellungen merken.
+    success = ThisWorkbook.SysTools.GetSeparators(SavedSystemSeparator_Decimal, SavedSystemSeparator_List, SavedSystemSeparator_Thousand)
+    SavedExcelSeparator_Decimal  = Application.DecimalSeparator
+    SavedExcelSeparator_Thousand = Application.ThousandsSeparator
+    SavedXLUsesSystemSeparators  = Application.UseSystemSeparators
+    SavedSeparatorsInitialized   = True
+    
+    ' Feststellen, ob aktuelle Einstellungen von den erforderlichen abweichen.
+    ChangedExcelSeparators        = ((Not ((SavedExcelSeparator_Decimal  = RequiredSeparator_Decimal)    And _
+                                           (SavedExcelSeparator_Thousand = RequiredSeparator_Thousand))) Or _
+                                           (SavedXLUsesSystemSeparators XOR RequiredXLUsesSystemSeparators) )
+    ChangedSystemSeparators       = (Not  ((SavedSystemSeparator_Decimal  = RequiredSeparator_Decimal)   And _
+                                           (SavedSystemSeparator_List     = RequiredSeparator_List)      And _
+                                           (SavedSystemSeparator_Thousand = RequiredSeparator_Thousand) ))
+    '
+    ' Erforderliche Einstellungen setzen, falls nötig.
+    If (ChangedExcelSeparators) Then
+        Application.UseSystemSeparators = RequiredXLUsesSystemSeparators
+        Application.DecimalSeparator    = RequiredSeparator_Decimal
+        Application.ThousandsSeparator  = RequiredSeparator_Thousand
+    End If
+    If (ChangedSystemSeparators) Then
+        success = ThisWorkbook.SysTools.SetSeparators(RequiredSeparator_Decimal, RequiredSeparator_List, RequiredSeparator_Thousand)
+    End If
+    
+    DebugEcho "SetRequiredSeparators(): Ergebnis effektiv:  DezimalTrenner= '" & Application.International(XLDecimalSeparator) & "'  TausenderTrenner= '" & Application.International(xlThousandsSeparator) & "'  ListenTrenner = '" & Application.International(xlListSeparator) & "'."
+    
+    SetRequiredSeparators = success
+End Function
+
+Public Function RestoreLastSeparators() As Boolean
+    ' Stellt die gespeicherten Separatoren der Windows-Regionaleinstellungen wieder her, falls vorher geändert.
+    ' Rückgabe: Erfolg
+    On Error Goto 0
+    
+    Dim success As Boolean
+    
+    If (SavedSeparatorsInitialized) Then
+      If (ChangedExcelSeparators) Then
+          Application.UseSystemSeparators = SavedXLUsesSystemSeparators
+          Application.DecimalSeparator    = SavedExcelSeparator_Decimal
+          Application.ThousandsSeparator  = SavedExcelSeparator_Thousand
+      End If
+      If (ChangedSystemSeparators) Then
+          success = ThisWorkbook.SysTools.SetSeparators(SavedSystemSeparator_Decimal, SavedSystemSeparator_List, SavedSystemSeparator_Thousand)
+      End If
+    End If
+    
+    DebugEcho "RestoreLastSeparators(): Ergebnis effektiv:  DezimalTrenner= '" & Application.International(XLDecimalSeparator) & "'  TausenderTrenner= '" & Application.International(xlThousandsSeparator) & "'  ListenTrenner = '" & Application.International(xlListSeparator) & "'."
+    
+    RestoreLastSeparators = success
+End Function
+
 
 Public Function SetArbeitsverzeichnis(Optional ByVal Verzeichnis As String = "")
   'Funktionswert: Name des eingestellten bzw. beibehaltenen Arbeitsverzeichnisses.

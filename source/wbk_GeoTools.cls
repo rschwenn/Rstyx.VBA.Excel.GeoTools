@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -37,7 +37,7 @@ Private oSysTools               As CToolsSystem
 Private Sub Workbook_Open()
     'Initialisierung des Add-Ins ("Workbook_AddinInstall()" funktioniert nicht).
     On Error GoTo Fehler
-    
+    Dim success As Boolean
     InitMsg = "GeoTools " & VersionNr & " aktiviert"
     
     ' AddIn mit LoggingConsole laden (Actions.NET).
@@ -61,7 +61,6 @@ Private Sub Workbook_Open()
     Call SetArbeitsverzeichnis
     DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
     
-    
     ' Konfiguration initialisieren (und Mißerfog in Statuszeile dokumentieren)
     If (Not Me.Konfig.KonfigDateiGelesen) Then
         InitMsg = InitMsg & "  (Keine Konfiguration verfügbar!)"
@@ -72,6 +71,8 @@ Private Sub Workbook_Open()
     Exit Sub
     
 Fehler:
+    ' Separatoren werden beim Initialisieren der Konfiguration (bei Me.Konfig) gesetzt...
+    success = RestoreLastSeparators()
     FehlerNachricht "Workbook_Open()"
 End Sub
 
@@ -134,8 +135,13 @@ End Sub
             'StatusVisible = Application.Visible
             'SetApplicationVisible(False)
             
+            Dim success As Boolean
+            success = SetRequiredSeparators()
+            
             Set oKonfig = New CdatKonfig
             oKonfig.LeseKonfiguration
+            
+            success = RestoreLastSeparators()
             
             'SetApplicationVisible(StatusVisible)
             If (Not oKonfig.KonfigDateiGelesen) Then

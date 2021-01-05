@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -31,7 +31,7 @@ Sub SchreibeProjektDaten()
   ThisWorkbook.AktiveTabelle.SchreibeMetaDaten
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.SchreibeProjektDaten()"
 End Sub
 
@@ -42,7 +42,7 @@ Sub SchreibeFusszeile_1()
   ThisWorkbook.AktiveTabelle.SchreibeFusszeile_1
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.SchreibeFusszeile_1()"
 End Sub
 
@@ -62,7 +62,7 @@ Sub LoeschenDaten()
     call ClearStatusBarDelayed(StatusBarClearDelay)
   End If
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.LoeschenDaten()"
 End Sub
 
@@ -73,7 +73,7 @@ Sub FormatDaten()
   ThisWorkbook.AktiveTabelle.FormatDaten
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.FormatDaten()"
 End Sub
 
@@ -84,7 +84,7 @@ Sub UebertragenFormeln()
   ThisWorkbook.AktiveTabelle.UebertragenFormeln
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.UebertragenFormeln()"
 End Sub
 
@@ -92,10 +92,14 @@ End Sub
 Sub Mod_FehlerVerbesserung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_FehlerVerbesserung
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_FehlerVerbesserung()"
 End Sub
 
@@ -103,10 +107,14 @@ End Sub
 Sub Mod_UeberhoehungAusBemerkung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_UeberhoehungAusBemerkung
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
 End Sub
 
@@ -114,10 +122,14 @@ End Sub
 Sub Mod_Transfo_Tk2Gls()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Tk2Gls
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Tk2Gls()"
 End Sub
 
@@ -125,10 +137,14 @@ End Sub
 Sub Mod_Transfo_Gls2Tk()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Gls2Tk
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Gls2Tk()"
 End Sub
 
@@ -140,7 +156,7 @@ Sub TabellenStruktur()
   Dialog.Show vbModeless
   Set Dialog = Nothing
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.TabellenStruktur()"
 End Sub
 
@@ -148,10 +164,14 @@ End Sub
 Sub Selection2Interpolationsformel()
   'Aufgrund der aktuellen Zellauswahl wird eine Interpolationsformel erstellt.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Selection2Interpolationsformel
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Selection2Interpolationsformel()"
 End Sub
 
@@ -164,7 +184,7 @@ Sub Selection2MarkDoppelteWerte()
   ThisWorkbook.AktiveTabelle.Selection2MarkDoppelteWerte
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.Selection2MarkDoppelteWerte()"
 End Sub
 
@@ -176,7 +196,7 @@ Sub InsertLines()
   Set oDialog = New frmInsertLines
   oDialog.Show
   Exit Sub
-Fehler:
+  Fehler:
   Set oDialog = Nothing
   FehlerNachricht "mdlBefehle.insertLines()"
 End Sub
@@ -204,7 +224,7 @@ Sub DateiBearbeiten()
   end if
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.DateiBearbeiten()"
 End Sub
 
@@ -214,6 +234,8 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
   'Parameter: ParamDateiName = Pfad\Name der Eingabedatei.
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   if (not oExpimGlobal is Nothing) then
     SetApplicationVisible(true)
     Application.UserControl    = true
@@ -231,8 +253,10 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
   end if
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_Trassenkoo()"
 End Sub
@@ -243,6 +267,8 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
   'Parameter: ParamDateiName = Pfad\Name der Eingabedatei.
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   if (not oExpimGlobal is Nothing) then
     SetApplicationVisible(true)
     Application.UserControl    = true
@@ -259,8 +285,10 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
   end if
+  success = RestoreLastSeparators()
   Exit Sub
-Fehler:
+  Fehler:
+  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_CSV()"
 End Sub
@@ -270,12 +298,14 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
   'Aufruf des Import/Export-Managers.
   '=> Diese Routine wird (fast?) nur interaktiv verwendet (Menü GeoTools -> Import / Exports).
   On Error GoTo Fehler
+  Dim success As Boolean
   if (not oExpimGlobal is Nothing) then
     SetApplicationVisible(true)
     Application.UserControl    = true
     Application.ScreenUpdating = true
     msgbox "Es ist bereits eine Export / Import - Aktion aktiv. => Eine zweite kann nicht gestartet werden!" , vbOKOnly, "Export / Import allgemein"
   else
+    success = SetRequiredSeparators()
     Set oExpimGlobal = New CdatExpim
     If (Err) Then GoTo Fehler
     oExpimGlobal.EinstellungenWiederherstellen
@@ -284,22 +314,24 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
     oExpimGlobal.EinstellungenSpeichern
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
+    success = RestoreLastSeparators()
   end if
   Exit Sub
-Fehler:
+  Fehler:
   Set oExpimGlobal = Nothing
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.ExpimManager()"
 End Sub
 
 
 Sub BatchPDF()
   ' Dialog "BatchPDF" anzeigen.
-  Dim Dialog    As frmBatchPDF
+  Dim Dialog   As  frmBatchPDF
   Set Dialog = New frmBatchPDF
   Dialog.Show vbModeless
   Set Dialog = Nothing
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.BatchPDF()"
 End Sub
 
@@ -319,7 +351,7 @@ Sub Hilfe_Komplett()
   hlp = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & ".chm"
   ThisWorkbook.SysTools.StarteDatei hlp
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.Hilfe_Komplett()"
 End Sub
 
@@ -343,7 +375,7 @@ Sub GeoTools_Info()
   Call MsgBox(Meldung, vbOKOnly, Titel)
   
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.GeoTools_Info()"
 End Sub
 
@@ -355,7 +387,7 @@ Sub InfoKeineKonfig()
   Titel = "Keine Konfiguration für " & ProgName & " verfügbar."
   Call MsgBox(ThisWorkbook.Konfig.InfoKeineKonfig, vbExclamation, Titel)
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "mdlBefehle.InfoKeineKonfig()"
 End Sub
 

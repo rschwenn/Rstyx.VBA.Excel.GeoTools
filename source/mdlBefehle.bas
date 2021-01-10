@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -92,10 +92,14 @@ End Sub
 Sub Mod_FehlerVerbesserung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_FehlerVerbesserung
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_FehlerVerbesserung()"
 End Sub
 
@@ -103,10 +107,14 @@ End Sub
 Sub Mod_UeberhoehungAusBemerkung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_UeberhoehungAusBemerkung
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
 End Sub
 
@@ -114,10 +122,14 @@ End Sub
 Sub Mod_Transfo_Tk2Gls()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Tk2Gls
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Tk2Gls()"
 End Sub
 
@@ -125,10 +137,14 @@ End Sub
 Sub Mod_Transfo_Gls2Tk()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Gls2Tk
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Gls2Tk()"
 End Sub
 
@@ -148,10 +164,14 @@ End Sub
 Sub Selection2Interpolationsformel()
   'Aufgrund der aktuellen Zellauswahl wird eine Interpolationsformel erstellt.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Selection2Interpolationsformel
   call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Selection2Interpolationsformel()"
 End Sub
 
@@ -214,6 +234,8 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
   'Parameter: ParamDateiName = Pfad\Name der Eingabedatei.
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   if (not oExpimGlobal is Nothing) then
     Application.Visible        = true
     Application.UserControl    = true
@@ -231,8 +253,10 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
   end if
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_Trassenkoo()"
 End Sub
@@ -243,6 +267,8 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
   'Parameter: ParamDateiName = Pfad\Name der Eingabedatei.
   '=> Diese Routine wird nur zur Fernsteuerng verwendet.
   On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
   if (not oExpimGlobal is Nothing) then
     Application.Visible        = true
     Application.UserControl    = true
@@ -259,8 +285,10 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
   end if
+  success = RestoreLastSeparators()
   Exit Sub
 Fehler:
+  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_CSV()"
 End Sub
@@ -270,12 +298,14 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
   'Aufruf des Import/Export-Managers.
   '=> Diese Routine wird (fast?) nur interaktiv verwendet (Menü GeoTools -> Import / Exports).
   On Error GoTo Fehler
+  Dim success As Boolean
   if (not oExpimGlobal is Nothing) then
     Application.Visible        = true
     Application.UserControl    = true
     Application.ScreenUpdating = true
     msgbox "Es ist bereits eine Export / Import - Aktion aktiv. => Eine zweite kann nicht gestartet werden!" , vbOKOnly, "Export / Import allgemein"
   else
+    success = SetRequiredSeparators()
     Set oExpimGlobal = New CdatExpim
     If (Err) Then GoTo Fehler
     oExpimGlobal.EinstellungenWiederherstellen
@@ -284,10 +314,12 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
     oExpimGlobal.EinstellungenSpeichern
     call ClearStatusBarDelayed(StatusBarClearDelay)
     Set oExpimGlobal = Nothing
+    success = RestoreLastSeparators()
   end if
   Exit Sub
 Fehler:
   Set oExpimGlobal = Nothing
+  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.ExpimManager()"
 End Sub
 

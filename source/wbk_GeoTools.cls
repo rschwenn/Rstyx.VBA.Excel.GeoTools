@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -51,6 +51,8 @@ Private Sub Workbook_Open()
     Exit Sub
     
 Fehler:
+    ' Separatoren werden beim Initialisieren der Konfiguration (bei Me.Konfig) gesetzt...
+    success = RestoreLastSeparators()
     FehlerNachricht "Workbook_Open()"
 End Sub
 
@@ -110,8 +112,16 @@ End Sub
     
     Public Property Get Konfig() As CdatKonfig
         If (oKonfig Is Nothing) Then
+            
+            Dim success As Boolean
+            success = SetRequiredSeparators()
+            
             Set oKonfig = New CdatKonfig
             oKonfig.LeseKonfiguration
+            
+            success = RestoreLastSeparators()
+            
+            'SetApplicationVisible(StatusVisible)
             If (Not oKonfig.KonfigDateiGelesen) Then
                 WarnEcho "Keine Konfiguration verfügbar (Konfigurationsdatei nicht gelesen)."
                 Application.StatusBar = Application.StatusBar & " (Keine Konfiguration verfügbar!)"

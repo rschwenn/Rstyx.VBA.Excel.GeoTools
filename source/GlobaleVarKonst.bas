@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,14 +15,20 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "2.14.0"
-Public Const VersionDate  As String = "August 2019"
-Public Const Copyright    As String = "© 2003 - 2019  Robert Schwenn"
+Public Const VersionNr    As String = "2.16.0"
+Public Const VersionDate  As String = "Januar 2021"
+Public Const Copyright    As String = "© 2003 - 2021  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
 'Installation
 Public Const ResourcesSubFolder              As String = "GeoToolsRes"
+
+'Umgebung
+Public Const RequiredSeparator_Decimal       As String = "."
+Public Const RequiredSeparator_List          As String = ","
+Public Const RequiredSeparator_Thousand      As String = " "
+Public Const RequiredXLUsesSystemSeparators  As Boolean = False
 
 'Standard-Einstellungen
 Public Const Std_TkBasisUeberhoehung         As Double  = 1.500

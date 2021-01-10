@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2019 Robert Schwenn
+' Copyright (c) 2003-2021 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'10.01.2021 v2.16.0  - Separatoren (Dezimal, Tausend, Liste) werden vor Aktionen mit
+'                     Berechnungen wie erfordert gesetzt und danach wieder hergestellt.
+'                     => SetRequiredSeparators(), RestoreLastSeparators().
 '21.08.2019 v2.14.0 - Transfo_Tk2Gls() und Transfo_Gls2Tk():
 '                     Angleichung an iGeo und VermEsn:  Nullpunkt wird nur in der Höhe verschoben um u/2.
 '25.02.2019 v2.13.0 - CimpTrassenkoo: - A0: Unterstützung für neue Werte:  KmText, RaLGS, AbLGS.

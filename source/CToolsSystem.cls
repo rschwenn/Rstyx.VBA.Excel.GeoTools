@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2017  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -35,10 +35,10 @@ Attribute VB_Exposed = False
   '  G  VBAHostName         ... Name des VBA-Host, z.B. "Microsoft Excel"
   '  G  VBAHostVersion      ... Version des VBA-Host, z.B. "11.0"
   '  
-  '  G  OS.Type             ... derzeit wird nur "Windows_NT" unterstützt!
-  '  G  OS.SystemDrive      ... %SystemDrive%
-  '  G  OS.SystemRoot       ... %SystemRoot%
-  '  G  OS.WindowsSys       ... %SystemRoot%\System32
+  '  G  OS_Type             ... derzeit wird nur "Windows_NT" unterstützt!
+  '  G  OS_SystemDrive      ... %SystemDrive%
+  '  G  OS_SystemRoot       ... %SystemRoot%
+  '  G  OS_WindowsSys       ... %SystemRoot%\System32
   '  
   '  G  Username            ... Name des Windows-Benutzers
   '  G  Computername        ... Name des PC
@@ -46,6 +46,7 @@ Attribute VB_Exposed = False
   '  
   '  GL ArbeitsVerz         ... Pfad\Name des Arbeitsverzeichnisses.
   '  G  DezimalTrenner      ... Dezimaltrennzeichen (lt. System-Ländereinstellungen).
+  '  G  TausenderTrenner    ... Tausender-Trennzeichen (lt. System-Ländereinstellungen).
   '  G  ListenTrenner       ... Listentrennzeichen  (lt. System-Ländereinstellungen).
   '  G  LangID              ... Language ID (dezimal, lt. System-Ländereinstellungen).
   '                         
@@ -99,6 +100,8 @@ Attribute VB_Exposed = False
   ' #RegZweigDelete_2       ... Löscht einen RegistryKey mit allen Unterschlüsseln - 2. Variante.
   '  RegistriereWert        ... Registriert beliebigen Wert in der Registry.
   '
+  '  GetSeparators          ... Bestimmt die Separatoren der Windows-Regionaleinstellungen.
+  '  SetSeparators          ... Setzt    die Separatoren der Windows-Regionaleinstellungen.
 '
 ' Historie:
  '16.11.2008  - Klasse neu angelegt: enthält einige Routinen aus mdlToolsScripting.bas
@@ -129,6 +132,7 @@ Attribute VB_Exposed = False
  '                                      - %PROGRAMW6432%\jedit
  '                                      - ThisWorkbook.Konfig.JEDIT_HOME
  '              - StartJEdit() verwendet keine speuiellen Kommandozeilenschalter mehr
+ '10.01.2021  - Neu: GetSeparators und SetSeparators via Windows-API.
 '====================================================================================
 
 Option Explicit
@@ -144,6 +148,11 @@ Public  VBAHostVersion         As String
 'Public  VBAProjectName         As String
 'Public  VBAProjectFileName     As String
 
+Public  OS_Type                As String
+Public  OS_SystemDrive         As String
+Public  OS_SystemRoot          As String
+Public  OS_WindowsSys          As String
+
 Public  Username               As String
 Public  Computername           As String
 Public  UserDomain             As String
@@ -157,6 +166,7 @@ Public  UEditExe               As String
 Public  CEditExe               As String
 Public  ListenTrenner          As String
 Public  DezimalTrenner         As String
+Public  TausenderTrenner       As String
 Public  LangID                 As String
 Public  Editoren               As Variant
 
@@ -204,6 +214,39 @@ Private Type OPENFILENAME
   lpfnHook           As Long
   lpTemplateName     As String
 End Type
+
+' Regionaleinstellungen.
+Private Declare Function GetLocaleInfo Lib "kernel32" Alias "GetLocaleInfoA" (ByVal Locale   As Long, _
+                                                                                      ByVal LCType   As Long, _
+                                                                                      ByVal lpLCData As String, _
+                                                                                      ByVal cchData  As Long _
+                                                                                     ) As Long
+ 
+Private Declare Function SetLocaleInfo Lib "kernel32" Alias "SetLocaleInfoA" (ByVal Locale   As Long, _
+                                                                                      ByVal LCType   As Long, _
+                                                                                      ByVal lpLCData As String _
+                                                                                     ) As Long
+ 
+Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hWnd   As Long, _
+                                                                                ByVal wMsg   As Long, _
+                                                                                ByVal wParam As Long, _
+                                                                                lParam       As Any _
+                                                                                ) As Long
+ 
+Private Declare Function GetSystemDefaultLCID Lib "kernel32" () As Long
+
+Const WM_SETTINGCHANGE      As Long = &H1A
+Const HWND_BROADCAST        As Long = &HFFFF
+Const LOCALE_SLIST          As Long = &HC         ' // Listentrennzeichen, z.B. "," für "1,2,3,3,4"
+Const LOCALE_SDECIMAL       As Long = &HE         ' // Dezimaltrennzeichen, z.B. "." für 1,234.00
+Const LOCALE_STHOUSAND      As Long = &HF         ' // Tausender-Trennzeichen, z.B. "," for 1,234.00
+Const LOCALE_SGROUPING      As Long = &H10        ' // Zifferngruppierung, z.B. "3;0" für 1,000,000
+Const LOCALE_IDIGITS        As Long = &H11        ' // Anzahl der Nachkommastellen, z.B. 2 für 1.00
+Const LOCALE_ILZERO         As Long = &H12        ' // führende Nullen für Dezimalstellen, 0 für .97, 1 für 0.97
+Const LOCALE_INEGNUMBER     As Long = &H1010      ' // negative number mode, 0-4, see documentation
+Const LOCALE_SNATIVEDIGITS  As Long = &H13        ' // einheimischer Ascii 0-9, z.B. "0123456789"
+Const LOCALE_SLONGDATE      As Long = &H20
+Const LOCALE_SSHORTDATE     As Long = &H1F
 '
 
 
@@ -240,7 +283,7 @@ Private Sub Class_Initialize()
   DebugEcho "UserDomain = '" & UserDomain & "',  Computername = '" & Computername & "',  Username = '" & Username & "'"
   DebugEcho "VBA-Host:    Name = '" & VBAHostName & "',  Version = '" & VBAHostVersion & "'"
   'DebugEcho "VBA-Projekt: Name = '" & VBAProjectName & "',  Dateipfad = '" & VBAProjectFileName & "'"
-  DebugEcho  "Language ID= '" & LangID & "'  DezimalTrenner= '" & DezimalTrenner & "'  ListenTrenner = '" & ListenTrenner & "'."
+  DebugEcho  "Language ID= '" & LangID & "'  DezimalTrenner= '" & DezimalTrenner & "'  TausenderTrenner= '" & TausenderTrenner & "'  ListenTrenner = '" & ListenTrenner & "'."
   DebugEcho "JAVA_HOME = '" & JAVA_HOME & "'."
   DebugEcho "JEDIT_HOME = '" & JEDIT_HOME & "'  JEDIT_SETTINGS = '" & JEDIT_SETTINGS & "'."
   DebugEcho "Exe Java = '" & JavaExe & "'."
@@ -899,6 +942,91 @@ Public Function getFileNameFromDialog( _
   
   DebugEcho "CToolsSystem.getFileNameFromDialog: dialog returned filename '" & FilePath & "'."
   getFileNameFromDialog = FilePath
+End Function
+
+
+'***  Abteilung Regionaleinstellungen  *********************************************************
+
+Public Function GetSeparators(ByRef DecimalSep As String, ByRef List As String, ByRef Thousand As String) As Boolean
+   ' Bestimmt die Separatoren der Windows-Regionaleinstellungen.
+   ' Quelle: https://dbwiki.net/wiki/VBA_Tipp:_L%C3%A4ndereinstellungen_ermitteln/setzen
+   ' Ausgabe:  Zu setzende Separatoren
+   ' Rückgabe: Erfolg
+   
+   Dim dwLCID   As Long
+   Dim result   As Long
+   Dim buffer   As String
+   Dim length   As Long
+   Dim success  As Boolean
+ 
+   success = True
+   dwLCID  = GetSystemDefaultLCID()
+   buffer  = String(256, vbNullChar)
+   length  = Len(buffer)
+   
+   result = GetLocaleInfo(dwLCID, LOCALE_SDECIMAL, buffer, length)
+   If (result = 0) Then
+       success = False
+   Else
+       DecimalSep = Left$(buffer, result - 1)
+   End If
+   
+   result = GetLocaleInfo(dwLCID, LOCALE_SLIST, buffer, length)
+   If (result = 0) Then
+       success = False
+   Else
+       List = Left$(buffer, result - 1)
+   End If
+   
+   result = GetLocaleInfo(dwLCID, LOCALE_STHOUSAND, buffer, length)
+   If (result = 0) Then
+       success = False
+   Else
+       Thousand = Left$(buffer, result - 1)
+   End If
+   
+   If (success) Then
+       DebugEcho "GetSeparators(): Aktuelle Trenner:  DezimalTrenner= '" & DecimalSep & "'  TausenderTrenner= '" & Thousand & "'  ListenTrenner = '" & List & "'."
+   Else
+       ErrEcho "GetSeparators(): Fehler beim Bestimmen von DezimalTrenner, TausenderTrenner oder ListenTrenner."
+   End If
+   
+   GetSeparators = success
+End Function
+
+Public Function SetSeparators(ByRef DecimalSep As String, ByRef List As String, ByRef Thousand As String) As Boolean
+   ' Setzt die Separatoren der Windows-Regionaleinstellungen
+   ' Quelle: https://dbwiki.net/wiki/VBA_Tipp:_L%C3%A4ndereinstellungen_ermitteln/setzen
+   ' Eingabe:  Zu setzende Separatoren
+   ' Rückgabe: Erfolg
+   
+   Dim dwLCID   As Long
+   Dim result   As Long
+   Dim success  As Boolean
+   
+   success = True
+   dwLCID  = GetSystemDefaultLCID()
+   
+   If (SetLocaleInfo(dwLCID, LOCALE_SDECIMAL, DecimalSep) = 0) Then
+       success = False
+   End If
+   
+   If (SetLocaleInfo(dwLCID, LOCALE_SLIST, List) = 0) Then
+       success = False
+   End If
+   
+   If (SetLocaleInfo(dwLCID, LOCALE_STHOUSAND, Thousand) = 0) Then
+       success = False
+   End If
+   
+   If (success) Then
+       result = SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0&, 0&)
+       DebugEcho "SetSeparators(): Neu gesetzt:  DezimalTrenner= '" & DecimalSep & "'  TausenderTrenner= '" & Thousand & "'  ListenTrenner = '" & List & "'."
+   Else
+       ErrEcho "SetSeparators(): Fehler beim Setzen:  DezimalTrenner= '" & DecimalSep & "'  TausenderTrenner= '" & Thousand & "'  ListenTrenner = '" & List & "'."
+   End If
+   
+   SetSeparators = success
 End Function
 
 
@@ -1584,6 +1712,7 @@ Private sub GetInternational()
   Const Locale_RegValue   = "HKEY_CURRENT_USER\Control Panel\International\Locale"
   Const sList_RegValue    = "HKEY_CURRENT_USER\Control Panel\International\sList"
   Const sDecimal_RegValue = "HKEY_CURRENT_USER\Control Panel\International\sDecimal"
+  Const sThousand_RegValue = "HKEY_CURRENT_USER\Control Panel\International\sThousand"
   
   If (RegValueExists(Locale_RegValue)) Then
     LangID = WSHShell.RegRead(Locale_RegValue)
@@ -1608,6 +1737,12 @@ Private sub GetInternational()
     DezimalTrenner = RegRead(sDecimal_RegValue)
   Else
     DezimalTrenner = "?"
+  End If
+  
+  If (RegValueExists(sThousand_RegValue)) Then
+    TausenderTrenner = RegRead(sThousand_RegValue)
+  Else
+    TausenderTrenner = "?"
   End If
   
   On Error GoTo 0
@@ -1636,7 +1771,13 @@ End sub
 private sub GetSystemUmgebung()
   'Ermittelt Umgebung des Betriebssystems:
   
+  OS_Type        = ""
+  OS_SystemDrive = ""
+  OS_SystemRoot  = ""
+  OS_WindowsSys  = ""
+  
   OSinfo.Type = Environ("OS")
+  OS_Type     = OSinfo.Type
   
   if (OSinfo.Type <> "Windows_NT") then
     ErrEcho "GetSystemUmgebung(): Betriebsystem '" & OSinfo.Type & "' wird nicht unterstützt!!!"
@@ -1644,6 +1785,9 @@ private sub GetSystemUmgebung()
     OSinfo.SystemDrive = Environ("SystemDrive")
     OSinfo.SystemRoot  = Environ("SystemRoot")
     OSinfo.WindowsSys  = OSinfo.SystemRoot & "\System32"
+    OS_SystemDrive     = OSinfo.SystemDrive
+    OS_SystemRoot      = OSinfo.SystemRoot 
+    OS_WindowsSys      = OSinfo.WindowsSys 
   end if
 End sub
 

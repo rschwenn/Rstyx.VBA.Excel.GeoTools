@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -260,8 +260,9 @@ Property Get TkBasisUeberhoehung() As Double
   'Liefert "Basis für Überhöhung" in [m] als Vorgabe für Transfo' Trassensystem <=> Gleissystem.
   dim strWert
   dim dblWert
-  strWert = oEinstellungen(Var_TkBasisUeberhoehung)
-  if (isNumeric(strWert)) then dblWert = cDbl(strWert) else dblWert = Std_TkBasisUeberhoehung
+  ' IsNumeric() und cDbl() arbeiten mit Komma als Dezimaltrenner immer (unabhängig von Einstellungen in System und Excel):
+  strWert = replace(oEinstellungen(Var_TkBasisUeberhoehung), ".", ",")
+  if (IsNumeric(strWert)) then dblWert = cDbl(strWert) else dblWert = Std_TkBasisUeberhoehung
   TkBasisUeberhoehung = dblWert
 End Property
 
@@ -688,6 +689,7 @@ Private Sub LeseSpaltenKonfig(oWbkCfg As Excel.Workbook)
   blnKonfigDateiGelesen = True
   DebugEcho "CdatKonfig.LeseSpaltenKonfig(): Gelesene Spaltenkonfiguration:"
   Call ZeigeSpaltenKonfig
+  
   On Error GoTo 0
   Exit Sub
   
@@ -720,7 +722,7 @@ Public Sub ZeigeAlleEinheiten()
   Dim Groesse As Variant
   Dim Einheit As Variant
   Dim Message As String
-  DebugEcho vbNewLine & "CdatKonfig.LeseSpaltenKonfig(): Konfiguration der Einheiten:"
+  DebugEcho vbNewLine & "CdatKonfig.ZeigeAlleEinheiten(): Konfiguration der Einheiten:"
   DebugEcho "-----------------------------------------------------------"
   For Each Groesse In Me.Einheiten
     For Each Einheit In Me.Einheiten(Groesse)

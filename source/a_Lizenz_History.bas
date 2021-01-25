@@ -38,6 +38,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'25.01.2021 v3.1.1  - Das Lesen der Konfiguration erfolgt wieder ohne Änderung der Separatoren.
+'                     CdatKonfig.TkBasisUeberhoehung() liefert jetzt einen Double-Wert unabhängig
+'                     von den Einstellungen in System und Excel.
 '05.01.2021 v3.1.0  - Separatoren (Dezimal, Tausend, Liste) werden vor Aktionen mit
 '                     Berechnungen wie erfordert gesetzt und danach wieder hergestellt.
 '                     => SetRequiredSeparators(), RestoreLastSeparators().

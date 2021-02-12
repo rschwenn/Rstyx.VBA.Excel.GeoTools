@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -57,18 +57,17 @@ Private Sub Workbook_Open()
         InitMsg = InitMsg & "  (Keine Protokollierung verfügbar)"
     End If
     
-    ' Arbeitsverzeichnis setzen und Schlussmeldung
+    ' Arbeitsverzeichnis setzen
     Call SetArbeitsverzeichnis
-    DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
     
-    
-    ' Konfiguration initialisieren (und Mißerfog in Statuszeile dokumentieren)
-    If (Not Me.Konfig.KonfigDateiGelesen) Then
+    ' Konfiguration initialisieren (und Misserfolg in Statuszeile dokumentieren)
+    If (Not Me.Konfig.KonfigVerfuegbar) Then
         InitMsg = InitMsg & "  (Keine Konfiguration verfügbar!)"
     End If
     Application.StatusBar = InitMsg
     call ClearStatusBarDelayed(StatusBarClearDelay)
     
+    DebugEcho "GeoTools " & VersionNr & ": Initialisierung beendet." & vbnewline & String(80, "=") & vbnewline
     Exit Sub
     
 Fehler:
@@ -129,18 +128,13 @@ End Sub
     Public Property Get Konfig() As CdatKonfig
         If (oKonfig Is Nothing) Then
             
-            ' Bringt nichts:
-            'Dim StatusVisible As Boolean
-            'StatusVisible = Application.Visible
-            'SetApplicationVisible(False)
-            
             Set oKonfig = New CdatKonfig
             oKonfig.LeseKonfiguration
             
-            'SetApplicationVisible(StatusVisible)
-            If (Not oKonfig.KonfigDateiGelesen) Then
-                WarnEcho "Keine Konfiguration verfügbar (Konfigurationsdatei nicht gelesen)."
-                Application.StatusBar = Application.StatusBar & " (Keine Konfiguration verfügbar!)"
+            ' Meldung für den Fall der Wiederbelebung (wird sonst in Workbook_Open() erledigt)
+            If (Not oKonfig.KonfigVerfuegbar) Then
+                WarnEcho "Keine Konfiguration verfügbar (Konfigurationsdatei nicht erfolgreich gelesen)."
+                Application.StatusBar = Application.StatusBar & " (Keine GeTools-Konfiguration verfügbar!)"
                 Call ClearStatusBarDelayed(StatusBarClearDelay)
             End If
         End If

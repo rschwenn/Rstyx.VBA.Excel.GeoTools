@@ -1,7 +1,7 @@
 Rstyx.VBA.Excel.GeoTools
 ========================
 
-Eine Sammlung von Werkzeugen für Excel 2016 (64 bit), die insbesondere das Arbeiten mit einfachen Listen einschließlich CSV-Import effizienter gestalten sollen, im einzelnen:
+Eine Sammlung von Werkzeugen für Excel 2016, die insbesondere das Arbeiten mit einfachen Listen einschließlich CSV-Import effizienter gestalten sollen, im einzelnen:
 
 
 Funktionen für beliebige Tabellen
@@ -39,7 +39,7 @@ Lizenz
 
 Abhängigkeiten
 --------------
- - Excel 2016 (64 bit)
+ - Excel 2016
  - Microsoft Scripting Runtime
  - Windows Script Host Object Model
  - Actions.Net-AddIn (https://github.com/rschwenn/Rstyx.Excel) (optional für Protokollierung)

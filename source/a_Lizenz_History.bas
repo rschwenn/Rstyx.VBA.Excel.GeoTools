@@ -38,6 +38,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'12.02.2021 v3.1.2  - CdatKonfig: - Eigenschaft "KonfigDateiGelesen" umbenannt in "KonfigVerfuegbar"
+'                                   (signalisiert den Erfolg).
+'                                 - neue Eigenschaft "KonfigInitFertig"
+'                                   (signalisiert den Abschluss der Init-Phase unabhängig vom Erfolg).
+'                   - mdlBefehle: Neue Funktion IsGeoToolsInitFinished()
 '25.01.2021 v3.1.1  - Das Lesen der Konfiguration erfolgt wieder ohne Änderung der Separatoren.
 '                     CdatKonfig.TkBasisUeberhoehung() liefert jetzt einen Double-Wert unabhängig
 '                     von den Einstellungen in System und Excel.
@@ -56,8 +61,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '                     Excel ohne zweites Geister-Fenster, wenn es mit einem Datei-Argument aufgerufen wird.
 '22.05.2020 v3.0.1  - Tastaturbedienung verbessert (KeyTips)
 '                   - Geschützte Ansicht des aktiven Fensters wird erkannt ...
-'19.05.2020 v3.0.0  - Umstellung auf Office 64 bit:
-'                     - Umstellung "Declare"-Anweisungen auf 64 bit: 
+'19.05.2020 v3.0.0  - Umstellung auf Office 2016 / VBA 7:
+'                     - Umstellung "Declare"-Anweisungen auf VBA 7: 
 '                       - CToolsSystem: GetOpenFileName(), GetSaveFileName(), Type OPENFILENAME
 '                       - mdlRibbon:    CopyMemory(), getGeoToolsRibbon()
 '                   - Unterstützung für Office 2016:

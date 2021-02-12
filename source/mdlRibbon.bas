@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -87,7 +87,7 @@ Private oRibbon As IRibbonUI
     Sub GetVisibleNoConfigButton(control As IRibbonControl, ByRef returnedVal)
         returnedVal = True
         On Error Resume Next
-        returnedVal = (Not ThisWorkbook.Konfig.KonfigDateiGelesen)
+        returnedVal = (Not ThisWorkbook.Konfig.KonfigVerfuegbar)
         On Error Goto 0
     End Sub
     

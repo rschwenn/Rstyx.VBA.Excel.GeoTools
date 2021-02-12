@@ -67,7 +67,8 @@ Dim ErrNumTabSpalten             As Long
 '..
 Private cfg                     As String
 Private strInfoKeineKonfig      As String
-Private blnKonfigDateiGelesen   As Boolean
+Private blnKonfigVerfuegbar     As Boolean
+Private blnKonfigInitFertig     As Boolean
                                 
 Dim oEinstellungen              As Scripting.Dictionary
 Dim oSpaltenBeschreibung        As Scripting.Dictionary
@@ -173,11 +174,12 @@ Private Sub Class_Initialize()
   'Fürs Debug-Protokoll
   Call ZeigeAlleEinheiten
 
-  blnKonfigDateiGelesen = False
+  blnKonfigVerfuegbar = False
+  blnKonfigInitFertig = False
   ''Lesen der Konfigurations-Mappe.
   'Call LeseKonfiguration
   'Call ClearStatusBarDelayed(StatusBarClearDelay)
-  DebugEcho "CdatKonfig.Class_Initialize(): Geotools-Konfiguration initialisiert." & vbNewLine
+  DebugEcho "CdatKonfig.Class_Initialize(): GeoTools-Konfiguration initialisiert." & vbNewLine
   Exit Sub
 
 Fehler:
@@ -330,9 +332,14 @@ Property Get Cache() As Scripting.Dictionary
 End Property
 
 
-Property Get KonfigDateiGelesen() As Boolean
-  'Liefert die Option "Einstellungen gelesen".
-  KonfigDateiGelesen = blnKonfigDateiGelesen
+Property Get KonfigInitFertig() As Boolean
+  'Liefert die Option "Initialisierung der Konfiguration fertig (mit oder ohne Erfolg)".
+  KonfigInitFertig = blnKonfigInitFertig
+End Property
+
+Property Get KonfigVerfuegbar() As Boolean
+  'Liefert die Option "Konfiguration verfügbar".
+  KonfigVerfuegbar = blnKonfigVerfuegbar
 End Property
 
 Property Get InfoKeineKonfig() As String
@@ -537,6 +544,7 @@ Public Sub LeseKonfiguration()
   Dim StatusEvents     As Boolean
   Dim StatusAlerts     As Boolean
   Dim StatusCalc       As Boolean
+  Dim Success          As Boolean
   Dim oWbkCfg          As Excel.Workbook
   Dim oXlApp2          As Excel.Application
   
@@ -549,7 +557,7 @@ Public Sub LeseKonfiguration()
   'Application.ScreenUpdating = False
   'Application.DisplayAlerts  = False
   
-  ' Konfigurationsdatei öffnen mit neuer Excel-Instanz.
+  ' Konfigurationsdatei öffnen mit zweiter Excel-Instanz.
   On Error GoTo Fehler
   Set oXlApp2 = New Excel.Application
   ErrMessage = "Fehler beim Öffnen der Konfigurationsdatei"
@@ -561,15 +569,19 @@ Public Sub LeseKonfiguration()
   
     
   ' Konfigurationsdatei lesen (zwei Tabellen).
-  Call LeseEinstellungen(oWbkCfg)
-  Call LeseSpaltenKonfig(oWbkCfg)
-  
+  Success = LeseEinstellungen(oWbkCfg)
+  Success = (Success And LeseSpaltenKonfig(oWbkCfg))
   
   ' Konfigurationsdatei und zweite Excel-Instanz schließen.
   oWbkCfg.Close False
   oXlApp2.Quit
   Set oWbkCfg = nothing
   Set oXlApp2 = nothing
+  
+  ' Status-Signalisierung.
+  blnKonfigInitFertig = True
+  blnKonfigVerfuegbar = Success
+  DebugEcho "CdatKonfig.LeseKonfiguration(): GeoTools-Konfiguration gelesen. (" & cfg & ")."
   
   'Application.EnableEvents   = StatusEvents
   'Application.ScreenUpdating = StatusScreen
@@ -587,7 +599,7 @@ End Sub
 
 
 
-Private Sub LeseEinstellungen(oWbkCfg As Excel.Workbook)
+Private Function LeseEinstellungen(oWbkCfg As Excel.Workbook) As Boolean
   ' Liest die allgemeinen Einstellungen aus der Tabelle "Einstellungen".
   
   Dim lb              As Long
@@ -623,19 +635,18 @@ Private Sub LeseEinstellungen(oWbkCfg As Excel.Workbook)
   DebugEcho "CdatKonfig.LeseEinstellungen(): Folgende allgemeine Einstellungen wurden gelesen:"
   DebugEcho ListeDictionary(oEinstellungen)
   
-  blnKonfigDateiGelesen = True
+  LeseEinstellungen = True
   On Error GoTo 0
-  Exit Sub
+  Exit Function
 
 Fehler:
-  blnKonfigDateiGelesen = False
   Set oSheetSettings = nothing
   ErrEcho "CdatKonfig.LeseEinstellungen()"
-End Sub
+End Function
 
 
 
-Private Sub LeseSpaltenKonfig(oWbkCfg As Excel.Workbook)
+Private Function LeseSpaltenKonfig(oWbkCfg As Excel.Workbook)
   'Liest die Spalten-Konfiguration aus der Tabelle "SpaltenKonfig".
   
   Dim lb                    As Long
@@ -686,18 +697,17 @@ Private Sub LeseSpaltenKonfig(oWbkCfg As Excel.Workbook)
   Set oExpim = Nothing
   Set oSheetColumnConfig = nothing
   
-  blnKonfigDateiGelesen = True
   DebugEcho "CdatKonfig.LeseSpaltenKonfig(): Gelesene Spaltenkonfiguration:"
   Call ZeigeSpaltenKonfig
   
   On Error GoTo 0
-  Exit Sub
+  LeseSpaltenKonfig = True
+  Exit Function
   
 Fehler:
-  blnKonfigDateiGelesen = False
   Set oSheetColumnConfig = nothing
   ErrEcho "CdatKonfig.LeseSpaltenKonfig()"
-End Sub
+End Function
 
 
 
@@ -713,6 +723,7 @@ Public Sub ZeigeSpaltenKonfig()
               Me.SpaltenMathGroesse(Spalte) & vbTab & vbTab & _
               Me.SpaltenKategorie(Spalte)
   Next
+  DebugEcho "----------------------------------------------------------------------------------------"
 End Sub
 
 

@@ -392,4 +392,14 @@ Sub InfoKeineKonfig()
 End Sub
 
 
+Function IsGeoToolsInitFinished() As Variant
+  'Stellt fest, ob die Initialisierung der GeoTools beendet ist.
+  On Error GoTo Fehler
+  IsGeoToolsInitFinished = ThisWorkbook.Konfig.KonfigInitFertig
+  Exit Function
+  Fehler:
+  FehlerNachricht "mdlBefehle.IsGeoToolsInitFinished()"
+End Function
+
+
 'für jEdit:  :folding=indent::collapseFolds=1:

@@ -158,15 +158,18 @@ Private Sub Class_Initialize()
   oStatusPrefix.Add StatusBez_Verbesserung, "V."
   
   'Unterstützte Einheiten.
-  oLaenge.Add "m", 1#
+  oLaenge.Add "m" , 1#
   oLaenge.Add "dm", 10
   oLaenge.Add "cm", 100
   oLaenge.Add "mm", 1000
   oLaenge.Add "km", 0.001
   
-  oWinkel.Add "gon", 1#
+  oWinkel.Add "gon" , 1#
   oWinkel.Add "grad", 0.9
-  oWinkel.Add "rad", 1 / rho
+  oWinkel.Add "rad" , 1 / rho
+  oWinkel.Add "pph" , tan(1 / rho) * 100      'Prozent
+  oWinkel.Add "ppt" , tan(1 / rho) * 1000     'Promille
+  oWinkel.Add "ppm" , tan(1 / rho) * 1000000  'Parts per million
 
   oEinheiten.Add "Laenge", oLaenge
   oEinheiten.Add "Winkel", oWinkel

@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -123,6 +123,7 @@ Dim TK_KmText()          As String
 Dim DGM_HDGM()           As String
 Dim DGM_ZDGM()           As String
 Dim Tra_Heb()            As String
+Dim Tra_G()              As String
 Dim Tra_RaLGS()          As String
 Dim Tra_AbLGS()          As String
 
@@ -187,6 +188,7 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_TK_KmText, "ohne"
   
   Me.Quelle_Einheiten.Add SpN_S_Tra_Heb, "mm"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_G, "rad"
   Me.Quelle_Einheiten.Add SpN_S_Tra_RaLGS, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_AbLGS, "m"
   Me.Quelle_Einheiten.Add SpN_Tra_NameUeb, "ohne"
@@ -444,6 +446,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim DGM_HDGM(1 To 1)
     ReDim DGM_ZDGM(1 To 1)
     ReDim Tra_Heb(1 To 1)
+    ReDim Tra_G(1 To 1)
     ReDim Tra_RaLGS(1 To 1)
     ReDim Tra_AbLGS(1 To 1)
     ReDim N_UebBand(1 To 1)
@@ -606,6 +609,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus, TK_KmStatus
       Me.Quelle_Datenpuffer.Add SpN_TK_KmText,   TK_KmText
       Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,   Tra_Heb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_G,     Tra_G
       Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS, Tra_RaLGS
       Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS, Tra_AbLGS
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb, N_UebBand
@@ -657,6 +661,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim DGM_HDGM(0)
       ReDim DGM_ZDGM(0)
       ReDim Tra_Heb(0)
+      ReDim Tra_G(0)
       ReDim Tra_RaLGS(0)
       ReDim Tra_AbLGS(0)
       ReDim N_UebBand(0)
@@ -1172,6 +1177,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve DGM_HDGM(1 To AnzPkt)
               ReDim Preserve DGM_ZDGM(1 To AnzPkt)
               ReDim Preserve Tra_Heb(1 To AnzPkt)
+              ReDim Preserve Tra_G(1 To AnzPkt)
               ReDim Preserve Tra_RaLGS(1 To AnzPkt)
               ReDim Preserve Tra_AbLGS(1 To AnzPkt)
               
@@ -1195,6 +1201,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               'HG       ... dHRed
               'H        ... TK_H
               'Heb      ... Tra_Heb
+              'G        ... Tra_G
               'RaLGS    ... Tra_RaLGS
               'AbLGS    ... Tra_AbLGS
               'V        ... TK_V
@@ -1291,6 +1298,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               TK_QGS(AnzPkt)      = GetValue(Feld(W_QGS))
               TK_HGS(AnzPkt)      = GetValue(Feld(W_HGS))
               
+              Tra_G(AnzPkt)       = GetValue(Feld(W_G))
               Tra_RaLGS(AnzPkt)   = GetValue(Feld(W_RaLGS))
               Tra_AbLGS(AnzPkt)   = GetValue(Feld(W_AbLGS))
               

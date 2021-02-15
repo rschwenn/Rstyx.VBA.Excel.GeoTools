@@ -23,7 +23,13 @@ Public Const eMail        As String = "devel@rstyx.de"
 
 'Installation
 Public Const ResourcesSubFolder              As String = "GeoToolsRes"
-Public Const LoggingAddInName                As String = "Actions.NET.xll"
+
+#If Win64 Then
+    ' 64-Bit process currently.
+    Public Const LoggingAddInName            As String = "Actions.NET.x64.xll"
+#Else
+    Public Const LoggingAddInName            As String = "Actions.NET.x32.xll"
+#End If
 
 'Umgebung
 Public Const RequiredSeparator_Decimal       As String = "."

@@ -26,6 +26,8 @@
 #define importexport 350
 #define protokoll 245
 #define dasaddin 410
+#define starthilfe-optional-add-in 375
+#define dezimaltrennzeichen 385
 #define vorlagenfurimportexport 430
 #define ferngesteuerterimport 440
 #define konfiguration 420

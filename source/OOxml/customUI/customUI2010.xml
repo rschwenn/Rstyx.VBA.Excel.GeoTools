@@ -27,6 +27,22 @@
           
           <box id="GeneralBox" boxStyle="vertical">
             
+            <button id="ManualButton"
+                    label=" Handbuch"
+                    size="normal"
+                    screentip="GeoTools-Handbuch"
+                    onAction="GeoToolsButtonAction"
+                    keytip="m"
+                    imageMso="About" />
+            
+            <button id="HelpButton"
+                    label=" Hilfe"
+                    size="normal"
+                    screentip="GeoTools-Hilfe"
+                    onAction="GeoToolsButtonAction"
+                    keytip="y"
+                    imageMso="Help" />
+            
             <button id="InfoButton"
                     label="Info"
                     size="normal"
@@ -34,24 +50,16 @@
                     onAction="GeoToolsButtonAction"
                     keytip="o"
                     imageMso="TaskSuggestionsShow" />
-            
-            <button id="HelpButton"
-                    label="Hilfe"
-                    size="normal"
-                    screentip="GeoTools-Hilfe"
-                    onAction="GeoToolsButtonAction"
-                    keytip="y"
-                    imageMso="Help" />
-            
-            <button id="LogButton"
-                    label="Protokoll"
-                    size="normal"
-                    screentip="GeoTools-Protokoll"
-                    onAction="GeoToolsButtonAction"
-                    getEnabled="GetEnabledMacrosExecutable"
-                    keytip="k"
-                    imageMso="GroupCreateOther" />
           </box>
+            
+          <button id="LogButton"
+                  label="Protokoll"
+                  size="large"
+                  screentip="GeoTools-Protokoll"
+                  onAction="GeoToolsButtonAction"
+                  getEnabled="GetEnabledMacrosExecutable"
+                  keytip="k"
+                  imageMso="GroupCreateOther" />
           
           <separator id="GeneralSeparator" />
           

@@ -126,7 +126,8 @@ Private oRibbon As IRibbonUI
         'On Error Resume Next
         Select Case control.ID
             Case "InfoButton"                   : Call GeoTools_Info
-            Case "HelpButton"                   : Call Hilfe_Komplett
+            Case "HelpButton"                   : Call Hilfe
+            Case "ManualButton"                 : Call Handbuch
             Case "LogButton"                    : Call Protokoll
             Case "ImportExportButton"           : Call ExpimManager
             Case "TableStructureButton"         : Call TabellenStruktur

@@ -341,18 +341,26 @@ Sub Protokoll()
 End Sub
 
 
-Sub Hilfe_Komplett()
-  'Anzeige der Programmdokumentation.
-  'Dateiname: <Vorname des AddIn>.pdf
-  'Pfad: Eine Verzeichnisebene über der des AddIn
+Sub Hilfe()
+  'Anzeige der Programm-Hilfe (chm).
   On Error GoTo Fehler
-  Dim hlp As String
-  'hlp = Verz(ThisWorkbook.Path) & "\" & VorName(ThisWorkbook.Name) & ".chm"
-  hlp = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & ".chm"
-  ThisWorkbook.SysTools.StarteDatei hlp
+  Dim chm As String
+  chm = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & ".chm"
+  ThisWorkbook.SysTools.StarteDatei chm
   Exit Sub
   Fehler:
-  FehlerNachricht "mdlBefehle.Hilfe_Komplett()"
+  FehlerNachricht "mdlBefehle.Hilfe()"
+End Sub
+
+Sub Handbuch()
+  'Anzeige des Handbuches (pdf).
+  On Error GoTo Fehler
+  Dim pdf As String
+  pdf = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & VorName(ThisWorkbook.Name) & ".pdf"
+  ThisWorkbook.SysTools.StarteDatei pdf
+  Exit Sub
+  Fehler:
+  FehlerNachricht "mdlBefehle.Handbuch()"
 End Sub
 
 

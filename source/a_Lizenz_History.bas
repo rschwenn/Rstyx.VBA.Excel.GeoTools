@@ -38,6 +38,12 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'  .02.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
+'                   - Neue Winkeleinheiten: Prozent, Promille, Parts per million
+'                   - CimpTrassenkoo A0: Unterstützung für weitere Datenfelder:
+'                     - Gradientenneigung, 
+'                     - 
+'                   - 
 '12.02.2021 v3.1.2  - CdatKonfig: - Eigenschaft "KonfigDateiGelesen" umbenannt in "KonfigVerfuegbar"
 '                                   (signalisiert den Erfolg).
 '                                 - neue Eigenschaft "KonfigInitFertig"

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsAllgemein"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2019  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -756,6 +756,38 @@ Function Ueberhoehung(ByVal text As String, UebInInfo_Streng As Boolean) As Stri
   Set Fundstellen = Nothing
   'Set ThisWorkbook.RegExp = Nothing
   Ueberhoehung = ui
+End Function
+
+
+Function FormatKm(ByVal Km, ByVal NK, ByVal PrefixM) As String
+  'Gibt "km" als übliche Km-Angabe zurück (z.B. "12.3 + 45.67")
+  'Eingabe:  Km      ... reele Zahl in [m]
+  '          NK      ... zu formatierende Nachkommastellen
+  '          PrefixM ... Präfix für Meter, wenn < 10 m (sinnvoll sind nur "", " ", "0")
+  '                      Beispiele für Ergebnisse: "12.3 + 05.67", "12.3 + 5.67", "12.3 +  5.67"
+  Dim Hm, m, fmt, Teil_1, Teil_2, NKF
+  
+  'Formatierung ohne Leerzeichen
+  Hm = Fix(Km / 100)
+  m = Km - Hm * 100
+  
+  If (NK > 0) Then
+    NKF = "0." & String(NK, "0")
+  Else
+    NKF = "0"
+  End If
+  Teil_1 = Format(Hm / 10, "0.0")
+  Teil_2 = Format(m, "+" & NKF & ";-" & NKF)
+  
+  'Feintuning Teil 2
+  If (Km >= 0) Then
+    If ((m < 10) And (PrefixM <> "")) Then Teil_2 = Replace(Teil_2, "+", "+" & PrefixM)
+    Teil_2 = Replace(Teil_2, "+", " + ")
+  Else
+    If ((m > -10) And (PrefixM <> "")) Then Teil_2 = Replace(Teil_2, "-", "-" & PrefixM)
+    Teil_2 = Replace(Teil_2, "-", " - ")
+  End If
+  FormatKm = Teil_1 & Teil_2
 End Function
 
 

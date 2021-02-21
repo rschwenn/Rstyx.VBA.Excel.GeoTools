@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -431,8 +431,10 @@ Private Sub LstEinheiten_Change()
   Einheit = Me.LstEinheiten.List(Me.LstEinheiten.ListIndex)
   If (IsNull(Einheit)) Then
     Status.QuellEinheit = ""
+    Me.LblEinheiten3.Caption = ""
   Else
     Status.QuellEinheit = Einheit
+    Me.LblEinheiten3.Caption = ThisWorkbook.Konfig.EinheitenNamen(Einheit)
   End If
 End Sub
 

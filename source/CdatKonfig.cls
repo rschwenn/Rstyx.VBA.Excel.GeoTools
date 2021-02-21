@@ -82,6 +82,7 @@ Dim oStatusPrefix               As Scripting.Dictionary
 Dim oEinheiten                  As Scripting.Dictionary
 Dim oLaenge                     As Scripting.Dictionary
 Dim oWinkel                     As Scripting.Dictionary
+Dim oEinheitNamen               As Scripting.Dictionary
 
 Dim oCache                      As Scripting.Dictionary
 '
@@ -134,6 +135,7 @@ Private Sub Class_Initialize()
   Set oKategorieAlsFilter = New Scripting.Dictionary
   Set oStatusPrefix = New Scripting.Dictionary
   Set oEinheiten = New Scripting.Dictionary
+  Set oEinheitNamen = New Scripting.Dictionary
   Set oLaenge = New Scripting.Dictionary
   Set oWinkel = New Scripting.Dictionary
   Set oCache = New Scripting.Dictionary
@@ -158,11 +160,11 @@ Private Sub Class_Initialize()
   oStatusPrefix.Add StatusBez_Verbesserung, "V."
   
   'Unterstützte Einheiten.
+  oLaenge.Add "km", 0.001
   oLaenge.Add "m" , 1#
   oLaenge.Add "dm", 10
   oLaenge.Add "cm", 100
   oLaenge.Add "mm", 1000
-  oLaenge.Add "km", 0.001
   
   oWinkel.Add "gon" , 1#
   oWinkel.Add "grad", 0.9
@@ -170,6 +172,18 @@ Private Sub Class_Initialize()
   oWinkel.Add "pph" , tan(1 / rho) * 100      'Prozent
   oWinkel.Add "ppt" , tan(1 / rho) * 1000     'Promille
   oWinkel.Add "ppm" , tan(1 / rho) * 1000000  'Parts per million
+  
+  oEinheitNamen.Add "m"   , "Meter"
+  oEinheitNamen.Add "dm"  , "Dezimeter"
+  oEinheitNamen.Add "cm"  , "Zentimeter"
+  oEinheitNamen.Add "mm"  , "Millimeter"
+  oEinheitNamen.Add "km"  , "Kilometer"
+  oEinheitNamen.Add "gon" , "Gon"
+  oEinheitNamen.Add "grad", "Grad"
+  oEinheitNamen.Add "rad" , "Radian"
+  oEinheitNamen.Add "pph" , "Prozent"
+  oEinheitNamen.Add "ppt" , "Promille"
+  oEinheitNamen.Add "ppm" , "Parts per Million"
 
   oEinheiten.Add "Laenge", oLaenge
   oEinheiten.Add "Winkel", oWinkel
@@ -202,6 +216,7 @@ Private Sub Class_Terminate()
   Set oLaenge = Nothing
   Set oWinkel = Nothing
   Set oEinheiten = Nothing
+  Set oEinheitNamen = Nothing
   Set oCache = Nothing
 End Sub
 
@@ -325,6 +340,13 @@ Property Get Einheiten() As Scripting.Dictionary
   'Liefert ein Dictionary, das für jede unterstützte Größe ein Dictionary
   'mit allen unterstützten Einheiten enthält.
   Set Einheiten = oEinheiten
+End Property
+
+
+Property Get EinheitenNamen() As Scripting.Dictionary
+  'Liefert ein Dictionary, das für jede unterstützte
+  'Einheit deren Namen enthält.
+  Set EinheitenNamen = oEinheitNamen
 End Property
 
 

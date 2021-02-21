@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -747,7 +747,9 @@ Public Sub UebertragenFormeln()
     'If (Err) Then GoTo Fehler
     If (Not (oFormeln Is Nothing)) Then
       For Each oRangeQuelle In oFormeln.Areas
-        oRangeQuelle.Resize(ZeAnz).FormulaLocal = oRangeQuelle.FormulaLocal
+        If (oRangeQuelle.HasFormula) Then
+          oRangeQuelle.Resize(ZeAnz).FormulaLocal = oRangeQuelle.FormulaLocal
+        End If
       Next
     End If
   End If

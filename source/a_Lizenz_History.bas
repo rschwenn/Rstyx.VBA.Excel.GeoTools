@@ -40,9 +40,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '=================
 '  .02.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
 '                   - Neue Winkeleinheiten: Prozent, Promille, Parts per million
-'                   - CimpTrassenkoo A0: Unterstützung für weitere Datenfelder:
-'                     - Gradientenneigung, 
-'                     - 
+'                   - CimpTrassenkoo: - A0: Unterstützung für alle restlichen A0-Datenfelder
+'                     - A0, A1: Text und Kommentar werden getrennt übergeben (nicht mehr verkettet)
+'                     - Standard-Zieltabelle ist jetzt "tabTK_iGeo".
 '                   - 
 '12.02.2021 v3.1.2  - CdatKonfig: - Eigenschaft "KonfigDateiGelesen" umbenannt in "KonfigVerfuegbar"
 '                                   (signalisiert den Erfolg).

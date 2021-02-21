@@ -43,7 +43,7 @@ Option Explicit
 Const strKlasse_Name                    As String = "CimpTrassenkoo"
 
 Const strTitel                          As String = "Trassenkoo': Verm.esn und iGeo/iTrassePC A0 und A1"
-Const strKategorien                     As String = "tabTK_is_B;Punktbeschreibung;Koordinaten (Trasse);Trassenparameter;Koordinaten (rechtwinklig)"
+Const strKategorien                     As String = "tabTK_iGeo;Punktbeschreibung;Koordinaten (Trasse);Trassenparameter;Koordinaten (rechtwinklig)"
 
 'Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' Verm.esn (*.txt),*.txt, Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Alle Dateien (*.*),*.*"
 Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Trassenkoo' Verm.esn (*.txt),*.txt, Alle Dateien (*.*),*.*"
@@ -89,6 +89,7 @@ Dim N_GlsPrf()           As String
 Dim N_DGM()              As String
 Dim Abst()               As String
 Dim Bemerkung()          As String
+Dim PktKomment()         As String
 Dim GradHoehe()          As String
 Dim PktNr()              As String
 Dim Radius()             As String
@@ -114,6 +115,8 @@ Dim TK_R()               As String
 Dim TK_L()               As String
 Dim TK_RG()              As String
 Dim TK_LG()              As String
+Dim TK_Tm()              As String
+Dim TK_QT()              As String
 Dim TK_QGT()             As String
 Dim TK_HGT()             As String
 Dim TK_QGS()             As String
@@ -122,10 +125,27 @@ Dim TK_KmStatus()        As String
 Dim TK_KmText()          As String
 Dim DGM_HDGM()           As String
 Dim DGM_ZDGM()           As String
+Dim Tra_UebLi()          As String
+Dim Tra_UebRe()          As String
 Dim Tra_Heb()            As String
 Dim Tra_G()              As String
+Dim Tra_ZLGS()           As String
 Dim Tra_RaLGS()          As String
 Dim Tra_AbLGS()          As String
+Dim Tra_MiniR()          As String
+Dim Tra_MiniUeb()        As String
+Dim Tra_XA()             As String
+Dim Tra_YA()             As String
+Dim Tra_ZA()             As String
+Dim Tra_STB1()           As String
+Dim Tra_STB2()           As String
+Dim Tra_STB3()           As String
+Dim Tra_STB4()           As String
+Dim Tra_STB5()           As String
+Dim Tra_STB6()           As String
+Dim Tra_STB7()           As String
+Dim Tra_STB8()           As String
+Dim Tra_STB9()           As String
 
 Dim oDictKopfDat         As Scripting.Dictionary     'Dictionary, das alle Kopfdaten der Importdatei enthält
 
@@ -154,6 +174,7 @@ Private Sub Class_Initialize()
   'Einheiten der Quelldaten deklarieren.
   Me.Quelle_Einheiten.Add SpN_Pkt_Nr, "ohne"
   Me.Quelle_Einheiten.Add SpN_Pkt_Erl_L, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Pkt_Kommentar, "ohne"
   Me.Quelle_Einheiten.Add SpN_GK_X, "m"
   Me.Quelle_Einheiten.Add SpN_GK_Y, "m"
   Me.Quelle_Einheiten.Add SpN_GK_Z, "m"
@@ -162,9 +183,6 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_TK_Q, "m"
   Me.Quelle_Einheiten.Add SpN_TK_St, "m"
   'Me.Quelle_Einheiten.Add SpN_Tra_u, "mm"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameGra, "ohne"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameKML, "ohne"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameTra, "ohne"
   Me.Quelle_Einheiten.Add SpN_S_Tra_Radius, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_Richtung, "gon"
   Me.Quelle_Einheiten.Add SpN_S_Tra_SO, "m"
@@ -179,6 +197,8 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_TK_RG, "m"
   Me.Quelle_Einheiten.Add SpN_TK_LG, "m"
   
+  Me.Quelle_Einheiten.Add SpN_TK_Tm, "m"
+  Me.Quelle_Einheiten.Add SpN_TK_QT, "m"
   Me.Quelle_Einheiten.Add SpN_TK_QGT, "m"
   Me.Quelle_Einheiten.Add SpN_TK_HGT, "m"
   Me.Quelle_Einheiten.Add SpN_TK_QGS, "m"
@@ -187,16 +207,42 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_TK_KmStatus, "ohne"
   Me.Quelle_Einheiten.Add SpN_TK_KmText, "ohne"
   
-  Me.Quelle_Einheiten.Add SpN_S_Tra_Heb, "mm"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_UebLi, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_UebRe, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_Heb, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_G, "rad"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_ZLGS, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_RaLGS, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_AbLGS, "m"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameUeb, "ohne"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameReg, "ohne"
-  Me.Quelle_Einheiten.Add SpN_Tra_NameTun, "ohne"
+  
+  Me.Quelle_Einheiten.Add SpN_S_Tra_MiniR, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_MiniUeb, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_XA, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_YA, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_ZA, "m"
+  
   Me.Quelle_Einheiten.Add SpN_DGM_HDGM, "m"
   Me.Quelle_Einheiten.Add SpN_S_DGM_ZDGM, "m"
   Me.Quelle_Einheiten.Add SpN_DGM_NameDGM, "ohne"
+  
+  Me.Quelle_Einheiten.Add SpN_Tra_NameGra, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameKML, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameTra, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameUeb, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameReg, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameTun, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NamePkt, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_NameGls, "ohne"
+  
+  Me.Quelle_Einheiten.Add SpN_Tra_STB1, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB2, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB3, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB4, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB5, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB6, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB7, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB8, "ohne"
+  Me.Quelle_Einheiten.Add SpN_Tra_STB9, "ohne"
 
   DebugEcho "CimpTrassenkoo.Class_Initialize(): Initialisierung beendet."
   Exit Sub
@@ -437,6 +483,8 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim TK_L(1 To 1)
     ReDim TK_RG(1 To 1)
     ReDim TK_LG(1 To 1)
+    ReDim TK_Tm(1 To 1)
+    ReDim TK_QT(1 To 1)
     ReDim TK_QGT(1 To 1)
     ReDim TK_HGT(1 To 1)
     ReDim TK_QGS(1 To 1)
@@ -445,10 +493,32 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim TK_KmText(1 To 1)
     ReDim DGM_HDGM(1 To 1)
     ReDim DGM_ZDGM(1 To 1)
+    ReDim Tra_UebLi(1 To 1)
+    ReDim Tra_UebRe(1 To 1)
     ReDim Tra_Heb(1 To 1)
     ReDim Tra_G(1 To 1)
+    ReDim Tra_ZLGS(1 To 1)
     ReDim Tra_RaLGS(1 To 1)
     ReDim Tra_AbLGS(1 To 1)
+    
+    ReDim PktKomment(1 To 1)
+    
+    ReDim Tra_MiniR(1 To 1)
+    ReDim Tra_MiniUeb(1 To 1)
+    ReDim Tra_XA(1 To 1)
+    ReDim Tra_YA(1 To 1)
+    ReDim Tra_ZA(1 To 1)
+    
+    ReDim Tra_STB1(1 To 1)
+    ReDim Tra_STB2(1 To 1)
+    ReDim Tra_STB3(1 To 1)
+    ReDim Tra_STB4(1 To 1)
+    ReDim Tra_STB5(1 To 1)
+    ReDim Tra_STB6(1 To 1)
+    ReDim Tra_STB7(1 To 1)
+    ReDim Tra_STB8(1 To 1)
+    ReDim Tra_STB9(1 To 1)
+    
     ReDim N_UebBand(1 To 1)
     ReDim N_RegPrf(1 To 1)
     ReDim N_TunPrf(1 To 1)
@@ -572,54 +642,74 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     'Vektorfelder in den Quelldatenpuffer schreiben.
       '...add Spaltenname, zugehöriger Datenvektor
       
-      Me.Quelle_Datenpuffer.Add SpN_Pkt_Nr, PktNr
-      Me.Quelle_Datenpuffer.Add SpN_Pkt_Erl_L, Bemerkung
-      Me.Quelle_Datenpuffer.Add SpN_GK_X, X
-      Me.Quelle_Datenpuffer.Add SpN_GK_Y, Y
-      Me.Quelle_Datenpuffer.Add SpN_GK_Z, Z
-      Me.Quelle_Datenpuffer.Add SpN_TK_HSOK, dH
-      Me.Quelle_Datenpuffer.Add SpN_TK_Km, Km
-      Me.Quelle_Datenpuffer.Add SpN_TK_Q, Abst
-      Me.Quelle_Datenpuffer.Add SpN_TK_St, stat
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGra, N_Gra
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameKML, N_KmLinie
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTra, N_Trasse
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Radius, Radius
+      Me.Quelle_Datenpuffer.Add SpN_Pkt_Nr,         PktNr
+      Me.Quelle_Datenpuffer.Add SpN_Pkt_Erl_L,      Bemerkung
+      Me.Quelle_Datenpuffer.Add SpN_Pkt_Kommentar,  PktKomment
+      Me.Quelle_Datenpuffer.Add SpN_GK_X,           X
+      Me.Quelle_Datenpuffer.Add SpN_GK_Y,           Y
+      Me.Quelle_Datenpuffer.Add SpN_GK_Z,           Z
+      Me.Quelle_Datenpuffer.Add SpN_TK_HSOK,        dH
+      Me.Quelle_Datenpuffer.Add SpN_TK_Km,          Km
+      Me.Quelle_Datenpuffer.Add SpN_TK_Q,           Abst
+      Me.Quelle_Datenpuffer.Add SpN_TK_St,          stat
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGra,    N_Gra
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameKML,    N_KmLinie
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTra,    N_Trasse
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Radius,   Radius
       Me.Quelle_Datenpuffer.Add SpN_S_Tra_Richtung, Ri
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_SO, GradHoehe
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_u, u
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_SO,       GradHoehe
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_u,        u
       
       'Nur Verm.esn
-      Me.Quelle_Datenpuffer.Add SpN_TK_QKm, AbstKm
+      Me.Quelle_Datenpuffer.Add SpN_TK_QKm,         AbstKm
       'Me.Quelle_Datenpuffer.Add SpN_Tra_u, u_ist
       
       'Nur iGeo/iTrassePC
       'Me.Quelle_Datenpuffer.Add SpN_TK_QG, AbstRed
       'Me.Quelle_Datenpuffer.Add SpN_TK_HG, dHRed
-      Me.Quelle_Datenpuffer.Add SpN_TK_H, TK_H
-      Me.Quelle_Datenpuffer.Add SpN_TK_V, TK_V
-      Me.Quelle_Datenpuffer.Add SpN_TK_R, TK_R
-      Me.Quelle_Datenpuffer.Add SpN_TK_L, TK_L
-      Me.Quelle_Datenpuffer.Add SpN_TK_RG, TK_RG
-      Me.Quelle_Datenpuffer.Add SpN_TK_LG, TK_LG
-      Me.Quelle_Datenpuffer.Add SpN_TK_QGT, TK_QGT
-      Me.Quelle_Datenpuffer.Add SpN_TK_HGT, TK_HGT
-      Me.Quelle_Datenpuffer.Add SpN_TK_QGS, TK_QGS
-      Me.Quelle_Datenpuffer.Add SpN_TK_HGS, TK_HGS
-      Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus, TK_KmStatus
-      Me.Quelle_Datenpuffer.Add SpN_TK_KmText,   TK_KmText
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,   Tra_Heb
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_G,     Tra_G
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS, Tra_RaLGS
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS, Tra_AbLGS
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb, N_UebBand
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg, N_RegPrf
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun, N_TunPrf
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NamePkt, N_PrfPkt
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGls, N_GlsPrf
-      Me.Quelle_Datenpuffer.Add SpN_DGM_HDGM,    DGM_HDGM
-      Me.Quelle_Datenpuffer.Add SpN_S_DGM_ZDGM,  DGM_ZDGM
-      Me.Quelle_Datenpuffer.Add SpN_DGM_NameDGM, N_DGM
+      Me.Quelle_Datenpuffer.Add SpN_TK_H,          TK_H
+      Me.Quelle_Datenpuffer.Add SpN_TK_V,          TK_V
+      Me.Quelle_Datenpuffer.Add SpN_TK_R,          TK_R
+      Me.Quelle_Datenpuffer.Add SpN_TK_L,          TK_L
+      Me.Quelle_Datenpuffer.Add SpN_TK_RG,         TK_RG
+      Me.Quelle_Datenpuffer.Add SpN_TK_LG,         TK_LG
+      Me.Quelle_Datenpuffer.Add SpN_TK_Tm,         TK_Tm
+      Me.Quelle_Datenpuffer.Add SpN_TK_QT,         TK_QT
+      Me.Quelle_Datenpuffer.Add SpN_TK_QGT,        TK_QGT
+      Me.Quelle_Datenpuffer.Add SpN_TK_HGT,        TK_HGT
+      Me.Quelle_Datenpuffer.Add SpN_TK_QGS,        TK_QGS
+      Me.Quelle_Datenpuffer.Add SpN_TK_HGS,        TK_HGS
+      Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus,   TK_KmStatus
+      Me.Quelle_Datenpuffer.Add SpN_TK_KmText,     TK_KmText
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebLi,   Tra_UebLi
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebRe,   Tra_UebRe
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,     Tra_Heb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_G,       Tra_G
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZLGS,    Tra_ZLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS,   Tra_RaLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS,   Tra_AbLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniR,   Tra_MiniR
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniUeb, Tra_MiniUeb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_XA,      Tra_XA
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_YA,      Tra_YA
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZA,      Tra_ZA
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB1,      Tra_STB1
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB2,      Tra_STB2
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB3,      Tra_STB3
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB4,      Tra_STB4
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB5,      Tra_STB5
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB6,      Tra_STB6
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB7,      Tra_STB7
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB8,      Tra_STB8
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB9,      Tra_STB9
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb,   N_UebBand
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg,   N_RegPrf
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun,   N_TunPrf
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NamePkt,   N_PrfPkt
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGls,   N_GlsPrf
+      Me.Quelle_Datenpuffer.Add SpN_DGM_HDGM,      DGM_HDGM
+      Me.Quelle_Datenpuffer.Add SpN_S_DGM_ZDGM,    DGM_ZDGM
+      Me.Quelle_Datenpuffer.Add SpN_DGM_NameDGM,   N_DGM
       
     'Speicher freigeben (Wirkung?)
       ReDim N_KmLinie(0)
@@ -627,6 +717,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim N_Gra(0)
       ReDim Abst(0)
       ReDim Bemerkung(0)
+      ReDim PktKomment(0)
       ReDim GradHoehe(0)
       ReDim PktNr(0)
       ReDim Radius(0)
@@ -652,6 +743,8 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim TK_L(0)
       ReDim TK_RG(0)
       ReDim TK_LG(0)
+      ReDim TK_Tm(0)
+      ReDim TK_QT(0)
       ReDim TK_QGT(0)
       ReDim TK_HGT(0)
       ReDim TK_QGS(0)
@@ -660,10 +753,27 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim TK_KmText(0)
       ReDim DGM_HDGM(0)
       ReDim DGM_ZDGM(0)
+      ReDim Tra_UebLi(0)
+      ReDim Tra_UebRe(0)
       ReDim Tra_Heb(0)
       ReDim Tra_G(0)
+      ReDim Tra_ZLGS(0)
       ReDim Tra_RaLGS(0)
       ReDim Tra_AbLGS(0)
+      ReDim Tra_MiniR(0)  
+      ReDim Tra_MiniUeb(0)
+      ReDim Tra_STB1(0)
+      ReDim Tra_STB2(0)
+      ReDim Tra_STB3(0)
+      ReDim Tra_STB4(0)
+      ReDim Tra_STB5(0)
+      ReDim Tra_STB6(0)
+      ReDim Tra_STB7(0)
+      ReDim Tra_STB8(0)
+      ReDim Tra_STB9(0)
+      ReDim Tra_XA(0)      
+      ReDim Tra_YA(0)      
+      ReDim Tra_ZA(0)      
       ReDim N_UebBand(0)
       ReDim N_RegPrf(0)
       ReDim N_TunPrf(0)
@@ -755,8 +865,23 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim W_H             As Integer
     Dim W_HSOK          As Integer
     Dim W_ZSOK          As Integer
+    Dim W_ZLGS          As Integer
     Dim W_RaLGS         As Integer
     Dim W_AbLGS         As Integer
+    Dim W_MiniR         As Integer
+    Dim W_MiniUeb       As Integer
+    Dim W_XA            As Integer
+    Dim W_YA            As Integer
+    Dim W_ZA            As Integer
+    Dim W_STB1          As Integer
+    Dim W_STB2          As Integer
+    Dim W_STB3          As Integer
+    Dim W_STB4          As Integer
+    Dim W_STB5          As Integer
+    Dim W_STB6          As Integer
+    Dim W_STB7          As Integer
+    Dim W_STB8          As Integer
+    Dim W_STB9          As Integer
     Dim W_QG            As Integer
     Dim W_HG            As Integer
     Dim W_RG            As Integer
@@ -767,8 +892,8 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim W_HGS           As Integer
     Dim W_KmStatus      As Integer
     Dim W_KmText        As Integer
-    Dim W_QB            As Integer
-    Dim W_HB            As Integer
+    Dim W_Tm            As Integer
+    Dim W_QT            As Integer
     Dim W_UebLi         As Integer
     Dim W_UebRe         As Integer
     Dim W_Ueb           As Integer
@@ -782,7 +907,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim W_HDGM          As Integer
     Dim W_ZDGM          As Integer
     Dim W_Text          As Integer
-    Dim W_Kommentar     As Integer
+    Dim W_PktKomment    As Integer
     
     Dim Key             As String
     Dim Wert            As String
@@ -825,8 +950,23 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_H         = 0
     W_HSOK      = 0
     W_ZSOK      = 0
+    W_ZLGS      = 0
     W_RaLGS     = 0
     W_AbLGS     = 0
+    W_MiniR     = 0
+    W_MiniUeb   = 0
+    W_XA        = 0
+    W_YA        = 0
+    W_ZA        = 0
+    W_STB1      = 0
+    W_STB2      = 0
+    W_STB3      = 0
+    W_STB4      = 0
+    W_STB5      = 0
+    W_STB6      = 0
+    W_STB7      = 0
+    W_STB8      = 0
+    W_STB9      = 0
     W_QG        = 0
     W_HG        = 0
     W_RG        = 0
@@ -837,8 +977,8 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_HGS       = 0
     W_KmStatus  = 0
     W_KmText    = 0
-    W_QB        = 0
-    W_HB        = 0
+    W_Tm        = 0
+    W_QT        = 0
     W_UebLi     = 0
     W_UebRe     = 0
     W_Ueb       = 0
@@ -852,7 +992,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     W_HDGM      = 0
     W_ZDGM      = 0
     W_Text      = 0
-    W_Kommentar = 0
+    W_PktKomment= 0
     
   'Format-Kennung prüfen!
   If ((TkFormat = Fmt_A0) Or entspricht(Fmt_A1, TkFormat)) Then
@@ -973,10 +1113,10 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
                     W_QG = i
                   ElseIf (FieldName = "HG") Then
                     W_HG = i
-                  ElseIf (FieldName = "QB") Then
-                    W_QB = i
-                  ElseIf (FieldName = "HB") Then
-                    W_HB = i
+                  ElseIf (FieldName = "QT") Then
+                    W_QT = i
+                  ElseIf (FieldName = "Tm") Then
+                    W_Tm = i
                   ElseIf (FieldName = "UebLi") Then
                     W_UebLi = i
                   ElseIf (FieldName = "UebRe") Then
@@ -1017,14 +1157,44 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
                     W_KmStatus = i
                   ElseIf (FieldName = "KmText") Then
                     W_KmText = i
+                  ElseIf (FieldName = "ZLGS") Then
+                    W_ZLGS = i
                   ElseIf (FieldName = "RaLGS") Then
                     W_RaLGS = i
                   ElseIf (FieldName = "AbLGS") Then
                     W_AbLGS = i
+                  ElseIf (FieldName = "MiniR") Then
+                    W_MiniR = i
+                  ElseIf (FieldName = "MiniUeb") Then
+                    W_MiniUeb = i
+                  ElseIf (FieldName = "XA") Then
+                    W_XA = i
+                  ElseIf (FieldName = "YA") Then
+                    W_YA = i
+                  ElseIf (FieldName = "ZA") Then
+                    W_ZA = i
+                  ElseIf (FieldName = "STB1") Then
+                    W_STB1 = i
+                  ElseIf (FieldName = "STB2") Then
+                    W_STB2 = i
+                  ElseIf (FieldName = "STB3") Then
+                    W_STB3 = i
+                  ElseIf (FieldName = "STB4") Then
+                    W_STB4 = i
+                  ElseIf (FieldName = "STB5") Then
+                    W_STB5 = i
+                  ElseIf (FieldName = "STB6") Then
+                    W_STB6 = i
+                  ElseIf (FieldName = "STB7") Then
+                    W_STB7 = i
+                  ElseIf (FieldName = "STB8") Then
+                    W_STB8 = i
+                  ElseIf (FieldName = "STB9") Then
+                    W_STB9 = i
                   ElseIf (FieldName = "Text") Then
                     W_Text = i
                   ElseIf (FieldName = "Kommentar") Then
-                    W_Kommentar = i
+                    W_PktKomment = i
                   End If
                 Next
               End If
@@ -1088,7 +1258,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             
             if (NF >= MinAnzWort) then
               ' Kommentar ist bei A0 ein Feld wie alle anderen
-              Kommentar = Feld(W_Kommentar)
+              Kommentar = Feld(W_PktKomment)
             end if
             
           Else
@@ -1148,6 +1318,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve N_DGM(1 To AnzPkt)
               ReDim Preserve Abst(1 To AnzPkt)
               ReDim Preserve Bemerkung(1 To AnzPkt)
+              ReDim Preserve PktKomment(1 To AnzPkt)
               ReDim Preserve GradHoehe(1 To AnzPkt)
               ReDim Preserve PktNr(1 To AnzPkt)
               ReDim Preserve Radius(1 To AnzPkt)
@@ -1168,6 +1339,8 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve TK_L(1 To AnzPkt)
               ReDim Preserve TK_RG(1 To AnzPkt)
               ReDim Preserve TK_LG(1 To AnzPkt)
+              ReDim Preserve TK_Tm(1 To AnzPkt)
+              ReDim Preserve TK_QT(1 To AnzPkt)
               ReDim Preserve TK_QGT(1 To AnzPkt)
               ReDim Preserve TK_HGT(1 To AnzPkt)
               ReDim Preserve TK_QGS(1 To AnzPkt)
@@ -1176,10 +1349,27 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve TK_KmText(1 To AnzPkt)
               ReDim Preserve DGM_HDGM(1 To AnzPkt)
               ReDim Preserve DGM_ZDGM(1 To AnzPkt)
+              ReDim Preserve Tra_UebLi(1 To AnzPkt)
+              ReDim Preserve Tra_UebRe(1 To AnzPkt)
               ReDim Preserve Tra_Heb(1 To AnzPkt)
               ReDim Preserve Tra_G(1 To AnzPkt)
+              ReDim Preserve Tra_ZLGS(1 To AnzPkt)
               ReDim Preserve Tra_RaLGS(1 To AnzPkt)
               ReDim Preserve Tra_AbLGS(1 To AnzPkt)
+              ReDim Preserve Tra_MiniR(1 To AnzPkt)
+              ReDim Preserve Tra_MiniUeb(1 To AnzPkt)
+              ReDim Preserve Tra_XA(1 To AnzPkt)
+              ReDim Preserve Tra_YA(1 To AnzPkt)
+              ReDim Preserve Tra_ZA(1 To AnzPkt)
+              ReDim Preserve Tra_STB1(1 To AnzPkt)
+              ReDim Preserve Tra_STB2(1 To AnzPkt)
+              ReDim Preserve Tra_STB3(1 To AnzPkt)
+              ReDim Preserve Tra_STB4(1 To AnzPkt)
+              ReDim Preserve Tra_STB5(1 To AnzPkt)
+              ReDim Preserve Tra_STB6(1 To AnzPkt)
+              ReDim Preserve Tra_STB7(1 To AnzPkt)
+              ReDim Preserve Tra_STB8(1 To AnzPkt)
+              ReDim Preserve Tra_STB9(1 To AnzPkt)
               
             'Doku:  Zuordnungen  Kürzel_iGeo/iTrassePC ... Array
               'PktNr    ... PktNr
@@ -1200,15 +1390,34 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               'QG       ... AbstRed
               'HG       ... dHRed
               'H        ... TK_H
+              'UebLi    ... Tra_UebLi
+              'UebRe    ... Tra_UebRe
               'Heb      ... Tra_Heb
               'G        ... Tra_G
+              'ZLGS     ... Tra_ZLGS
               'RaLGS    ... Tra_RaLGS
               'AbLGS    ... Tra_AbLGS
+              'MiniR    ... Tra_MiniR
+              'MiniUeb  ... Tra_MiniUeb
+              'XA       ... Tra_XA
+              'YA       ... Tra_YA
+              'ZA       ... Tra_ZA
+              'STB1     ... Tra_STB1
+              'STB2     ... Tra_STB2
+              'STB3     ... Tra_STB3
+              'STB4     ... Tra_STB4
+              'STB5     ... Tra_STB5
+              'STB6     ... Tra_STB6
+              'STB7     ... Tra_STB7
+              'STB8     ... Tra_STB8
+              'STB9     ... Tra_STB9
               'V        ... TK_V
               'R        ... TK_R
               'L        ... TK_L
               'RG       ... TK_RG
               'LG       ... TK_LG
+              'Tm       ... TK_Tm
+              'QT       ... TK_QT
               'QGT      ... TK_QGT
               'HGT      ... TK_HGT
               'QGS      ... TK_QGS
@@ -1217,12 +1426,6 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               'KmText   ... TK_KmText
               'HDGM     ... DGM_HDGM
               'ZDGM     ... DGM_ZDGM
-              
-              'QB       ... ==> ignorieren
-              'HB       ... ==> ignorieren
-              'UebLi    ... ==> ignorieren
-              'UebRe    ... ==> ignorieren
-              'G        ... ==> ignorieren (Steigungswinkel)
             '
             'Fehler tolerieren, da Datenwörter am Zeilenende fehlen dürfen.
             On Error Resume Next
@@ -1241,16 +1444,16 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               If ((vGradHoehe = "") And (vdH <> "") And (vZ <> "")) Then vGradHoehe = CDbl(vZ) - CDbl(vdH)
             
             'Bemerkung: Text und Kommentar verketten.
-              if (trim(Feld(W_Text)) <> "") then
-                strBemerkung = Feld(W_Text)
-                
-                if (trim(Kommentar) <> "") then
-                  strBemerkung = strBemerkung & ", " & trim(Kommentar)
-                end if
-                
-              else
-                strBemerkung = Kommentar
-              end if
+              'if (trim(Feld(W_Text)) <> "") then
+              '  strBemerkung = Feld(W_Text)
+              '  
+              '  if (trim(Kommentar) <> "") then
+              '    strBemerkung = strBemerkung & ", " & trim(Kommentar)
+              '  end if
+              '  
+              'else
+              '  strBemerkung = Kommentar
+              'end if
             
             'Ist-Überhöhung (nicht hier ermitteln => wird nachträglich gemacht)
               'u_ist = Ueberhoehung(Bemerkung, UebInInfo_Streng)     # ist-Überhöhung in (mm) aus Bemerkung ermitteln
@@ -1271,7 +1474,9 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               Y(AnzPkt)           = vY
               X(AnzPkt)           = vX
               Z(AnzPkt)           = vZ
-              Bemerkung(AnzPkt)   = strBemerkung
+              'Bemerkung(AnzPkt)   = strBemerkung
+              Bemerkung(AnzPkt)   = Feld(W_Text)
+              PktKomment(AnzPkt)  = Kommentar
               
               Km(AnzPkt)          = GetValue(Feld(W_Km))
               Stat(AnzPkt)        = GetValue(Feld(W_St))
@@ -1293,14 +1498,36 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               TK_RG(AnzPkt)       = GetValue(Feld(W_RG))
               TK_LG(AnzPkt)       = GetValue(Feld(W_LG))
               
+              TK_Tm(AnzPkt)       = GetValue(Feld(W_Tm))
+              TK_QT(AnzPkt)       = GetValue(Feld(W_QT))
               TK_QGT(AnzPkt)      = GetValue(Feld(W_QGT))
               TK_HGT(AnzPkt)      = GetValue(Feld(W_HGT))
               TK_QGS(AnzPkt)      = GetValue(Feld(W_QGS))
               TK_HGS(AnzPkt)      = GetValue(Feld(W_HGS))
               
+              Tra_UebLi(AnzPkt)   = GetValue(Feld(W_UebLi))
+              Tra_UebRe(AnzPkt)   = GetValue(Feld(W_UebRe))
+              Tra_Heb(AnzPkt)     = GetValue(Feld(W_Heb))
               Tra_G(AnzPkt)       = GetValue(Feld(W_G))
+              Tra_ZLGS(AnzPkt)    = GetValue(Feld(W_ZLGS))
               Tra_RaLGS(AnzPkt)   = GetValue(Feld(W_RaLGS))
               Tra_AbLGS(AnzPkt)   = GetValue(Feld(W_AbLGS))
+              
+              Tra_MiniUeb(AnzPkt) = GetValue(Feld(W_MiniUeb))
+              Tra_MiniR(AnzPkt)   = GetValue(Feld(W_MiniR))
+              Tra_XA(AnzPkt)      = GetValue(Feld(W_XA))
+              Tra_YA(AnzPkt)      = GetValue(Feld(W_YA))
+              Tra_ZA(AnzPkt)      = GetValue(Feld(W_ZA))
+              
+              Tra_STB1(AnzPkt)    = GetValue(Feld(W_STB1))
+              Tra_STB2(AnzPkt)    = GetValue(Feld(W_STB2))
+              Tra_STB3(AnzPkt)    = GetValue(Feld(W_STB3))
+              Tra_STB4(AnzPkt)    = GetValue(Feld(W_STB4))
+              Tra_STB5(AnzPkt)    = GetValue(Feld(W_STB5))
+              Tra_STB6(AnzPkt)    = GetValue(Feld(W_STB6))
+              Tra_STB7(AnzPkt)    = GetValue(Feld(W_STB7))
+              Tra_STB8(AnzPkt)    = GetValue(Feld(W_STB8))
+              Tra_STB9(AnzPkt)    = GetValue(Feld(W_STB9))
               
               TK_KmStatus(AnzPkt) = GetValue(Feld(W_KmStatus))
               TK_KmText(AnzPkt)   = GetValue(Feld(W_KmText))
@@ -1320,12 +1547,6 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
                 u(AnzPkt) = Feld(W_Ueb) * F_Ueb
               else
                 u(AnzPkt) = ""
-              end if
-              
-              if (isNumeric(Feld(W_Heb))) then
-                Tra_Heb(AnzPkt) = Feld(W_Heb) * F_Ueb
-              else
-                Tra_Heb(AnzPkt) = ""
               end if
               
             On Error GoTo Fehler

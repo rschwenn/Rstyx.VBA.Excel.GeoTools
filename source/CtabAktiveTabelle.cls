@@ -1385,6 +1385,26 @@ End Sub
 
 
 
+Public Sub Mod_iTrassenCodeAusBemerkung()
+  'Manipulation der Tabellendaten: Extraktion der iTrassen-Codierung.
+  On Error GoTo Fehler
+  Dim oExpim    As CdatExpim
+  Set oExpim = New CdatExpim
+  oExpim.GetQuelldaten_XlTabAktiv
+  oExpim.Opt_FormelnErhalten = Me.ModOpt_FormelnErhalten
+  oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = Me.ModOpt_VorhWerteUeberschreiben
+  oExpim.Datenpuffer.Mod_iTrassenCodeAusBemerkung
+  oExpim.SchreibeDatenpuffer_XlTabAktiv
+  call ClearStatusBarDelayed(StatusBarClearDelay)
+  Set oExpim = Nothing
+  Exit Sub
+Fehler:
+  Set oExpim = Nothing
+  FehlerNachricht "CtabAktiveTabelle.Mod_iTrassenCodeAusBemerkung()"
+End Sub
+
+
+
 Public Sub Mod_Transfo_Tk2Gls()
   'Manipulation der Tabellendaten: Transfo' Trassenkoo' => Gleissystem.
   On Error GoTo Fehler

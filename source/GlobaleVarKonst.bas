@@ -75,6 +75,16 @@ Public Const StatusBez_Soll                  As String = "Soll"
 Public Const StatusBez_Fehler                As String = "Fehler"
 Public Const StatusBez_Verbesserung          As String = "Verbesserung"
 
+'Punktarten.
+Public Const PArt1_Gleis                     As String = "Gls"
+Public Const PArt1_Bahnsteig                 As String = "Bstg"
+Public Const PArt1_GVP                       As String = "GVP"
+Public Const PArt1_Festpunkt                 As String = "PSx"
+Public Const PArt2_Gleis                     As String = "Gleis"
+Public Const PArt2_Bahnsteig                 As String = "Bahnsteig"
+Public Const PArt2_GVP                       As String = "GVP"
+Public Const PArt2_Festpunkt                 As String = "Festpunkt"
+
 'Spezielle Zeichenketten für Oberfläche.
 Public Const SpName_unbekannt                As String = "unbekannt"
 Public Const SpTitel_unbekannt               As String = "< unbekannt >"
@@ -141,6 +151,10 @@ Public Const SpN_Pkt_Kz                      As String = "Pkt.Kz"
 Public Const SpN_Pkt_Nr                      As String = "Pkt.Nr"
 Public Const SpN_Pkt_Erl_H                   As String = "Pkt.Erl.H"
 Public Const SpN_Pkt_Erl_L                   As String = "Pkt.Erl.L"
+Public Const SpN_Pkt_Art_Bez1                As String = "Pkt.Art.Bez1"
+Public Const SpN_Pkt_Art_Bez2                As String = "Pkt.Art.Bez2"
+Public Const SpN_Pkt_VArt_Kz                 As String = "Pkt.V.ArtKz"
+Public Const SpN_Pkt_VArt_Kz2                As String = "Pkt.V.ArtKz.2"
 Public Const SpN_Pkt_Kommentar               As String = "Pkt.Kommentar"
 
 Public Const SpN_Tra_NameGra                 As String = "Tra.NameGra"

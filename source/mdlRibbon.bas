@@ -133,6 +133,7 @@ Private oRibbon As IRibbonUI
             Case "TableStructureButton"         : Call TabellenStruktur
             Case "FormatButton"                 : Call FormatDaten
             Case "CalcDiffsButton"              : Call Mod_FehlerVerbesserung
+            Case "CalcITraCodeButton"           : Call Mod_iTrassenCodeAusBemerkung
             Case "CalcCantButton"               : Call Mod_UeberhoehungAusBemerkung
             Case "CalcHorizontalToCantedButton" : Call Mod_Transfo_Tk2Gls
             Case "CalcCantedToHorizontalButton" : Call Mod_Transfo_Gls2Tk

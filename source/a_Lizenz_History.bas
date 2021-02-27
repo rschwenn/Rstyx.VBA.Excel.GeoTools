@@ -43,7 +43,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '                   - CimpTrassenkoo: - A0: Unterstützung für alle restlichen A0-Datenfelder
 '                     - A0, A1: Text und Kommentar werden getrennt übergeben (nicht mehr verkettet)
 '                     - Standard-Zieltabelle ist jetzt "tabTK_iGeo".
-'                   - 
+'                   - CdatDatenpuffer u.a.: Neue Modifikation Mod_iTrassenCodeAusBemerkung()
 '12.02.2021 v3.1.2  - CdatKonfig: - Eigenschaft "KonfigDateiGelesen" umbenannt in "KonfigVerfuegbar"
 '                                   (signalisiert den Erfolg).
 '                                 - neue Eigenschaft "KonfigInitFertig"

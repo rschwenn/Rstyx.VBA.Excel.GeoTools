@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -51,13 +51,14 @@ Attribute VB_Exposed = False
 '    Ersatzspalte, und zwar zellenorientiert, falls die Ersatzspalte bereits existiert.
 '
 'Historie:
- '08.11.2008  - Beschreiben der Ersatzspalte erfgolgt jetzt zellenorientiert, falls nötig.
  '17.05.2004  - Berechnung von Fehlern und Verbesserungen
  '            - Ist-Überhöhung aus Bemerkung ermitteln
  '            - Transfo' Trassenkoo' => Gleissystem (Zwangspunktreduktion)
  '            - Transfo' Gleissystem => Trassenkoo' (umgekehrte Zwangspunktreduktion)
  '14.04.2008  - Transfo' Trassenkoo' <=> Gleissystem: Basis für Überhöhung konfigurierbar.
  '            - Ist-Überhöhung aus Bemerkung: Schalter für "streng" (u=xxx) eingeführt
+ '08.11.2008  - Beschreiben der Ersatzspalte erfgolgt jetzt zellenorientiert, falls nötig.
+ '27.02.2021  - Neue Modifikation Mod_iTrassenCodeAusBemerkung()
 '====================================================================================
 
 
@@ -70,6 +71,7 @@ Const strKlasse_Name                    As String = "CdatDatenpuffer"
 Dim bln_VorhWerteUeberschreiben         As Boolean
 Dim bln_FehlerVerbesserungen            As Boolean
 Dim bln_UeberhoehungAusBemerkung        As Boolean
+Dim bln_iTrassenCodeAusBemerkung        As Boolean
 Dim bln_Transfo_Tk2Gls                  As Boolean
 Dim bln_UebAusInfoStreng                As Boolean
 Dim dbl_TkBasisUeberhoehung             As Double
@@ -213,6 +215,17 @@ Property Let Opt_UeberhoehungAusBemerkung(inp_UeberhoehungAusBemerkung As Boolea
 End Property
 
 
+Property Get Opt_iTrassenCodeAusBemerkung() As Boolean
+  'Liefert die Option "iTrassen-Codierung aus Bemerkung extrahieren".
+  Opt_iTrassenCodeAusBemerkung = bln_iTrassenCodeAusBemerkung
+End Property
+
+Property Let Opt_iTrassenCodeAusBemerkung(inp_iTrassenCodeAusBemerkung As Boolean)
+  'Setzt die Option "iTrassen-Codierung aus Bemerkung extrahieren".
+  bln_iTrassenCodeAusBemerkung = inp_iTrassenCodeAusBemerkung
+End Property
+
+
 Property Get Opt_Transfo_Tk2Gls() As Boolean
   'Liefert die Option "Zwangspunkt-Reduktion".
   Opt_Transfo_Tk2Gls = bln_Transfo_Tk2Gls
@@ -248,6 +261,7 @@ Public Sub SetzeStandardEinstellungen()
   'Anzuwendende Bearbeitungsmodule
   bln_FehlerVerbesserungen = True
   bln_UeberhoehungAusBemerkung = True
+  bln_iTrassenCodeAusBemerkung = True
   bln_Transfo_Tk2Gls = True
   
   Exit Sub
@@ -264,6 +278,7 @@ Public Sub Daten_Bearbeiten()
   'SpaltenInfo aktualisieren.
   'Call Daten_GetSpaltenInfo
   
+  If (Me.Opt_iTrassenCodeAusBemerkung) Then Call Mod_iTrassenCodeAusBemerkung
   If (Me.Opt_UeberhoehungAusBemerkung) Then Call Mod_UeberhoehungAusBemerkung
   If (Me.Opt_Transfo_Tk2Gls) Then Call Mod_Transfo_Tk2Gls
   If (Me.Opt_FehlerVerbesserungen) Then Call Mod_FehlerVerbesserung
@@ -390,6 +405,7 @@ Sub Mod_FehlerVerbesserung()
   Echo vbnewline & "Berechnen von Fehlern und Verbesserungen."
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Berechnen von Fehlern und Verbesserungen."
+  ErrMessage = "Fehler beim Bestimmen der Fehler und Verbesserungen"
   
   '1. Vorhandene Fehlerspalten als Verbesserungen eintragen (unter Umkehrung des Vorzeichens).
   If (Not oSpaltenStatus(StatusBez_Fehler) Is Nothing) Then
@@ -513,6 +529,7 @@ Sub Mod_Transfo_Tk2Gls()
   Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Transformation von Trassenkoo' ins gedrehte Gleissystem (Zwangspunkt-Reduktion)."
+  ErrMessage = "Fehler bei Transformation vom Trassen- ins Gleissystem"
   
   If (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
     For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
@@ -583,6 +600,7 @@ Sub Mod_Transfo_Gls2Tk()
   Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Transformation von Koo' des gedrehten Gleissystems in normale Trassenkoo'."
+  ErrMessage = "Fehler bei Transformation vom Gleis- ins Trassensystem"
   
   If ((oDaten.Exists(SpN_S_Tra_Radius)) And (oDaten.Exists(SpN_S_Tra_u))) Then
     For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
@@ -656,6 +674,7 @@ Sub Mod_UeberhoehungAusBemerkung()
   Echo "  Einstellung: Überhöhung muss in der Form 'u=xxx' vorliegen = " & bool2String(Me.Opt_UebAusInfoStreng)
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Ist-Überhöhung anhand der Bemerkung ermitteln und aus Bemerkung entfernen."
+  ErrMessage = "Fehler beim Bestimmen der Ist-Überhöhung aus der Bemerkung"
   
   If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
     lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
@@ -695,6 +714,109 @@ Sub Mod_UeberhoehungAusBemerkung()
   
 Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_UeberhoehungAusBemerkung()"
+End Sub
+
+
+Sub Mod_iTrassenCodeAusBemerkung()
+  '--------------------------------------------------------------------------------------------------------'
+  'Modifikation am Datenpuffer: iTrassen-Codierung aus der Bemerkung extrahieren und aus Bemerkung entfernen.
+  '--------------------------------------------------------------------------------------------------------'
+  ' - Falls die Punktinfo eine iTrassen-Codierung enthält, werden folgende Teilinformationen extrahiert:
+  '     
+  '   - Spalte.Pkt.V.ArtKz.2 :  Vermarkungsart für iGeo-Absteckbuch
+  '   - Spalte.Pkt.Art.Bez1  :  Punktart Bezeichnung kurz
+  '   - Spalte.Pkt.Art.Bez2  :  Punktart Bezeichnung lang
+  '   - Spalte.Pkt.V.ArtKz   :  Vermarkungsart (für Festpunkt oder GVP)
+  '   - Spalte.Tra.u         :  Ist-Überhöhung (für Gleispunkt)
+  '    
+  ' - Punktarten:  iTrassen-Codierung    Bezeichnung kurz  Bezeichnung lang    Hinweis
+  '   -            -i                    Gls               Gleis               ohne Überhöhung
+  '   -            -iu*                  Gls               Gleis               mit  Überhöhung
+  '   -            -b                    Bstg              Bahnsteig
+  '   -            -f*                   PSx               Festpunkt           * = Vermarkungsart
+  '   -            -v*                   GVP               GVP                 * = Vermarkungsart
+  '--------------------------------------------------------------------------------------------------------'
+  
+  On Error GoTo Fehler
+  
+  Dim lb                   As Long
+  Dim ub                   As Long
+  Dim i                    As Long
+  
+  Dim u_ist()              As String
+  Dim PArtBez1()           As String
+  Dim PArtBez2()           As String
+  Dim VArtKz1()            As String
+  Dim VArtKz2()            As String
+  Dim BemerkNeu()          As String
+  
+  Dim strPArtBez1          As String
+  Dim strPArtBez2          As String
+  Dim strVArtKz1           As String
+  Dim strVArtKz2           As String
+  Dim strInfoNeu           As String
+  
+  Dim BemerkAlt            As String
+  Dim varUebZiel           As Variant
+  Dim varUebQuelle         As Variant
+  Dim keineFormeln         As Boolean
+  
+  Echo vbnewline & "iTrassen-Codierung aus der Bemerkung extrahieren (und aus Bemerkung entfernen)."
+  Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
+  Application.StatusBar = "iTrassen-Codierung aus der Bemerkung extrahieren und aus Bemerkung entfernen."
+  ErrMessage = "Fehler beim Extrahieren der iTrassen-Codierung aus der Bemerkung"
+  
+  If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
+    lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
+    ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
+    ReDim u_ist(lb To ub)
+    ReDim PArtBez1(lb To ub)
+    ReDim PArtBez2(lb To ub)
+    ReDim VArtKz1(lb To ub)
+    ReDim VArtKz2(lb To ub)
+    ReDim BemerkNeu(lb To ub)
+    keineFormeln = (CountDim(oDaten(SpN_Pkt_Erl_L)) = 1)
+    
+    For i = lb To ub
+      'Vorhandene Bemerkung lesen.
+      If (keineFormeln) Then
+        BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i)
+      Else
+        BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
+      End If
+      
+      'Spezialwerte aus Bemerkung extrahieren.
+      Call ParseIpktTextForKindCodes(BemerkAlt, strPArtBez1, strPArtBez2, strVArtKz1, strVArtKz2, varUebQuelle, strInfoNeu)
+      
+      'Felder im Vektor belegen.
+      If (IsNumeric(varUebQuelle)) Then
+        'varUebZiel = varUebQuelle
+        u_ist(i)   = varUebQuelle
+      End If
+      
+      PArtBez1(i)  = strPArtBez1
+      PArtBez2(i)  = strPArtBez2
+      VArtKz1(i)   = strVArtKz1
+      VArtKz2(i)   = strVArtKz2
+      BemerkNeu(i) = strInfoNeu
+    Next
+    
+    'Neue Werte in den Datenpuffer schreiben.
+    Call Vektor2Datenuffer(u_ist,     SpN_Tra_u,        Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(VArtKz2,   SpN_Pkt_VArt_Kz2, Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L,    Me.Opt_VorhWerteUeberschreiben)
+  End If
+  
+  'SpaltenInfo aktualisieren.
+  Call Daten_GetSpaltenInfo
+  
+  Exit Sub
+  
+Fehler:
+  FehlerNachricht "CdatDatenpuffer.Mod_iTrassenCodeAusBemerkung()"
 End Sub
 
 
@@ -958,6 +1080,150 @@ Private Function isSpalteLeer(Vektor) As Boolean
   Exit Function
 Fehler:
   FehlerNachricht "CdatDatenpuffer.isSpalteLeer()"
+End Function
+            
+Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
+                                      ByRef Kind1         As String, _
+                                      ByRef Kind2         As String, _
+                                      ByRef MarkType      As String, _
+                                      ByRef MarkTypeAB    As String, _
+                                      ByRef ActualCant    As Variant, _
+                                      ByRef NewInfo       As String _
+                                     ) As Boolean
+ '------------------------------------------------------------------------------    
+ ' A given string will be parsed for iGeo point kind codes and remaining info text.
+ ' Eingabe:  PointInfoText ... Punktinfo original
+ ' Ausgabe:  Kind1         ... Punktart Bezeichnung kurz
+ ' Ausgabe:  Kind2         ... Punktart Bezeichnung lang
+ ' Ausgabe:  MarkType      ... Vermarkungsart (für Festpunkt oder GVP)
+ ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
+ ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
+ ' Ausgabe:  NewInfo       ... Punktinfo ohne iTrassen-Codierung
+ ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
+ '  
+ ' Erwartete Formate:
+ '  -b                    Platform                                 
+ '  -i[u[=]?[+-]?[0-9]+]  Actual rails [with actual cant]          
+ '  -v[0-9]+              Rails fix point [with numeric mark type] 
+ '  -f[0-9]+              Other fix point [with numeric mark type] 
+ '  ?-                    If one of the above codes is there, it may be preceeded 
+ '                        by one word character which will recognized as 
+ '------------------------------------------------------------------------------
+    Dim DelimIndex    As Integer
+    Dim CodePart      As String
+    Dim InfoPart      As String
+    Dim FirstHash     As Integer
+    Dim FirstX        As Integer
+    Dim oMatches      As Object
+    Dim Key           As String
+    Dim i             As Integer
+    Dim FoundITraCode As Boolean
+    
+    FoundITraCode = False
+    Kind1         = ""
+    Kind2         = ""
+    MarkType      = ""
+    MarkTypeAB    = ""
+    ActualCant    = ""
+    NewInfo       = ""
+    
+    If (PointInfoText <> "") Then
+        
+        ' Find delimiter between code and info text.
+        
+        FirstHash = InStr(PointInfoText, "#")
+        FirstX    = InStr(LCase(PointInfoText), "x")
+        
+        If ((FirstHash > 1) And (FirstX > 1)) Then
+            DelimIndex = IIf(FirstHash < FirstX, FirstHash, FirstX) 
+        Else
+            DelimIndex = IIf(FirstHash > FirstX, FirstHash, FirstX) 
+        End If
+        
+        ' Determine code and info parts of input text.
+        If (DelimIndex > 1) Then
+            CodePart = Trim(Left(PointInfoText, DelimIndex - 1))
+            If (Len(PointInfoText) > DelimIndex) Then
+                InfoPart = Mid(PointInfoText, DelimIndex + 1)
+                If (Trim(InfoPart) <> "") Then
+                    If (Left(InfoPart, 1) = " ") Then
+                      InfoPart = Mid(InfoPart, 2)
+                    End If
+                End If
+            End If
+        Else
+            ' Decide later ...
+            CodePart = PointInfoText
+            InfoPart = PointInfoText
+        End If
+        
+        ' Code part: Find point kind.
+        If (Trim(CodePart) <> "") Then
+                        
+            ThisWorkbook.RegExp.IgnoreCase = True
+            ThisWorkbook.RegExp.Global = False
+            ThisWorkbook.RegExp.Pattern = "^\s*(\w)?((-b)|(-v)([0-9]+)?|(-f)([0-9]+)?|(-iu) *=? *([+-]? *[0-9]+)|(-i))?"
+            Set oMatches = ThisWorkbook.RegExp.Execute(CodePart)
+            
+            if (oMatches.Count > 0) then
+                For i = 2 To 9
+                    Key = oMatches(0).SubMatches(i)
+                    Select Case Key
+                        Case "-b"  
+                            Kind1 = PArt1_Bahnsteig
+                            Kind2 = PArt2_Bahnsteig
+                            Exit For
+                            
+                        Case "-v"
+                            Kind1 = PArt1_GVP
+                            Kind2 = PArt2_GVP
+                            MarkType = oMatches(0).SubMatches(i + 1)
+                            Exit For
+                            
+                        Case "-f"
+                            Kind1 = PArt1_Festpunkt
+                            Kind2 = PArt2_Festpunkt
+                            MarkType = oMatches(0).SubMatches(i + 1)
+                            Exit For
+                            
+                        Case "-iu"
+                            Kind1 = PArt1_Gleis
+                            Kind2 = PArt2_Gleis
+                            ActualCant = CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
+                            Exit For
+                            
+                        Case "-i"
+                            Kind1 = PArt1_Gleis
+                            Kind2 = PArt2_Gleis    
+                            Exit For
+                    End Select
+                Next
+                If ((DelimIndex > 1) Or (Kind1 <> "")) Then
+                    ' iTrassen-Codierung found (Input text is splitted or contains kind code).
+                    FoundITraCode = True
+                    MarkTypeAB    = oMatches(0).SubMatches(0)
+                End If
+            Else
+                ' There's a code part but w/o supported code or with invalid syntax.
+                If (DelimIndex > 1) Then
+                    ' Re-join splitted text (see below).
+                    InfoPart = PointInfoText
+                End If
+            End If
+        End If
+        
+        ' Info part: store.
+        If (Trim(InfoPart) <> "") Then
+            If ((DelimIndex > 1) Or (Kind1 = "")) Then
+                ' Input text is splitted or else isn't splitted and doesn't contain codes.
+                NewInfo = InfoPart
+            End If
+        End If
+    End If
+    ParseIpktTextForKindCodes = FoundITraCode
+    Exit Function
+Fehler:
+  FehlerNachricht "CdatDatenpuffer.ParseIpktTextForKindCodes()"
 End Function
 
 

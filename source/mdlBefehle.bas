@@ -99,8 +99,8 @@ Sub Mod_FehlerVerbesserung()
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_FehlerVerbesserung()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -114,8 +114,23 @@ Sub Mod_UeberhoehungAusBemerkung()
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
+  success = RestoreLastSeparators()
+End Sub
+
+
+Sub Mod_iTrassenCodeAusBemerkung()
+  'Modifiziert Daten der aktiven Tabelle.
+  On Error GoTo Fehler
+  Dim success As Boolean
+  success = SetRequiredSeparators()
+  ThisWorkbook.AktiveTabelle.Mod_iTrassenCodeAusBemerkung
+  call ClearStatusBarDelayed(StatusBarClearDelay)
+  success = RestoreLastSeparators()
+  Exit Sub
+  Fehler:
+  FehlerNachricht "mdlBefehle.Mod_iTrassenCodeAusBemerkung()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -129,8 +144,8 @@ Sub Mod_Transfo_Tk2Gls()
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Tk2Gls()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -144,8 +159,8 @@ Sub Mod_Transfo_Gls2Tk()
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Mod_Transfo_Gls2Tk()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -171,8 +186,8 @@ Sub Selection2Interpolationsformel()
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.Selection2Interpolationsformel()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -256,9 +271,9 @@ Sub Import_Trassenkoo(Optional ByVal ParamDateiName As String = "")
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_Trassenkoo()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -288,9 +303,9 @@ Sub Import_CSV(Optional ByVal ParamDateiName As String = "")
   success = RestoreLastSeparators()
   Exit Sub
   Fehler:
-  success = RestoreLastSeparators()
   Set oExpimGlobal = Nothing
   FehlerNachricht "mdlBefehle.Import_CSV()"
+  success = RestoreLastSeparators()
 End Sub
 
 
@@ -319,8 +334,8 @@ Sub ExpimManager(Optional ByVal ParamDateiName As String = "")
   Exit Sub
   Fehler:
   Set oExpimGlobal = Nothing
-  success = RestoreLastSeparators()
   FehlerNachricht "mdlBefehle.ExpimManager()"
+  success = RestoreLastSeparators()
 End Sub
 
 

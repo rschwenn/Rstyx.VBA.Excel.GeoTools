@@ -565,22 +565,12 @@ End Function
 Public Sub LeseKonfiguration()
   'Lesen der Konfigurations-Arbeitsmappe.
   
-  Dim StatusScreen     As Boolean
-  Dim StatusEvents     As Boolean
-  Dim StatusAlerts     As Boolean
-  Dim StatusCalc       As Boolean
   Dim Success          As Boolean
   Dim oWbkCfg          As Excel.Workbook
   Dim oXlApp2          As Excel.Application
   
   On Error GoTo Fehler
   DebugEcho "CdatKonfig.LeseKonfiguration(): Lese Konfigurationsdatei '" & cfg & "'."
-  
-  'StatusScreen = Application.ScreenUpdating
-  'StatusEvents = Application.EnableEvents
-  'StatusAlerts = Application.DisplayAlerts
-  'Application.ScreenUpdating = False
-  'Application.DisplayAlerts  = False
   
   ' Konfigurationsdatei öffnen mit zweiter Excel-Instanz.
   On Error GoTo Fehler
@@ -608,17 +598,11 @@ Public Sub LeseKonfiguration()
   blnKonfigVerfuegbar = Success
   DebugEcho "CdatKonfig.LeseKonfiguration(): GeoTools-Konfiguration gelesen. (" & cfg & ")."
   
-  'Application.EnableEvents   = StatusEvents
-  'Application.ScreenUpdating = StatusScreen
-  'Application.DisplayAlerts  = StatusAlerts
-  
   Application.StatusBar = "GeoTools-Konfiguration gelesen. (" & cfg & ")."
   Call ClearStatusBarDelayed(StatusBarClearDelay)
   Exit Sub
   
 Fehler:
-  Application.ScreenUpdating = StatusScreen
-  'ErrEcho "CdatKonfig.LeseKonfiguration()"
   ErrEcho "CdatKonfig.LeseKonfiguration(): *** mit Fehler beendet ***."
 End Sub
 

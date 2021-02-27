@@ -703,7 +703,7 @@ Public Function GetFelderAusTabelle(ByVal Prefix As String, Optional oTab As Wor
 Fehler:
   Set oRange = Nothing
   Set GetFelderAusTabelle = Nothing
-  FehlerNachricht "CtabAktiveTabelle.GetFelderAusTabelle()"
+  FehlerNachricht "mdlToolsExcel.GetFelderAusTabelle()"
 End Function
 
 

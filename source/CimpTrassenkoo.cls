@@ -397,20 +397,13 @@ Sub Import()
   
   Dim NameEingabeDatei  As String
   Dim Erfolg            As Boolean
-  Dim StatusScreen      As Boolean
   
   NameEingabeDatei = Me.Quelle_AsciiDatei_Name
+  
   If (NameEingabeDatei <> "") Then
     'Existente Eingabedatei ermittelt.
-    
-    StatusScreen = Application.ScreenUpdating
-    Application.ScreenUpdating = False
-    
     DebugEcho "CimpTrassenkoo.Import(): Starte Import der Datei: '" & NameEingabeDatei & "'."
     Erfolg = LeseDatei(NameEingabeDatei)
-    
-    Application.ScreenUpdating = StatusScreen
-    
   Else
     'Programmfehler, da der Dateiname bereits von CdatExpim ermittelt wird.
     ErrEcho "CimpTrassenkoo.Import(): Öffnen der folgenden Datei fehlgeschlagen: '" & NameEingabeDatei & "'."
@@ -419,7 +412,6 @@ Sub Import()
   Exit Sub
   
 Fehler:
-  Application.ScreenUpdating = StatusScreen
   FehlerNachricht "CimpTrassenkoo.Import()"
 End Sub
 

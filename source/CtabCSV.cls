@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2009-2014  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2009-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -1165,23 +1165,17 @@ Sub Import()
   
   Dim NameEingabeDatei  As String
   Dim Anzahl            As Integer
-  Dim StatusScreen      As Boolean
   
   NameEingabeDatei = Me.Quelle_AsciiDatei_Name
   
   If ((NameEingabeDatei <> "") AND (Me.Fehlerniveau = Fehlerniveau_Kein)) Then
     'Eingabedatei gesetzt und erfolgreich syncronisiert.
     
-    StatusScreen = Application.ScreenUpdating
-    Application.ScreenUpdating = False
-    
     'Falls nicht (mehr) sichergestellt ist, dass der Dateiname unmittelbar vor Aufruf des Imports
     'gesetzt wird, muss die Datei hier erneut syncronisiert werden.
     'Me.Syncronisieren
     
     Anzahl = LeseDatei()
-    
-    Application.ScreenUpdating = StatusScreen
     
   Else
     'Programmfehler, da der Dateiname bereits von CdatExpim gesetzt wird.

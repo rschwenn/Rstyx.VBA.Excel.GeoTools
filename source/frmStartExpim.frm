@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -322,7 +322,7 @@ End Sub
 
 Private Sub tbQuelle_AsciiDatei_Change()
   'MsgBox "tbQuelle_AsciiDatei_Change"
-  If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
+  If (ThisWorkbook.SysTools.IsDatei(Me.tbQuelle_AsciiDatei.value)) Then
     'If (Me.tbQuelle_AsciiDatei.value = Me.tbZiel_AsciiDatei.value) Then
     '  oExpimGlobal.Quelle_AsciiDatei_Name = ""
     '  Me.tbQuelle_AsciiDatei.ForeColor = &H80FF&
@@ -394,7 +394,7 @@ End Sub
   'If (Verzeichnis = "") Then Verzeichnis = "NichtVorhanden"
   'NameMitExt = NameExt(Me.tbZiel_AsciiDatei.value, "mitext")
   '
-  'If (ThisWorkbook.SysTools.isDatei(Me.tbZiel_AsciiDatei.value)) Then
+  'If (ThisWorkbook.SysTools.IsDatei(Me.tbZiel_AsciiDatei.value)) Then
   '  'Datei ist vorhanden.
   '  'If (Me.tbQuelle_AsciiDatei.value = Me.tbZiel_AsciiDatei.value) Then
   '  '  oExpimGlobal.Ziel_AsciiDatei_Name = ""
@@ -421,7 +421,7 @@ End Sub
   '    'End If
   '  'End If
   '
-  'ElseIf (ThisWorkbook.SysTools.isVerzeichnis(Verzeichnis) And (Not ThisWorkbook.SysTools.isVerzeichnis(Me.tbZiel_AsciiDatei.value))) Then
+  'ElseIf (ThisWorkbook.SysTools.IsVerzeichnis(Verzeichnis) And (Not ThisWorkbook.SysTools.IsVerzeichnis(Me.tbZiel_AsciiDatei.value))) Then
   '  'Neue Datei.
   '  '(Datei ist nicht vorhanden, aber angegeben. Das Verzeichnis existiert.)
   '  If (VorName(Me.tbZiel_AsciiDatei.value) = "") Then
@@ -625,7 +625,7 @@ Private Sub Changed_Quelle_Typ()
         Me.LstQuelle_Formate.Enabled = True
         Me.LstQuelle_Formate.BackColor = save_Backcolor_Lst
         Me.btnQuelle_AsciiDatei.Enabled = True
-        If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
+        If (ThisWorkbook.SysTools.IsDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
         Me.tbQuelle_AsciiDatei.Enabled = True
         Me.tbQuelle_AsciiDatei.BackColor = save_Backcolor_TB
         
@@ -644,7 +644,7 @@ Private Sub Changed_Quelle_Typ()
         Me.LstQuelle_Formate.BackColor = save_Backcolor_Lst
         
         Me.btnQuelle_AsciiDatei.Enabled = True
-        If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
+        If (ThisWorkbook.SysTools.IsDatei(Me.tbQuelle_AsciiDatei.value)) Then Me.btnQuelle_AsciiDateiEdit.Enabled = True
         Me.tbQuelle_AsciiDatei.Enabled = True
         Me.tbQuelle_AsciiDatei.BackColor = save_Backcolor_TB
         
@@ -1083,7 +1083,7 @@ Private Function isGueltig_Quelldatei() As Boolean
         
     Case io_Typ_CsvSpezial, io_Typ_AsciiFormatiert, io_Typ_AsciiSpezial
         
-        If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Quelle_AsciiDatei_Name)) Then
+        If (ThisWorkbook.SysTools.IsDatei(oExpimGlobal.Quelle_AsciiDatei_Name)) Then
           blnGueltig = True
         Else
           blnGueltig = False
@@ -1123,7 +1123,7 @@ Private Function isGueltig_ZielFormat() As Boolean
   Select Case oExpimGlobal.Ziel_Typ
     
     Case io_Typ_XlTabNeu, io_Typ_AsciiFormatiert
-        If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Ziel_FormatID)) Then blnGueltig = True
+        If (ThisWorkbook.SysTools.IsDatei(oExpimGlobal.Ziel_FormatID)) Then blnGueltig = True
         
     Case io_Typ_AsciiSpezial
         If (Not IsNull(Me.LstZiel_Formate.value)) Then blnGueltig = True
@@ -1149,7 +1149,7 @@ Private Function isGueltig_Zieldatei() As Boolean
     
     Case io_Typ_AsciiFormatiert, io_Typ_AsciiSpezial
         
-        'If (ThisWorkbook.SysTools.isDatei(oExpimGlobal.Ziel_AsciiDatei_Name)) Then
+        'If (ThisWorkbook.SysTools.IsDatei(oExpimGlobal.Ziel_AsciiDatei_Name)) Then
         If (oExpimGlobal.Ziel_AsciiDatei_Name <> "") Then
           'Echte Prüfung hat bereits "tbZiel_AsciiDatei_Change" übernommen.
           blnGueltig = True
@@ -1183,7 +1183,7 @@ Private Function GetQuellDateinameAusDialog() As String
   DateiPfadName = Application.GetOpenFileName(oExpimGlobal.Quelle_AsciiDatei_DialogFilter, , "Quelldatei wählen:")
   If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName("", , "Quelldatei wählen:")
   
-  If (ThisWorkbook.SysTools.isDatei(DateiPfadName)) Then
+  If (ThisWorkbook.SysTools.IsDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Eingabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
     Call SetArbeitsverzeichnis(Verz(DateiPfadName))
   Else
@@ -1217,7 +1217,7 @@ Private Function GetZielDateinameAusDialog() As String
   DateiPfadName = Application.GetSaveAsFilename(NameExt(oExpimGlobal.Ziel_AsciiDatei_Name, "mitext"), oExpimGlobal.Ziel_AsciiDatei_DialogFilter, , "Zieldatei wählen:")
   If (Err.Number <> 0) Then DateiPfadName = Application.GetOpenFileName(, "", , "Zieldatei wählen:")
   
-  If (ThisWorkbook.SysTools.isDatei(DateiPfadName)) Then
+  If (ThisWorkbook.SysTools.IsDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Ausgabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
     Verzeichnis = Verz(DateiPfadName)
     ChDrive Verzeichnis
@@ -1390,10 +1390,6 @@ Private Sub GetFormatliste_XlVorlagen()
   On Error GoTo Fehler
   
   'Deklarationen
-    Dim StatusScreen              As Boolean
-    Dim StatusEvents              As Boolean
-    Dim StatusAutoSec             As Variant
-    Dim StatusCalc                As Boolean
     Dim RecentXLT_ok              As Boolean
     Dim DatumIdentisch            As Boolean
     Dim XltInfo_OK                As Boolean
@@ -1437,15 +1433,6 @@ Private Sub GetFormatliste_XlVorlagen()
     Const idxAltStartupPath     As Long = 2
     Const idxStartupPath        As Long = 3
     
-    StatusScreen  = Application.ScreenUpdating
-    StatusEvents  = Application.EnableEvents
-    StatusAutoSec = Application.AutomationSecurity
-    'Wenn Ereignisse ausgeschaltet werden, läuft diese Routine mindestens doppelt so schnell,
-    'aber Symbolleisten der temporär geöffneten Dateien bleiben als Leichen zurück.
-    Application.EnableEvents = False
-    Application.ScreenUpdating = False
-    Application.AutomationSecurity = msoAutomationSecurityForceDisable
-    
     On Error Resume Next
     Computername = ThisWorkbook.SysTools.Computername
     Username = ThisWorkbook.SysTools.Username
@@ -1468,7 +1455,7 @@ Private Sub GetFormatliste_XlVorlagen()
     
     PfadNameXltCache = oFS.GetSpecialFolder(TempOrdner).Path & "\" & NameXltCache
     
-    If (Not ThisWorkbook.SysTools.isDatei(PfadNameXltCache)) Then
+    If (Not ThisWorkbook.SysTools.IsDatei(PfadNameXltCache)) Then
       DebugEcho vbNewLine & "Cache existiert nicht: '" & PfadNameXltCache & "'"
     Else
       DebugEcho vbNewLine & "Cache lesen: '" & PfadNameXltCache & "'"
@@ -1547,7 +1534,9 @@ Private Sub GetFormatliste_XlVorlagen()
         If (oXlApp2 Is Nothing) Then
           Set oXlApp2 = New Excel.Application
           oXlApp2.EnableEvents = False
+          oXlApp2.AutomationSecurity = msoAutomationSecurityForceDisable
           'oXlApp2.Visible = False  (ist von vornherein unsichtbar)
+          'oXlApp2.ScreenUpdating = False (ohnehin unsichtbar)
         End If
         On Error Resume Next
         ErrMessage = "Fehler beim Erkunden einer Vorlage"
@@ -1629,21 +1618,13 @@ Private Sub GetFormatliste_XlVorlagen()
     Set oTS_XltCache = Nothing
     Set oXlApp2 = Nothing
     Call ClearStatusBarDelayed(StatusBarClearDelay)
-    Application.EnableEvents = StatusEvents
-    Application.ScreenUpdating = StatusScreen
-    Application.AutomationSecurity = StatusAutoSec
-    'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
     DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen vollständig."
     Exit Sub
 
-Fehler:
+  Fehler:
   Set oFS = Nothing
   Set oTS_XltCache = Nothing
   Application.StatusBar = ""
-  Application.EnableEvents = StatusEvents
-  Application.ScreenUpdating = StatusScreen
-  Application.AutomationSecurity = StatusAutoSec
-  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.GetFormatliste_XlVorlagen()"
 End Sub
 
@@ -1700,7 +1681,7 @@ Private Function GetKategorien(Optional oTab As Worksheet = Nothing) As String
   GetKategorien = Liste
   Exit Function
   
-Fehler:
+  Fehler:
   GetKategorien = ""
   Set DictTmp   = Nothing
   Set oZellname = Nothing
@@ -1745,7 +1726,7 @@ Private Function GetKlassennamen(Prefix As String) As String
   
   Exit Function
   
-Fehler:
+  Fehler:
   FehlerNachricht "frmStartExpim.GetKlassennamen()"
 End Function
 
@@ -1757,9 +1738,6 @@ Private Sub Changed_CsvDateiname()
   
   On Error GoTo Fehler
   
-  Dim StatusScreen                   As Boolean
-  Dim StatusEvents                   As Boolean
-  Dim StatusCalc                     As Boolean
   Dim oCsvSpezial                    As CtabCSV
   Dim AnzSpalten                     As Long
   Dim optDatenModifizieren           As Variant
@@ -1768,11 +1746,6 @@ Private Sub Changed_CsvDateiname()
   
   DebugEcho "frmStartExpim.Changed_CsvDateiname(): Start."
   
-  StatusScreen = Application.ScreenUpdating
-  StatusEvents = Application.EnableEvents
-  Application.EnableEvents = False
-  Application.ScreenUpdating = False
-  
   'Liste der in der CSV-Datei gefundenen Spaltennamen löschen
   Me.LstQuelle_Formate.Clear
   
@@ -1780,7 +1753,7 @@ Private Sub Changed_CsvDateiname()
   Call SetzeStandardDatenEinstellungen
   
   
-  If (ThisWorkbook.SysTools.isDatei(Me.tbQuelle_AsciiDatei.value)) Then
+  If (ThisWorkbook.SysTools.IsDatei(Me.tbQuelle_AsciiDatei.value)) Then
     'CSV-Datei existiert => 'rein sehen!
     Set oCsvSpezial = New CtabCSV
     
@@ -1904,21 +1877,12 @@ Private Sub Changed_CsvDateiname()
   End If
   
   Call Changed_Ziel_Typ
-  
-  
-  'Nachbereitung
-    'call ClearStatusBarDelayed(StatusBarClearDelay)
-    Application.EnableEvents = StatusEvents
-    Application.ScreenUpdating = StatusScreen
     
   DebugEcho "frmStartExpim.Changed_CsvDateiname(): Ende."
-  Exit Sub
   
-Fehler:
+  Exit Sub
+  Fehler:
   Set oCsvSpezial = Nothing
-  Application.EnableEvents = StatusEvents
-  Application.ScreenUpdating = StatusScreen
-  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   FehlerNachricht "frmStartExpim.Changed_CsvDateiname()"
 End Sub
 
@@ -1930,20 +1894,11 @@ Private Sub GetFormatliste_SpezialImport()
   
   On Error GoTo Fehler
   
-  Dim StatusScreen              As Boolean
-  Dim StatusEvents              As Boolean
-  Dim StatusCalc                As Boolean
   Dim KlassenName()             As String
   Dim Formatliste               As String
   Dim NF                        As Long
   Dim i                         As Long
   Dim oAsciiSpezial             As Object
-  
-  
-  StatusScreen = Application.ScreenUpdating
-  StatusEvents = Application.EnableEvents
-  Application.EnableEvents = False
-  Application.ScreenUpdating = False
   
   Formatliste = GetKlassennamen(io_Klasse_PrefixImport)
   NF = SplitDelim(Formatliste, KlassenName, ";")
@@ -1969,15 +1924,8 @@ Private Sub GetFormatliste_SpezialImport()
     Next
   End If
   
-  Application.EnableEvents = StatusEvents
-  Application.ScreenUpdating = StatusScreen
-  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
   Exit Sub
-
-Fehler:
-  Application.EnableEvents = StatusEvents
-  Application.ScreenUpdating = StatusScreen
-  'If (Not ActiveSheet Is Nothing) Then ActiveSheet.EnableCalculation = StatusCalc
+  Fehler:
   FehlerNachricht "frmStartExpim.GetFormatliste_SpezialImport()"
 End Sub
 
@@ -2020,7 +1968,7 @@ Private Sub GetFormatliste_Spaltennamen_XlTabAktiv()
   
   Exit Sub
 
-Fehler:
+  Fehler:
   Set oSpNameAttr = Nothing
   FehlerNachricht "frmStartExpim.GetFormatliste_Spaltennamen_XlTabAktiv()"
 End Sub
@@ -2066,7 +2014,7 @@ Private Sub GetFormatliste_Spaltennamen_CsvSpezial(oCSV As CtabCSV)
   
   Exit Sub
 
-Fehler:
+  Fehler:
   Set oSpNameAttr = Nothing
   FehlerNachricht "frmStartExpim.GetFormatliste_Spaltennamen_CsvSpezial()"
 End Sub
@@ -2152,7 +2100,7 @@ Private Function FilternFormatliste(FormatlisteKomplett As Variant, FormatlisteG
   
   Exit Function
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatExpim.FilternFormatliste()"
 End Function
 
@@ -2232,7 +2180,7 @@ Private Sub GetZielFormatliste(Liste_komplett As Variant, FormatLetzteWahl As St
   
   Exit Sub
   
-Fehler:
+  Fehler:
   Me.LstZiel_Formate.Clear
   Err.Clear
   'FehlerNachricht "frmStartExpim.GetZielFormatliste()"
@@ -2293,7 +2241,7 @@ Private Sub GetQuellFormatliste(Liste_komplett As Variant, FormatLetzteWahl As S
   
   Exit Sub
   
-Fehler:
+  Fehler:
   Me.LstQuelle_Formate.Clear
   Err.Clear
   'FehlerNachricht "frmStartExpim.GetQuellFormatliste()"

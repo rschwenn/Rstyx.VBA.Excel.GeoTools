@@ -765,17 +765,10 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
     On Error GoTo Fehler
     
     Dim FeldGefunden  As Boolean
-    Dim StatusScreen  As Boolean
-    Dim StatusCalc    As Boolean
     Dim Tx_FussLi     As String
     Dim Tx_FussMi     As String
     Dim Tx_FussRe     As String
     Dim Fundstellen   As Object
-    
-    'StatusScreen = oZielTabelle.Application.ScreenUpdating
-    'StatusCalc = oZielTabelle.EnableCalculation
-    'oZielTabelle.Application.ScreenUpdating = False
-    'oZielTabelle.EnableCalculation = False
     
     'FeldGefunden = SchreibenFelderInTabelle(oDictPrjDat)
     
@@ -812,13 +805,9 @@ Public Sub SchreibeFusszeile_1(Optional Silent As Boolean = False)
         End With
         oZielTabelle.Application.StatusBar = "Fuﬂzeile eingerichtet."
     End If
-    'oZielTabelle.Application.ScreenUpdating = StatusScreen
-    'oZielTabelle.EnableCalculation = StatusCalc
-    Exit Sub
     
+    Exit Sub
     Fehler:
-    'oZielTabelle.Application.ScreenUpdating = StatusScreen
-    'oZielTabelle.EnableCalculation = StatusCalc
     If (Silent or Me.Silent) Then
         ErrMessage = ""
         Err.Clear

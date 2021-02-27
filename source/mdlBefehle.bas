@@ -93,13 +93,17 @@ Sub Mod_FehlerVerbesserung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_FehlerVerbesserung
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Mod_FehlerVerbesserung()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 
@@ -108,13 +112,17 @@ Sub Mod_UeberhoehungAusBemerkung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_UeberhoehungAusBemerkung
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 
@@ -123,13 +131,17 @@ Sub Mod_iTrassenCodeAusBemerkung()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_iTrassenCodeAusBemerkung
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Mod_iTrassenCodeAusBemerkung()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 
@@ -138,13 +150,17 @@ Sub Mod_Transfo_Tk2Gls()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Tk2Gls
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Mod_Transfo_Tk2Gls()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 
@@ -153,13 +169,17 @@ Sub Mod_Transfo_Gls2Tk()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Mod_Transfo_Gls2Tk
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Mod_Transfo_Gls2Tk()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 

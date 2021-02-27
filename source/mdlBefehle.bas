@@ -200,13 +200,17 @@ Sub Selection2Interpolationsformel()
   'Aufgrund der aktuellen Zellauswahl wird eine Interpolationsformel erstellt.
   On Error GoTo Fehler
   Dim success As Boolean
+  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
   ThisWorkbook.AktiveTabelle.Selection2Interpolationsformel
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
+  Application.ScreenUpdating = True
+  
   Exit Sub
   Fehler:
   FehlerNachricht "mdlBefehle.Selection2Interpolationsformel()"
+  Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub
 

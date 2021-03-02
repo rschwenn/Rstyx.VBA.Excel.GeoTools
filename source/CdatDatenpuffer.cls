@@ -510,8 +510,10 @@ End Sub
 
 
 Sub Mod_Transfo_Tk2Gls()
+  '--------------------------------------------------------------------------------------------------------'
   'Manipulation am Datenpuffer: Berechnen von Koordinaten im gedrehten Gleissystem
   '(Zwangspunkt-Reduktion) ==> Berechnung erfolgt für alle WerteStati.
+  '--------------------------------------------------------------------------------------------------------'
   
   On Error GoTo Fehler
   
@@ -671,22 +673,27 @@ Sub Mod_Transfo_Gls2Tk()
   Dim lb                   As Long
   Dim ub                   As Long
   Dim i                    As Long
+  Dim AnzTransfo           As Long
   Dim Abst()               As String
   Dim dH()                 As String
   Dim Radius               As Variant
   Dim AbstRed              As Variant
   Dim dHRed                As Variant
   Dim u                    As Variant
+  Dim ua                   As Variant
   Dim SpN_Abst             As String
   Dim SpN_dH               As String
   Dim SpN_AbstRed          As String
   Dim SpN_dHRed            As String
   Dim WertStatus           As Variant
   Dim Prefix               As String
-  Dim keineFormelnInRadius As Boolean
-  Dim keineFormelnInUeb    As Boolean
-  Dim keineFormelnInQG     As Boolean
-  Dim keineFormelnInHG     As Boolean
+  Dim ValueExists_R_u      As Boolean
+  
+  Dim SpExists_Soll_ua     As Boolean
+  Dim SpExists_Soll_R_u    As Boolean
+  Dim SpExists_Ist_ua      As Boolean
+  Dim SpExists_Ist_R_u     As Boolean
+  Dim SpExists_success     As Boolean
   
   Echo vbnewline & "Koordinatentransfo' Gleis => Trasse."
   Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
@@ -694,35 +701,107 @@ Sub Mod_Transfo_Gls2Tk()
   Application.StatusBar = "Transformation von Koo' des gedrehten Gleissystems in normale Trassenkoo'."
   ErrMessage = "Fehler bei Transformation vom Gleis- ins Trassensystem"
   
-  If ((oDaten.Exists(SpN_S_Tra_Radius)) And (oDaten.Exists(SpN_S_Tra_u))) Then
+  ' Vorhandene Spalten bestimmen.
+  If (oDaten.Exists(SpN_S_Tra_ua)) Then
+    SpExists_Soll_ua   = True
+  ElseIf (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
+    SpExists_Soll_R_u = True
+  ElseIf (oDaten.Exists(SpN_Tra_ua)) Then
+    SpExists_Ist_ua    = True
+  ElseIf (oDaten.Exists(SpN_Tra_Radius) And oDaten.Exists(SpN_Tra_u)) Then
+    SpExists_Ist_R_u     = True
+  End If
+  SpExists_success = (SpExists_Soll_ua Or SpExists_Soll_R_u Or SpExists_Ist_ua Or SpExists_Ist_R_u)
+  
+  If (Not SpExists_success) Then
+    Echo "  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (R+u oder ua / Soll oder Ist)."
+  Else
     For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
-      Prefix = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
-      SpN_Abst = Prefix & SpN_TK_Q
-      SpN_dH = Prefix & SpN_TK_HSOK
+      
+      Prefix      = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
+      SpN_Abst    = Prefix & SpN_TK_Q
+      SpN_dH      = Prefix & SpN_TK_HSOK
       SpN_AbstRed = Prefix & SpN_TK_QG
-      SpN_dHRed = Prefix & SpN_TK_HG
-      If (oDaten.Exists(SpN_AbstRed) And (oDaten.Exists(SpN_dHRed))) Then
+      SpN_dHRed   = Prefix & SpN_TK_HG
+      AnzTransfo  = 0
+      
+      If (Not (oDaten.Exists(SpN_AbstRed) And oDaten.Exists(SpN_dHRed))) Then
+        DebugEcho "  Wertstatus '" & WertStatus & "':  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (QG + HG / Soll oder Ist)."
+      Else
+        Echo "  Transformation wird durchgeführt für Wertstatus '" & WertStatus & "'."
         lb = LBound(oDaten(SpN_AbstRed), 1)
         ub = UBound(oDaten(SpN_AbstRed), 1)
         ReDim Abst(lb To ub)
         ReDim dH(lb To ub)
         
-        keineFormelnInRadius = (CountDim(oDaten(SpN_S_Tra_Radius)) = 1)
-        keineFormelnInUeb    = (CountDim(oDaten(SpN_S_Tra_u)) = 1)
-        keineFormelnInQG     = (CountDim(oDaten(SpN_AbstRed)) = 1)
-        keineFormelnInHG     = (CountDim(oDaten(SpN_dHRed)) = 1)
-        
         For i = lb To ub
-          If keineFormelnInRadius Then Radius = oDaten(SpN_S_Tra_Radius)(i) Else Radius = oDaten(SpN_S_Tra_Radius)(i, DPidxWert)
-          If keineFormelnInUeb    Then u = oDaten(SpN_S_Tra_u)(i) Else u = oDaten(SpN_S_Tra_u)(i, DPidxWert)
-          If keineFormelnInQG     Then AbstRed = oDaten(SpN_AbstRed)(i) Else AbstRed = oDaten(SpN_AbstRed)(i, DPidxWert)
-          If keineFormelnInHG     Then dHRed = oDaten(SpN_dHRed)(i) Else dHRed = oDaten(SpN_dHRed)(i, DPidxWert)
-          If (IsNumeric(Radius) And IsNumeric(AbstRed) And IsNumeric(dHRed) And IsNumeric(u)) Then
-            Call Transfo_Gls2Tk(Radius, u, Me.TkBasisUeberhoehung, AbstRed, dHRed, Abst(i), dH(i))
+          ' Zu transformierende Werte bestimmen.
+          If (CountDim(oDaten(SpN_AbstRed)) = 1) Then AbstRed = oDaten(SpN_AbstRed)(i) Else AbstRed = oDaten(SpN_AbstRed)(i, DPidxWert)
+          If (CountDim(oDaten(SpN_dHRed))   = 1) Then dHRed   = oDaten(SpN_dHRed)(i)   Else dHRed   = oDaten(SpN_dHRed)(i, DPidxWert)
+          
+          If (IsNumeric(AbstRed) And IsNumeric(dHRed)) Then
+            
+            ' Trassenparameter bestimmen.
+            ValueExists_R_u = False
+            Radius          = Empty
+            u               = Empty
+            
+            ' 1. Versuch: Soll absolute Überhöhung.
+            If (SpExists_Soll_ua) Then
+              If (CountDim(oDaten(SpN_S_Tra_ua)) = 1) Then ua = oDaten(SpN_S_Tra_ua)(i)  Else ua = oDaten(SpN_S_Tra_ua)(i, DPidxWert)
+              If (IsNumeric(ua)) Then
+                Radius = Sgn(ua) * 99
+                u      = Abs(ua)
+                ValueExists_R_u = True
+              End If
+            End If
+            
+            ' 2. Versuch: Soll Radius und relative Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Soll_R_u) Then
+                If (CountDim(oDaten(SpN_S_Tra_Radius)) = 1) Then Radius = oDaten(SpN_S_Tra_Radius)(i) Else Radius = oDaten(SpN_S_Tra_Radius)(i, DPidxWert)
+                If (CountDim(oDaten(SpN_S_Tra_u))      = 1) Then u      = oDaten(SpN_S_Tra_u)(i)      Else u      = oDaten(SpN_S_Tra_u)(i, DPidxWert)
+                If (IsNumeric(Radius) And IsNumeric(u)) Then
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' 3. Versuch: Ist absolute Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Ist_ua) Then
+                If (CountDim(oDaten(SpN_Tra_ua)) = 1) Then ua = oDaten(SpN_Tra_ua)(i)  Else ua = oDaten(SpN_Tra_ua)(i, DPidxWert)
+                If (IsNumeric(ua)) Then
+                  Radius = Sgn(ua) * 99
+                  u      = Abs(ua)
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' 4. Versuch: Ist Radius und relative Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Ist_R_u) Then
+                If (CountDim(oDaten(SpN_Tra_Radius)) = 1) Then Radius = oDaten(SpN_Tra_Radius)(i) Else Radius = oDaten(SpN_Tra_Radius)(i, DPidxWert)
+                If (CountDim(oDaten(SpN_Tra_u))      = 1) Then u      = oDaten(SpN_Tra_u)(i)      Else u      = oDaten(SpN_Tra_u)(i, DPidxWert)
+                If (IsNumeric(Radius) And IsNumeric(u)) Then
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' Transformation ausführen.
+            If (ValueExists_R_u) Then
+              Call Transfo_Gls2Tk(Radius, u, Me.TkBasisUeberhoehung, AbstRed, dHRed, Abst(i), dH(i))
+              AnzTransfo = AnzTransfo + 1
+            End If
           End If
         Next
+        
         Call Vektor2Datenuffer(Abst, SpN_Abst, Me.Opt_VorhWerteUeberschreiben)
-        Call Vektor2Datenuffer(dH, SpN_dH, Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(dH  , SpN_dH  , Me.Opt_VorhWerteUeberschreiben)
+        
+        Echo "    => " & cstr(AnzTransfo) & " von " & cstr(ub-lb+1) & " Punkte erfolgreich transformiert."
       End If
     Next
   End If

@@ -38,7 +38,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'  .03.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
+'02.03.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
 '                   - Neue Winkeleinheiten: Prozent, Promille, Parts per million
 '                   - CimpTrassenkoo: - A0: Unterstützung für alle restlichen A0-Datenfelder
 '                     - A0, A1: Text und Kommentar werden getrennt übergeben (nicht mehr verkettet)

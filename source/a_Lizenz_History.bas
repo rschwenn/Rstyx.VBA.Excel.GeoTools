@@ -38,12 +38,22 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'  .02.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
+'  .03.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
 '                   - Neue Winkeleinheiten: Prozent, Promille, Parts per million
 '                   - CimpTrassenkoo: - A0: Unterstützung für alle restlichen A0-Datenfelder
 '                     - A0, A1: Text und Kommentar werden getrennt übergeben (nicht mehr verkettet)
 '                     - Standard-Zieltabelle ist jetzt "tabTK_iGeo".
-'                   - CdatDatenpuffer u.a.: Neue Modifikation Mod_iTrassenCodeAusBemerkung()
+'                   - Ereignissteuerung an unnötigen Stellen entfernt (ScreenUpdating, EnableCalculation).
+'                   - Bildschirmaktualisierung deaktiviert vor SetRequiredSeparators()
+'                     bei Benutzeraktionen ohne Dialog
+'                   - CdatDatenpuffer: 
+'                     - Unterstützung für iTrassen-Codierung:  Mod_iTrassenCodeAusBemerkung()
+'                     - Transfo' Trassenkoo' <=> Gleissystem arbeitet jetzt mit mehreren
+'                       möglichen Sätzen gegebener Werte in dieser Reihenfolge:
+'                       1. Soll: Absolute Überhöhung (S.Tra.ua)
+'                       2. Soll: Radius und relative Überhöhung (S.Tra.Radius, S.Tra.u)
+'                       3. Ist : Absolute Überhöhung (Tra.ua)
+'                       4. Ist : Radius und relative Überhöhung (Tra.Radius, Tra.u)
 '12.02.2021 v3.1.2  - CdatKonfig: - Eigenschaft "KonfigDateiGelesen" umbenannt in "KonfigVerfuegbar"
 '                                   (signalisiert den Erfolg).
 '                                 - neue Eigenschaft "KonfigInitFertig"

@@ -32,7 +32,7 @@ Attribute VB_Exposed = False
 '                   - Die Eingabedatei darf mehrere Ausgaben (auch verschiedener Formate) enthalten.
 '                     Die dazugehörigen Kommentarblöcke müssen komplett erhalten sein!
 ' 
-'      - iGeo:      - Programmversion: Trassenbibliothek V227
+'      - iGeo:      - Programmversion: Trassenbibliothek V241
 '                   - Ausgabeformate A0 und A1
 '==================================================================================================
 

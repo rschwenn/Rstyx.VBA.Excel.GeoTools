@@ -59,6 +59,12 @@ Attribute VB_Exposed = False
  '            - Ist-Überhöhung aus Bemerkung: Schalter für "streng" (u=xxx) eingeführt
  '08.11.2008  - Beschreiben der Ersatzspalte erfgolgt jetzt zellenorientiert, falls nötig.
  '27.02.2021  - Neue Modifikation Mod_iTrassenCodeAusBemerkung()
+ '02.03.2021  - Transfo' Trassenkoo' <=> Gleissystem arbeitet jetzt mit mehreren
+ '              möglichen Sätzen gegebener Werte in dieser Reihenfolge:
+ '              1. Soll: Absolute Überhöhung (S.Tra.ua)
+ '              2. Soll: Radius und relative Überhöhung (S.Tra.Radius, S.Tra.u)
+ '              3. Ist : Absolute Überhöhung (Tra.ua)
+ '              4. Ist : Radius und relative Überhöhung (Tra.Radius, Tra.u)
 '====================================================================================
 
 
@@ -120,7 +126,7 @@ Private Sub Class_Initialize()
   DebugEcho "CdatDatenpuffer\Class_Initialize() beendet."
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Initialize()"
   Set oDaten = Nothing
   Set oSpaltenIst = Nothing
@@ -266,7 +272,7 @@ Public Sub SetzeStandardEinstellungen()
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.SetzeStandardEinstellungen()"
 End Sub
 
@@ -285,7 +291,7 @@ Public Sub Daten_Bearbeiten()
 
   Exit Sub
 
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_Bearbeiten()"
 End Sub
 
@@ -338,7 +344,7 @@ Public Sub Daten_SchreibenErsatzSpalte(byVal QuellSpalte as String)
   Set oSpNameAttr = Nothing
   Exit Sub
   
-Fehler:
+  Fehler:
   Set oSpNameAttr = Nothing
   FehlerNachricht "CdatDatenpuffer.Daten_SchreibenErsatzSpalte()"
 End Sub
@@ -351,7 +357,7 @@ Sub Daten_AddSpalte(ByVal SpName As String, Vektor)
   'SpaltenInfo aktualisieren.
   Call Daten_GetSpaltenInfo
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_AddSpalte()"
 End Sub
 
@@ -363,7 +369,7 @@ Sub Daten_LoeschenSpalte(ByVal SpName As String, Vektor)
   'SpaltenInfo aktualisieren.
   Call Daten_GetSpaltenInfo
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_LoeschenSpalte()"
 End Sub
 
@@ -375,7 +381,7 @@ Public Sub Daten_LoeschenAlleSpalten()
   'SpaltenInfo aktualisieren.
   Call Daten_GetSpaltenInfo
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_LoeschenAlleSpalten()"
 End Sub
 
@@ -498,7 +504,7 @@ Sub Mod_FehlerVerbesserung()
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_FehlerVerbesserung()"
 End Sub
 
@@ -512,18 +518,27 @@ Sub Mod_Transfo_Tk2Gls()
   Dim lb                   As Long
   Dim ub                   As Long
   Dim i                    As Long
+  Dim AnzTransfo           As Long
   Dim AbstRed()            As String
   Dim dHRed()              As String
   Dim Radius               As Variant
   Dim Abst                 As Variant
   Dim dH                   As Variant
   Dim u                    As Variant
+  Dim ua                   As Variant
   Dim SpN_Abst             As String
   Dim SpN_dH               As String
   Dim SpN_AbstRed          As String
   Dim SpN_dHRed            As String
   Dim WertStatus           As Variant
   Dim Prefix               As String
+  Dim ValueExists_R_u      As Boolean
+  
+  Dim SpExists_Soll_ua     As Boolean
+  Dim SpExists_Soll_R_u    As Boolean
+  Dim SpExists_Ist_ua      As Boolean
+  Dim SpExists_Ist_R_u     As Boolean
+  Dim SpExists_success     As Boolean
   
   Echo vbnewline & "Koordinatentransfo' Trasse => Gleis."
   Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
@@ -531,39 +546,116 @@ Sub Mod_Transfo_Tk2Gls()
   Application.StatusBar = "Transformation von Trassenkoo' ins gedrehte Gleissystem (Zwangspunkt-Reduktion)."
   ErrMessage = "Fehler bei Transformation vom Trassen- ins Gleissystem"
   
-  If (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
+  ' Vorhandene Spalten bestimmen.
+  If (oDaten.Exists(SpN_S_Tra_ua)) Then
+    SpExists_Soll_ua  = True
+  ElseIf (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
+    SpExists_Soll_R_u = True
+  ElseIf (oDaten.Exists(SpN_Tra_ua)) Then
+    SpExists_Ist_ua   = True
+  ElseIf (oDaten.Exists(SpN_Tra_Radius) And oDaten.Exists(SpN_Tra_u)) Then
+    SpExists_Ist_R_u  = True
+  End If
+  SpExists_success = (SpExists_Soll_ua Or SpExists_Soll_R_u Or SpExists_Ist_ua Or SpExists_Ist_R_u)
+  
+  If (Not SpExists_success) Then
+    Echo "  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (R+u oder ua / Soll oder Ist)."
+  Else
     For Each WertStatus In ThisWorkbook.Konfig.StatusPrefix.Keys
-      Prefix = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
-      SpN_Abst = Prefix & SpN_TK_Q
-      SpN_dH = Prefix & SpN_TK_HSOK
+      
+      Prefix      = ThisWorkbook.Konfig.StatusPrefix(WertStatus)
+      SpN_Abst    = Prefix & SpN_TK_Q
+      SpN_dH      = Prefix & SpN_TK_HSOK
       SpN_AbstRed = Prefix & SpN_TK_QG
-      SpN_dHRed = Prefix & SpN_TK_HG
-      If (oDaten.Exists(SpN_Abst) And oDaten.Exists(SpN_dH)) Then
+      SpN_dHRed   = Prefix & SpN_TK_HG
+      AnzTransfo  = 0
+      
+      If (Not (oDaten.Exists(SpN_Abst) And oDaten.Exists(SpN_dH))) Then
+        DebugEcho "  Wertstatus '" & WertStatus & "':  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (Q + HSOK / Soll oder Ist)."
+      Else
+        Echo "  Transformation wird durchgeführt für Wertstatus '" & WertStatus & "'."
         lb = LBound(oDaten(SpN_Abst), 1)
         ub = UBound(oDaten(SpN_Abst), 1)
         ReDim AbstRed(lb To ub)
         ReDim dHRed(lb To ub)
+        
         For i = lb To ub
-          If (CountDim(oDaten(SpN_S_Tra_Radius)) = 1) Then Radius = oDaten(SpN_S_Tra_Radius)(i) Else Radius = oDaten(SpN_S_Tra_Radius)(i, DPidxWert)
-          If (CountDim(oDaten(SpN_S_Tra_u)) = 1) Then u = oDaten(SpN_S_Tra_u)(i) Else u = oDaten(SpN_S_Tra_u)(i, DPidxWert)
-          If (CountDim(oDaten(SpN_Abst)) = 1) Then Abst = oDaten(SpN_Abst)(i) Else Abst = oDaten(SpN_Abst)(i, DPidxWert)
-          If (CountDim(oDaten(SpN_dH)) = 1) Then dH = oDaten(SpN_dH)(i) Else dH = oDaten(SpN_dH)(i, DPidxWert)
-          If (IsNumeric(Radius) And IsNumeric(Abst) And IsNumeric(dH) And IsNumeric(u)) Then
-            Call Transfo_Tk2Gls(Radius, u, Me.TkBasisUeberhoehung, Abst, dH, AbstRed(i), dHRed(i))
+          ' Zu transformierende Werte bestimmen.
+          If (CountDim(oDaten(SpN_Abst)) = 1) Then Abst = oDaten(SpN_Abst)(i)  Else Abst = oDaten(SpN_Abst)(i, DPidxWert)
+          If (CountDim(oDaten(SpN_dH))   = 1) Then dH   = oDaten(SpN_dH)(i)    Else dH   = oDaten(SpN_dH)(i, DPidxWert)
+          
+          If (IsNumeric(Abst) And IsNumeric(dH)) Then
+            
+            ' Trassenparameter bestimmen.
+            ValueExists_R_u = False
+            Radius          = Empty
+            u               = Empty
+            
+            ' 1. Versuch: Soll absolute Überhöhung.
+            If (SpExists_Soll_ua) Then
+              If (CountDim(oDaten(SpN_S_Tra_ua)) = 1) Then ua = oDaten(SpN_S_Tra_ua)(i)  Else ua = oDaten(SpN_S_Tra_ua)(i, DPidxWert)
+              If (IsNumeric(ua)) Then
+                Radius = Sgn(ua) * 99
+                u      = Abs(ua)
+                ValueExists_R_u = True
+              End If
+            End If
+            
+            ' 2. Versuch: Soll Radius und relative Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Soll_R_u) Then
+                If (CountDim(oDaten(SpN_S_Tra_Radius)) = 1) Then Radius = oDaten(SpN_S_Tra_Radius)(i) Else Radius = oDaten(SpN_S_Tra_Radius)(i, DPidxWert)
+                If (CountDim(oDaten(SpN_S_Tra_u))      = 1) Then u      = oDaten(SpN_S_Tra_u)(i)      Else u      = oDaten(SpN_S_Tra_u)(i, DPidxWert)
+                If (IsNumeric(Radius) And IsNumeric(u)) Then
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' 3. Versuch: Ist absolute Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Ist_ua) Then
+                If (CountDim(oDaten(SpN_Tra_ua)) = 1) Then ua = oDaten(SpN_Tra_ua)(i)  Else ua = oDaten(SpN_Tra_ua)(i, DPidxWert)
+                If (IsNumeric(ua)) Then
+                  Radius = Sgn(ua) * 99
+                  u      = Abs(ua)
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' 4. Versuch: Ist Radius und relative Überhöhung.
+            If (Not ValueExists_R_u) Then
+              If (SpExists_Ist_R_u) Then
+                If (CountDim(oDaten(SpN_Tra_Radius)) = 1) Then Radius = oDaten(SpN_Tra_Radius)(i) Else Radius = oDaten(SpN_Tra_Radius)(i, DPidxWert)
+                If (CountDim(oDaten(SpN_Tra_u))      = 1) Then u      = oDaten(SpN_Tra_u)(i)      Else u      = oDaten(SpN_Tra_u)(i, DPidxWert)
+                If (IsNumeric(Radius) And IsNumeric(u)) Then
+                  ValueExists_R_u = True
+                End If
+              End If
+            End If
+            
+            ' Transformation ausführen.
+            If (ValueExists_R_u) Then
+              Call Transfo_Tk2Gls(Radius, u, Me.TkBasisUeberhoehung, Abst, dH, AbstRed(i), dHRed(i))
+              AnzTransfo = AnzTransfo + 1
+            End If
           End If
         Next
+        
         Call Vektor2Datenuffer(AbstRed, SpN_AbstRed, Me.Opt_VorhWerteUeberschreiben)
-        Call Vektor2Datenuffer(dHRed, SpN_dHRed, Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(dHRed  , SpN_dHRed  , Me.Opt_VorhWerteUeberschreiben)
+        
+        Echo "    => " & cstr(AnzTransfo) & " von " & cstr(ub-lb+1) & " Punkte erfolgreich transformiert."
       End If
     Next
+    
+    'SpaltenInfo aktualisieren.
+    Call Daten_GetSpaltenInfo
   End If
   
-  'SpaltenInfo aktualisieren.
-  Call Daten_GetSpaltenInfo
-  
   Exit Sub
-  
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_Transfo_Tk2Gls()"
 End Sub
 
@@ -639,8 +731,7 @@ Sub Mod_Transfo_Gls2Tk()
   Call Daten_GetSpaltenInfo
   
   Exit Sub
-  
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_Transfo_Gls2Tk()"
 End Sub
 
@@ -712,7 +803,7 @@ Sub Mod_UeberhoehungAusBemerkung()
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_UeberhoehungAusBemerkung()"
 End Sub
 
@@ -815,7 +906,7 @@ Sub Mod_iTrassenCodeAusBemerkung()
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Mod_iTrassenCodeAusBemerkung()"
 End Sub
 
@@ -859,7 +950,7 @@ Private Sub Daten_LoeschenLeereSpalten()
   Next
   'SpaltenInfo nicht aktualisieren, da Aufruf aus Daten_GetSpaltenInfo heraus erfolgt!
   Exit Sub
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_LoeschenLeereSpalten()"
 End Sub
 
@@ -904,7 +995,7 @@ Private Sub Daten_GetSpaltenInfo()
   Set oSpNameAttr = Nothing
   Exit Sub
   
-Fehler:
+  Fehler:
   Set oSpNameAttr = Nothing
   FehlerNachricht "CdatDatenpuffer.Daten_GetSpaltenInfo()"
 End Sub
@@ -997,7 +1088,7 @@ Private Sub Vektor2Datenuffer(Vektor, SpName As String, byVal blnUeberschreiben 
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Vektor2Datenuffer()"
 End Sub
 
@@ -1047,7 +1138,7 @@ Private Sub Formel_AendernSpaltenbezug(byVal QuellSpalte as String, byVal ZielSp
   
   Exit Sub
   
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.Formel_AendernSpaltenbezug()"
 End Sub
 
@@ -1078,7 +1169,7 @@ Private Function isSpalteLeer(Vektor) As Boolean
   Next
 
   Exit Function
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.isSpalteLeer()"
 End Function
             
@@ -1222,7 +1313,7 @@ Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
     End If
     ParseIpktTextForKindCodes = FoundITraCode
     Exit Function
-Fehler:
+  Fehler:
   FehlerNachricht "CdatDatenpuffer.ParseIpktTextForKindCodes()"
 End Function
 

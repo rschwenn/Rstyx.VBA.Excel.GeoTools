@@ -1381,6 +1381,42 @@ Private Sub ReflektiereDatenEinstellungen()
     'oExpimGlobal.Datenpuffer.Opt_Transfo_Tk2Gls
 End Sub
 
+Private Function GetXltCachePath() As String
+    ' Gibt den Pfad für den XLT-Cache mit einem existierenden Verzeichnis zurück.
+    ' - Wenn möglich: "%LOCALAPPDATA%\GeoTools\GeoTools_xltcache.txt"
+    ' - sonst:        "%Temp%\GeoTools_xltcache.txt" => wird vom System oft gelöscht.
+    Dim oFS                 As New Scripting.FileSystemObject
+    Dim CacheDir            As String
+    Dim LocalAppData        As String
+    Dim PfadNameXltCache    As String
+    
+    Const NameXltCache As String = "GeoTools_xltcache.txt"
+
+    PfadNameXltCache = "?"
+    
+    ' Versuche, "%LOCALAPPDATA%\GeoTools" zu finden bzw. anzulegen.
+    LocalAppData = Environ("LOCALAPPDATA")
+    On Error Resume Next
+    If (oFS.FolderExists(LocalAppData)) Then
+        CacheDir = oFS.GetFolder(LocalAppData).Path & "\GeoTools"
+        If (Not oFS.FolderExists(CacheDir)) Then
+            oFS.CreateFolder CacheDir
+        End If
+        If (oFS.FolderExists(CacheDir)) Then
+            PfadNameXltCache = CacheDir & "\" & NameXltCache
+        End If
+    End If
+    On Error GoTo 0
+    
+    ' Fallback: Datei im Temp-Verzeichnis.
+    If (PfadNameXltCache = "?") Then
+        PfadNameXltCache = oFS.GetSpecialFolder(TempOrdner).Path & "\" & NameXltCache
+    End If
+    
+    GetXltCachePath = PfadNameXltCache
+
+End Function
+
 
 Private Sub GetFormatliste_XlVorlagen()
   'Erzeugt eine Liste aller verfügbarer XL-Vorlagen für den Import/Export-Dialog.
@@ -1420,7 +1456,7 @@ Private Sub GetFormatliste_XlVorlagen()
     Dim oTS_XltCache              As Scripting.TextStream
     Dim oXlApp2                   As Excel.Application
   '
-  Const NameXltCache As String = "GeoTools_xltcache.txt"
+  'Const NameXltCache As String = "GeoTools_xltcache.txt"
   DebugEcho "GetFormatliste_XlVorlagen(): Liste der verfügbaren XL-Vorlagen zusammenstellen..."
   
   'Vorbereitungen
@@ -1453,7 +1489,8 @@ Private Sub GetFormatliste_XlVorlagen()
     '2. Eigenschaften der zuletzt vorhandenen Vorlagen lesen (aus persistentem Cache)
     DebugEcho "GetFormatliste_XlVorlagen(): Cache der zuletzt vorhandenen XL-Vorlagen lesen..."
     
-    PfadNameXltCache = oFS.GetSpecialFolder(TempOrdner).Path & "\" & NameXltCache
+    'PfadNameXltCache = oFS.GetSpecialFolder(TempOrdner).Path & "\" & NameXltCache
+    PfadNameXltCache = GetXltCachePath()
     
     If (Not ThisWorkbook.SysTools.IsDatei(PfadNameXltCache)) Then
       DebugEcho vbNewLine & "Cache existiert nicht: '" & PfadNameXltCache & "'"
@@ -1516,7 +1553,7 @@ Private Sub GetFormatliste_XlVorlagen()
           DebugEcho " - Letzte Änderung der Datei laut Cache = " & RecentXLT(idxAendDatum)
         Else
           RecentXLT_ok = False
-          DebugEcho " - => neue Vorlage (nicht in " & NameXltCache & " vorhanden)!"
+          DebugEcho " - => neue Vorlage (nicht in " & PfadNameXltCache & " vorhanden)!"
         End If
       
       'Wenn Datum der gefundenen XLT nicht mit dem der zuletzt vorhandenen XLT übereinstimmt => hineinsehen..

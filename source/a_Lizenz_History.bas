@@ -38,6 +38,10 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner nagelegt,
+'                     weil dieser oft geleert wird. Wenn möglich, wird 
+'                     "%LOCALAPPDATA%\GeoTools\GeoTools_xltcache.txt" verwendet, erst bei Mißerfolg
+'                     "%Temp%\GeoTools_xltcache.txt".
 '02.03.2021 v3.2.0  - Ribbon: neuer Knopf für Handbuch
 '                   - Neue Winkeleinheiten: Prozent, Promille, Parts per million
 '                   - CimpTrassenkoo: - A0: Unterstützung für alle restlichen A0-Datenfelder

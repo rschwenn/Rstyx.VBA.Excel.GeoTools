@@ -834,6 +834,7 @@ Sub Mod_UeberhoehungAusBemerkung()
   Dim ub                   As Long
   Dim i                    As Long
   Dim u_ist()              As String
+  Dim ua_ist()             As String
   Dim BemerkNeu()          As String
   Dim BemerkAlt            As String
   Dim ZielWert             As Variant
@@ -850,6 +851,7 @@ Sub Mod_UeberhoehungAusBemerkung()
     lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
     ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
     ReDim u_ist(lb To ub)
+    ReDim ua_ist(lb To ub)
     ReDim BemerkNeu(lb To ub)
     keineFormeln = (CountDim(oDaten(SpN_Pkt_Erl_L)) = 1)
     
@@ -866,6 +868,7 @@ Sub Mod_UeberhoehungAusBemerkung()
       If (IsNumeric(QuellWert)) Then
         ZielWert = QuellWert / 1000
         u_ist(i) = ZielWert
+        'ua_ist(i) = ZielWert
       End If
       
       '(strenge) Überhöhungsangabe aus Bemerkung entfernen.
@@ -873,7 +876,8 @@ Sub Mod_UeberhoehungAusBemerkung()
     Next
     
     'Neue Werte in den Datenpuffer schreiben.
-    Call Vektor2Datenuffer(u_ist, SpN_Tra_u, Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(u_ist , SpN_Tra_u , Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(ua_ist, SpN_Tra_ua, Me.Opt_VorhWerteUeberschreiben)
     Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L, Me.Opt_VorhWerteUeberschreiben)
   End If
   
@@ -889,19 +893,21 @@ End Sub
 
 Sub Mod_iTrassenCodeAusBemerkung()
   '--------------------------------------------------------------------------------------------------------'
-  'Modifikation am Datenpuffer: iTrassen-Codierung aus der Bemerkung extrahieren und aus Bemerkung entfernen.
+  'Modifikation am Datenpuffer: Die Bemerkung wird als iTrassen-Codierung interpretiert.
   '--------------------------------------------------------------------------------------------------------'
-  ' - Falls die Punktinfo eine iTrassen-Codierung enthält, werden folgende Teilinformationen extrahiert:
+  ' - Bei Erfolg werden folgende Teilinformationen extrahiert:
   '     
-  '   - Spalte.Pkt.V.ArtKz.2 :  Vermarkungsart für iGeo-Absteckbuch
   '   - Spalte.Pkt.Art.Bez1  :  Punktart Bezeichnung kurz
   '   - Spalte.Pkt.Art.Bez2  :  Punktart Bezeichnung lang
+  '   - Spalte.Pkt.V.ArtKz.2 :  Vermarkungsart für iGeo-Absteckbuch
   '   - Spalte.Pkt.V.ArtKz   :  Vermarkungsart (für Festpunkt oder GVP)
   '   - Spalte.Tra.u         :  Ist-Überhöhung (für Gleispunkt)
+  '   - Spalte.Tra.ua        :  Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
   '    
   ' - Punktarten:  iTrassen-Codierung    Bezeichnung kurz  Bezeichnung lang    Hinweis
   '   -            -i                    Gls               Gleis               ohne Überhöhung
   '   -            -iu*                  Gls               Gleis               mit  Überhöhung
+  '   -            -iueb*                Gls               Gleis               mit  Überhöhung im iGeo-Stil ("+" => rechte Schiene überhöht) 
   '   -            -b                    Bstg              Bahnsteig
   '   -            -f*                   PSx               Festpunkt           * = Vermarkungsart
   '   -            -v*                   GVP               GVP                 * = Vermarkungsart
@@ -914,6 +920,7 @@ Sub Mod_iTrassenCodeAusBemerkung()
   Dim i                    As Long
   
   Dim u_ist()              As String
+  Dim ua_ist()             As String
   Dim PArtBez1()           As String
   Dim PArtBez2()           As String
   Dim VArtKz1()            As String
@@ -927,19 +934,20 @@ Sub Mod_iTrassenCodeAusBemerkung()
   Dim strInfoNeu           As String
   
   Dim BemerkAlt            As String
-  Dim varUebZiel           As Variant
   Dim varUebQuelle         As Variant
+  Dim varUebAbsQuelle      As Variant
   Dim keineFormeln         As Boolean
   
-  Echo vbnewline & "iTrassen-Codierung aus der Bemerkung extrahieren (und aus Bemerkung entfernen)."
+  Echo vbnewline & "Bemerkung als iTrassen-Codierung interpretieren."
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
-  Application.StatusBar = "iTrassen-Codierung aus der Bemerkung extrahieren und aus Bemerkung entfernen."
-  ErrMessage = "Fehler beim Extrahieren der iTrassen-Codierung aus der Bemerkung"
+  Application.StatusBar = "Bemerkung als iTrassen-Codierung interpretieren."
+  ErrMessage = "Fehler bei Interpretation der Bemerkung als iTrassen-Codierung"
   
   If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
     lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
     ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
     ReDim u_ist(lb To ub)
+    ReDim ua_ist(lb To ub)
     ReDim PArtBez1(lb To ub)
     ReDim PArtBez2(lb To ub)
     ReDim VArtKz1(lb To ub)
@@ -955,13 +963,15 @@ Sub Mod_iTrassenCodeAusBemerkung()
         BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
       End If
       
-      'Spezialwerte aus Bemerkung extrahieren.
-      Call ParseIpktTextForKindCodes(BemerkAlt, strPArtBez1, strPArtBez2, strVArtKz1, strVArtKz2, varUebQuelle, strInfoNeu)
+      'iTrassen-Codierung zerlegen.
+      Call Parse_iTC(BemerkAlt, strPArtBez1, strPArtBez2, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
       
       'Felder im Vektor belegen.
       If (IsNumeric(varUebQuelle)) Then
-        'varUebZiel = varUebQuelle
         u_ist(i)   = varUebQuelle
+      End If
+      If (IsNumeric(varUebAbsQuelle)) Then
+        ua_ist(i)  = varUebAbsQuelle
       End If
       
       PArtBez1(i)  = strPArtBez1
@@ -973,6 +983,7 @@ Sub Mod_iTrassenCodeAusBemerkung()
     
     'Neue Werte in den Datenpuffer schreiben.
     Call Vektor2Datenuffer(u_ist,     SpN_Tra_u,        Me.Opt_VorhWerteUeberschreiben)
+    Call Vektor2Datenuffer(ua_ist,    SpN_Tra_ua,       Me.Opt_VorhWerteUeberschreiben)
     Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
     Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
     Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
@@ -1252,14 +1263,15 @@ Private Function isSpalteLeer(Vektor) As Boolean
   FehlerNachricht "CdatDatenpuffer.isSpalteLeer()"
 End Function
             
-Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
-                                      ByRef Kind1         As String, _
-                                      ByRef Kind2         As String, _
-                                      ByRef MarkType      As String, _
-                                      ByRef MarkTypeAB    As String, _
-                                      ByRef ActualCant    As Variant, _
-                                      ByRef NewInfo       As String _
-                                     ) As Boolean
+Private Function Parse_iTC(ByVal PointInfoText As String, _
+                           ByRef Kind1         As String, _
+                           ByRef Kind2         As String, _
+                           ByRef MarkType      As String, _
+                           ByRef MarkTypeAB    As String, _
+                           ByRef ActualCant    As Variant, _
+                           ByRef ActualCantAbs As Variant, _
+                           ByRef NewInfo       As String _
+                          ) As Boolean
  '------------------------------------------------------------------------------    
  ' A given string will be parsed for iGeo point kind codes and remaining info text.
  ' Eingabe:  PointInfoText ... Punktinfo original
@@ -1268,6 +1280,7 @@ Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
  ' Ausgabe:  MarkType      ... Vermarkungsart (für Festpunkt oder GVP)
  ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
  ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
+ ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
  ' Ausgabe:  NewInfo       ... Punktinfo ohne iTrassen-Codierung
  ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
  '  
@@ -1287,9 +1300,9 @@ Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
     Dim oMatches      As Object
     Dim Key           As String
     Dim i             As Integer
-    Dim FoundITraCode As Boolean
+    Dim FoundITC As Boolean
     
-    FoundITraCode = False
+    FoundITC = False
     Kind1         = ""
     Kind2         = ""
     MarkType      = ""
@@ -1370,7 +1383,7 @@ Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
                 Next
                 If ((DelimIndex > 1) Or (Kind1 <> "")) Then
                     ' iTrassen-Codierung found (Input text is splitted or contains kind code).
-                    FoundITraCode = True
+                    FoundITC = True
                     MarkTypeAB    = oMatches(0).SubMatches(0)
                 End If
             Else
@@ -1390,10 +1403,10 @@ Private Function ParseIpktTextForKindCodes(ByVal PointInfoText As String, _
             End If
         End If
     End If
-    ParseIpktTextForKindCodes = FoundITraCode
+    Parse_iTC = FoundITC
     Exit Function
   Fehler:
-  FehlerNachricht "CdatDatenpuffer.ParseIpktTextForKindCodes()"
+  FehlerNachricht "CdatDatenpuffer.Parse_iTC()"
 End Function
 
 

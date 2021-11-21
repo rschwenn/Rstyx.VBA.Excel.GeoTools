@@ -177,15 +177,15 @@
                           />
                   <button id="CalcITraCodeButton"
                           label="iTrassen-Codierung aus Bemerkung"
-                          screentip="iTrassen-Codierung aus Bemerkung extrahieren"
-                          supertip="Enthält die Bemerkung eine iTrassen-Codierung, werden die verfügbaren Info's extrahiert (Vermarkung iGeo-Absteckbuch, Punktart, Festpunkt-Vermarkung, Ist-Überhöhung). Ist 'Überschreiben' aktiviert, wird die iTrassen-Codierung aus der Bemerkung entfernt."
+                          screentip="Bemerkung als iTrassen-Codierung interpretieren"
+                          supertip="Enthält die Bemerkung eine iTrassen-Codierung, werden die verfügbaren Info's extrahiert (Vermarkung iGeo-Absteckbuch, Punktart, Festpunkt-Vermarkung, Ist-Überhöhung, InfoText). Ist 'Überschreiben' aktiviert, wird die Bemerkung mit dem neuen InfoText belegt."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
                   <button id="CalcCantButton"
                           label="Ist-Überhöhung aus Bemerkung"
                           screentip="Ist-Überhöhung aus Bemerkung extrahieren"
-                          supertip="Enthält die Bemerkung (Punktinfo') Angaben der Form 'u=xxx', dann wird 'xxx' als Ist-Überhöhung interpretiert. Ist 'Überschreiben' aktiviert, wird die genannte Angabe aus der Bemerkung entfernt."
+                          supertip="Enthält die Bemerkung (Punktinfo') Angaben der Form 'u=xxx' oder 'ueb=xxx', dann wird 'xxx' als Ist-Überhöhung interpretiert. Ist 'Überschreiben' aktiviert, wird die genannte Angabe aus der Bemerkung entfernt."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />

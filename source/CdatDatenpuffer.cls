@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -65,6 +65,8 @@ Attribute VB_Exposed = False
  '              2. Soll: Radius und relative Überhöhung (S.Tra.Radius, S.Tra.u)
  '              3. Ist : Absolute Überhöhung (Tra.ua)
  '              4. Ist : Radius und relative Überhöhung (Tra.Radius, Tra.u)
+ '   04.2022  - Parse_iTC() generalüberholt: Interpretation der iTrassen-Codierung
+ '              an iGeo und Rstyx.Utilities 2.8 angeglichen.
 '====================================================================================
 
 
@@ -122,7 +124,9 @@ Public Enum GeoPointKind
     
 End Enum
 
-Dim MarkType2Kind   As Scripting.Dictionary
+Dim MarkType2Kind           As Scripting.Dictionary
+Dim DefaultKindTextShort    As Scripting.Dictionary
+Dim DefaultKindTextLong     As Scripting.Dictionary
 
 
 Private Sub Class_Initialize()
@@ -148,23 +152,45 @@ Private Sub Class_Initialize()
   
   ' Mapping:  MarkType => Kind (String, GeoPointKind)
   Set MarkType2Kind = New Scripting.Dictionary
-  MarkType2Kind.Add("0" , GeoPointKind.None)            ' unvermarkt aus Ril 808 
-  MarkType2Kind.Add("1" , GeoPointKind.RailsFixPoint)   ' Bolzen am Fahrleitungsmast / Fundament 
-  MarkType2Kind.Add("2" , GeoPointKind.RailsFixPoint)   ' Stehbolzen, Nagel, Bolzen in Mauer 
-  MarkType2Kind.Add("3" , GeoPointKind.RailsFixPoint)   ' Bodenvermarkung, Tiefpunkt 
-  MarkType2Kind.Add("4" , GeoPointKind.RailsFixPoint)   ' Tunnelvermarkung 
-  MarkType2Kind.Add("5" , GeoPointKind.FixPoint2D)      ' Lochstein Grundlagen-Vermessung 
-  MarkType2Kind.Add("6" , GeoPointKind.FixPoint2D)      ' Dränrohr 
-  MarkType2Kind.Add("7" , GeoPointKind.FixPoint2D)      ' Eisenrohr 
-  MarkType2Kind.Add("8" , GeoPointKind.None)            ' indirekte Vermarkung 
-  MarkType2Kind.Add("9" , GeoPointKind.FixPoint1D)      ' Höhen- bzw. NivP-Bolzen 
-  MarkType2Kind.Add("10", GeoPointKind.FixPoint2D)      ' TP - Stein 
-  MarkType2Kind.Add("11", GeoPointKind.FixPoint2D)      ' TP - Platte 
-  MarkType2Kind.Add("12", GeoPointKind.None)            ' Grenzstein Kataster-Vermessung 
-  MarkType2Kind.Add("13", GeoPointKind.None)            ' Grenzmarke 
-  MarkType2Kind.Add("14", GeoPointKind.FixPoint2D)      ' Nagel 
-  MarkType2Kind.Add("15", GeoPointKind.FixPoint2D)      ' Kreuz 
-  MarkType2Kind.Add("16", GeoPointKind.FixPoint3D)      ' Bolzen mit eingravierter ID DB-Referenzsystem
+  MarkType2Kind.Add "0" , GeoPointKind.None            ' unvermarkt aus Ril 808 
+  MarkType2Kind.Add "1" , GeoPointKind.RailsFixPoint   ' Bolzen am Fahrleitungsmast / Fundament 
+  MarkType2Kind.Add "2" , GeoPointKind.RailsFixPoint   ' Stehbolzen, Nagel, Bolzen in Mauer 
+  MarkType2Kind.Add "3" , GeoPointKind.RailsFixPoint   ' Bodenvermarkung, Tiefpunkt 
+  MarkType2Kind.Add "4" , GeoPointKind.RailsFixPoint   ' Tunnelvermarkung 
+  MarkType2Kind.Add "5" , GeoPointKind.FixPoint2D      ' Lochstein Grundlagen-Vermessung 
+  MarkType2Kind.Add "6" , GeoPointKind.FixPoint2D      ' Dränrohr 
+  MarkType2Kind.Add "7" , GeoPointKind.FixPoint2D      ' Eisenrohr 
+  MarkType2Kind.Add "8" , GeoPointKind.None            ' indirekte Vermarkung 
+  MarkType2Kind.Add "9" , GeoPointKind.FixPoint1D      ' Höhen- bzw. NivP-Bolzen 
+  MarkType2Kind.Add "10", GeoPointKind.FixPoint2D      ' TP - Stein 
+  MarkType2Kind.Add "11", GeoPointKind.FixPoint2D      ' TP - Platte 
+  MarkType2Kind.Add "12", GeoPointKind.None            ' Grenzstein Kataster-Vermessung 
+  MarkType2Kind.Add "13", GeoPointKind.None            ' Grenzmarke 
+  MarkType2Kind.Add "14", GeoPointKind.FixPoint2D      ' Nagel 
+  MarkType2Kind.Add "15", GeoPointKind.FixPoint2D      ' Kreuz 
+  MarkType2Kind.Add "16", GeoPointKind.FixPoint3D      ' Bolzen mit eingravierter ID DB-Referenzsystem
+  
+  ' Mapping:  GeoPointKind => Short Text (GeoPointKind, String)
+  Set DefaultKindTextShort = New Scripting.Dictionary
+  DefaultKindTextShort.Add GeoPointKind.None          , PArt1_None 
+  DefaultKindTextShort.Add GeoPointKind.FixPoint      , PArt1_FixPoint
+  DefaultKindTextShort.Add GeoPointKind.FixPoint1D    , PArt1_FixPoint1D
+  DefaultKindTextShort.Add GeoPointKind.FixPoint2D    , PArt1_FixPoint2D
+  DefaultKindTextShort.Add GeoPointKind.FixPoint3D    , PArt1_FixPoint3D
+  DefaultKindTextShort.Add GeoPointKind.Platform      , PArt1_Platform
+  DefaultKindTextShort.Add GeoPointKind.Rails         , PArt1_Rails
+  DefaultKindTextShort.Add GeoPointKind.RailsFixPoint , PArt1_RailsFixPoint
+  
+  ' Mapping:  GeoPointKind => Long Text (GeoPointKind, String)
+  Set DefaultKindTextLong = New Scripting.Dictionary
+  DefaultKindTextLong.Add GeoPointKind.None          , PArt2_None 
+  DefaultKindTextLong.Add GeoPointKind.FixPoint      , PArt2_FixPoint
+  DefaultKindTextLong.Add GeoPointKind.FixPoint1D    , PArt2_FixPoint1D
+  DefaultKindTextLong.Add GeoPointKind.FixPoint2D    , PArt2_FixPoint2D
+  DefaultKindTextLong.Add GeoPointKind.FixPoint3D    , PArt2_FixPoint3D
+  DefaultKindTextLong.Add GeoPointKind.Platform      , PArt2_Platform
+  DefaultKindTextLong.Add GeoPointKind.Rails         , PArt2_Rails
+  DefaultKindTextLong.Add GeoPointKind.RailsFixPoint , PArt2_RailsFixPoint
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -884,7 +910,7 @@ Sub Mod_UeberhoehungAusBemerkung()
   Dim ub                   As Long
   Dim i                    As Long
   Dim u_ist()              As String
-  Dim ua_ist()             As String
+  'Dim ua_ist()             As String
   Dim BemerkNeu()          As String
   Dim BemerkAlt            As String
   Dim ZielWert             As Variant
@@ -901,7 +927,7 @@ Sub Mod_UeberhoehungAusBemerkung()
     lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
     ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
     ReDim u_ist(lb To ub)
-    ReDim ua_ist(lb To ub)
+    'ReDim ua_ist(lb To ub)
     ReDim BemerkNeu(lb To ub)
     keineFormeln = (CountDim(oDaten(SpN_Pkt_Erl_L)) = 1)
     
@@ -927,7 +953,7 @@ Sub Mod_UeberhoehungAusBemerkung()
     
     'Neue Werte in den Datenpuffer schreiben.
     Call Vektor2Datenuffer(u_ist , SpN_Tra_u , Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(ua_ist, SpN_Tra_ua, Me.Opt_VorhWerteUeberschreiben)
+    'Call Vektor2Datenuffer(ua_ist, SpN_Tra_ua, Me.Opt_VorhWerteUeberschreiben)
     Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L, Me.Opt_VorhWerteUeberschreiben)
   End If
   
@@ -946,7 +972,8 @@ Sub Mod_iTrassenCodeAusBemerkung()
   'Modifikation am Datenpuffer: Die Bemerkung wird als iTrassen-Codierung interpretiert.
   '--------------------------------------------------------------------------------------------------------'
   ' - Bei Erfolg werden folgende Teilinformationen extrahiert:
-  '     
+  '   
+  '   - Spalte.Pkt.Erl.L     :  Text-Teil der iTrassen-Codierung
   '   - Spalte.Pkt.Art.Bez1  :  Punktart Bezeichnung kurz
   '   - Spalte.Pkt.Art.Bez2  :  Punktart Bezeichnung lang
   '   - Spalte.Pkt.V.ArtKz.2 :  Vermarkungsart für iGeo-Absteckbuch
@@ -987,6 +1014,7 @@ Sub Mod_iTrassenCodeAusBemerkung()
   Dim varUebQuelle         As Variant
   Dim varUebAbsQuelle      As Variant
   Dim keineFormeln         As Boolean
+  Dim FoundITC             As Boolean
   
   Echo vbnewline & "Bemerkung als iTrassen-Codierung interpretieren."
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
@@ -1014,21 +1042,25 @@ Sub Mod_iTrassenCodeAusBemerkung()
       End If
       
       'iTrassen-Codierung zerlegen.
-      Call Parse_iTC(BemerkAlt, strPArtBez1, strPArtBez2, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
+      FoundITC = Parse_iTC(BemerkAlt, strPArtBez1, strPArtBez2, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
       
-      'Felder im Vektor belegen.
-      If (IsNumeric(varUebQuelle)) Then
-        u_ist(i)   = varUebQuelle
+      If (Not FoundITC) Then
+        BemerkNeu(i) = BemerkAlt
+      Else
+        'Felder im Vektor belegen.
+        If (IsNumeric(varUebQuelle)) Then
+          u_ist(i)   = varUebQuelle
+        End If
+        If (IsNumeric(varUebAbsQuelle)) Then
+          ua_ist(i)  = varUebAbsQuelle
+        End If
+        
+        PArtBez1(i)  = strPArtBez1
+        PArtBez2(i)  = strPArtBez2
+        VArtKz1(i)   = strVArtKz1
+        VArtKz2(i)   = strVArtKz2
+        BemerkNeu(i) = strInfoNeu
       End If
-      If (IsNumeric(varUebAbsQuelle)) Then
-        ua_ist(i)  = varUebAbsQuelle
-      End If
-      
-      PArtBez1(i)  = strPArtBez1
-      PArtBez2(i)  = strPArtBez2
-      VArtKz1(i)   = strVArtKz1
-      VArtKz2(i)   = strVArtKz2
-      BemerkNeu(i) = strInfoNeu
     Next
     
     'Neue Werte in den Datenpuffer schreiben.
@@ -1323,7 +1355,8 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
                            ByRef NewInfo       As String _
                           ) As Boolean
  '------------------------------------------------------------------------------    
- ' A given string will be parsed for iGeo point kind codes and remaining info text.
+ ' A given string will be parsed as iGeo "iTrassen-Codierung":
+ '
  ' Eingabe:  PointInfoText ... Punktinfo original
  ' Ausgabe:  Kind1         ... Punktart Bezeichnung kurz
  ' Ausgabe:  Kind2         ... Punktart Bezeichnung lang
@@ -1331,7 +1364,7 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
  ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
  ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
  ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
- ' Ausgabe:  NewInfo       ... Punktinfo ohne iTrassen-Codierung
+ ' Ausgabe:  NewInfo       ... Text-Teil der iTrassen-Codierung
  ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
  '  
  ' Erwartete Formate:
@@ -1342,13 +1375,8 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
  '  -v[0-9]+              Rails fix point [with numeric mark type] 
  '  -f[0-9]+              Other fix point [with numeric mark type] 
  '  ?-                    If one of the above codes is there, it may be preceeded 
- '                        by one word character which will recognized as 
+ '                        by one word character which will be treated as MarkTypeAB.
  '------------------------------------------------------------------------------
-    'Dim DelimIndex    As Integer
-    'Dim CodePart      As String
-    'Dim InfoPart      As String 
-    
-    Dim Pattern           As String
     Dim FoundITC          As Boolean
     Dim oMatches          As Object
     Dim Key               As String
@@ -1359,21 +1387,21 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
     Dim iTC_ActualCant    As Variant
     Dim KindFromMark      As GeoPointKind
     
-    FoundITC   = False
-    Kind1      = ""
-    Kind2      = ""
-    MarkType   = ""
-    MarkTypeAB = ""
-    ActualCant = ""
-    NewInfo    = ""
+    FoundITC      = False
+    Kind1         = DefaultKindTextShort(GeoPointKind.None)
+    Kind2         = DefaultKindTextLong(GeoPointKind.None)
+    MarkType      = ""
+    MarkTypeAB    = ""
+    ActualCant    = ""
+    ActualCantAbs = ""
+    NewInfo       = ""
     
     If (Trim(PointInfoText) <> "") Then
         
         ThisWorkbook.RegExp.IgnoreCase = True
         ThisWorkbook.RegExp.Global     = False
-        ThisWorkbook.RegExp.Pattern    = Pattern
         ThisWorkbook.RegExp.Pattern    = "^ *(\w)?((-b)|(-v)([0-9]+)?|(-f)([0-9]+)?|(-iueb) *=? *([+-]? *[0-9]+) *(-iu) *=? *([+-]? *[0-9]+)|(-iu) *=? *([+-]? *[0-9]+) *(-iueb) *=? *([+-]? *[0-9]+)|(-iueb) *=? *([+-]? *[0-9]+)|(-iu) *=? *([+-]? *[0-9]+)|(-i))? *((#) ?(.*))?$"
-        Set oMatches = ThisWorkbook.RegExp.Execute(CodePart)
+        Set oMatches = ThisWorkbook.RegExp.Execute(PointInfoText)
         
         If (oMatches.Count > 0) Then
             
@@ -1381,9 +1409,6 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
             iTC_MarkType      = ""
             iTC_ActualCantAbs = Null
             iTC_ActualCant    = Null
-            
-            Dim ApplyNewKind      As Boolean = False
-            Dim IsKindConflict    As Boolean = False
             
             ' Recognize point kinds with attached info.
             For i = 3 To 20
@@ -1409,156 +1434,27 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
                 End If
             End If
             
-            ' Check for kind conflict and applying.
-            If (iTC_Kind <> GeoPointKind.None) Then
-                IsKindConflict = ((Me.Kind <> GeoPointKind.None) AndAlso (Me.Kind <> iTC_Kind))
-                ApplyNewKind   = True
-                If (IsKindConflict) Then
-                    If (Me.Kind = GeoPointKind.FixPoint) Then
-                        Select Case iTC_Kind
-                            Case GeoPointKind.FixPoint1D, GeoPointKind.FixPoint2D, GeoPointKind.FixPoint3D
-                                IsKindConflict = False
-                                ApplyNewKind   = True
-                        End Select
-                    ElseIf (iTC_Kind = GeoPointKind.FixPoint) Then    
-                        Select Case Me.Kind
-                            Case GeoPointKind.FixPoint1D, GeoPointKind.FixPoint2D, GeoPointKind.FixPoint3D
-                                IsKindConflict = False
-                                ApplyNewKind   = False
-                        End Select
-                    End If
-                End If
-            End If
-            
             ' Try to apply recognized point kinds with related info.
-            If (IsKindConflict) Then
+            If (iTC_Kind <> GeoPointKind.None) Then
                 
-                RetValue.HasConflict = True
-                RetValue.Message     = sprintf(Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_Kind, Me.ID, Me.Kind.ToDisplayString(), iTC_Kind.ToDisplayString())
-                RetValue.Hints       = Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_RejectITC
-                Select Case Me.Kind
-                    Case GeoPointKind.FixPoint1D, GeoPointKind.FixPoint2D, GeoPointKind.FixPoint3D
-                        RetValue.Hints &= vbNewLine & Me.GetListMarkType2Kind()
-                End Select
+                Kind1    = DefaultKindTextShort(iTC_Kind)
+                Kind2    = DefaultKindTextLong(iTC_Kind)
+                MarkType = iTC_MarkType
                 
-            ElseIf (iTC_Kind <> GeoPointKind.None) Then
-                
-                If (ApplyNewKind) Then
-                    Me.Kind = iTC_Kind
+                If (Not IsNull(iTC_ActualCantAbs)) Then
+                    ActualCantAbs = iTC_ActualCantAbs
                 End If
                 
-                If (iTC_MarkType.IsNotEmptyOrWhiteSpace()) Then
-                    If (Me.MarkType.IsNotEmptyOrWhiteSpace() AndAlso (Me.MarkType <> iTC_MarkType)) Then
-                        RetValue.HasConflict = True
-                        RetValue.Message     = sprintf(Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_MarkType, Me.ID, Me.MarkType, iTC_MarkType)
-                        RetValue.Hints       = Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_RejectITC
-                    Else
-                        Me.MarkType = iTC_MarkType
-                    End If
-                End If
-                
-                If (Not Double.IsNaN(iTC_ActualCantAbs)) Then
-                    If ((Not Double.IsNaN(Me.ActualCantAbs)) AndAlso (Not Me.ActualCantAbs.EqualsTolerance(iTC_ActualCantAbs, 0.0006))) Then
-                        RetValue.HasConflict = True
-                        RetValue.Message     = sprintf(Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_CantAbs, Me.ID, -1 * Me.ActualCantAbs, -1 * iTC_ActualCantAbs)
-                        RetValue.Hints       = Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_RejectITC
-                    Else
-                        Me.ActualCantAbs = iTC_ActualCantAbs
-                    End If
-                End If
-                
-                If (Not Double.IsNaN(iTC_ActualCant)) Then
-                    If ((Not Double.IsNaN(Me.ActualCant)) AndAlso (Not Me.ActualCant.EqualsTolerance(iTC_ActualCant, 0.0006))) Then
-                        RetValue.HasConflict = True
-                        RetValue.Message     = sprintf(Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_Cant, Me.ID, Me.ActualCant, iTC_ActualCant)
-                        RetValue.Hints       = Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_RejectITC
-                    Else
-                        Me.ActualCant = iTC_ActualCant
-                    End If
+                If (Not IsNull(iTC_ActualCant)) Then
+                    ActualCant = iTC_ActualCant
                 End If
             End If
             
             ' Special mark type.
-            If (oMatches(0).SubMatches(1).Success) Then
-                Dim iTC_MarkTypeAB As Char = oMatches(0).SubMatches(1)
-                
-                If ((Me.MarkTypeAB <> vbNullChar) AndAlso (Me.MarkTypeAB <> iTC_MarkTypeAB)) Then
-                    RetValue.HasConflict = True
-                    RetValue.Message     = sprintf(Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_MarkTypeAB, Me.ID, Me.MarkTypeAB, iTC_MarkTypeAB)
-                    RetValue.Hints       = Rstyx.Utilities.Resources.Messages.GeoIPoint_ParseITC_Conflict_RejectITC
-                Else 
-                    Me.MarkTypeAB = iTC_MarkTypeAB
-                End If
-            End If
+            MarkTypeAB = oMatches(0).SubMatches(1)
             
             ' Point info text.
-            If (oMatches(0).SubMatches(23).Success) Then
-                Dim iTC_InfoText As String = oMatches(0).SubMatches(23).Trim()
-                
-                If ((j = 1) OrElse Me.Info.IsEmptyOrWhiteSpace()) Then
-                    Me.Info = iTC_InfoText
-                Else
-                    Me.Info &= "; " & iTC_InfoText
-                End If
-            Else
-                If (j = 1) Then
-                    Me.Info = ""
-                End If
-            End If
-            
-            
-            *************************
-            For i = 2 To 9
-                Key = oMatches(0).SubMatches(i)
-                Select Case Key
-                    Case "-b"  
-                        Kind1 = PArt1_Bahnsteig
-                        Kind2 = PArt2_Bahnsteig
-                        Exit For
-                        
-                    Case "-v"
-                        Kind1 = PArt1_GVP
-                        Kind2 = PArt2_GVP
-                        MarkType = oMatches(0).SubMatches(i + 1)
-                        Exit For
-                        
-                    Case "-f"
-                        Kind1 = PArt1_Festpunkt
-                        Kind2 = PArt2_Festpunkt
-                        MarkType = oMatches(0).SubMatches(i + 1)
-                        Exit For
-                        
-                    Case "-iu"
-                        Kind1 = PArt1_Gleis
-                        Kind2 = PArt2_Gleis
-                        ActualCant = CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
-                        Exit For
-                        
-                    Case "-i"
-                        Kind1 = PArt1_Gleis
-                        Kind2 = PArt2_Gleis    
-                        Exit For
-                End Select
-            Next
-            If ((DelimIndex > 1) Or (Kind1 <> "")) Then
-                ' iTrassen-Codierung found (Input text is splitted or contains kind code).
-                FoundITC = True
-                MarkTypeAB    = oMatches(0).SubMatches(0)
-            End If
-        Else
-            ' There's a code part but w/o supported code or with invalid syntax.
-            If (DelimIndex > 1) Then
-                ' Re-join splitted text (see below).
-                InfoPart = PointInfoText
-            End If
-        End If
-        
-        ' Info part: store.
-        If (Trim(InfoPart) <> "") Then
-            If ((DelimIndex > 1) Or (Kind1 = "")) Then
-                ' Input text is splitted or else isn't splitted and doesn't contain codes.
-                NewInfo = InfoPart
-            End If
+            NewInfo = Trim(oMatches(0).SubMatches(23))
         End If
     End If
     Parse_iTC = FoundITC

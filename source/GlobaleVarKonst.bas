@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "3.2.1"
-Public Const VersionDate  As String = "Juli 2021"
-Public Const Copyright    As String = "© 2003 - 2021  Robert Schwenn"
+Public Const VersionNr    As String = "3.2.2"
+Public Const VersionDate  As String = "April 2022"
+Public Const Copyright    As String = "© 2003 - 2022  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
@@ -76,14 +76,22 @@ Public Const StatusBez_Fehler                As String = "Fehler"
 Public Const StatusBez_Verbesserung          As String = "Verbesserung"
 
 'Punktarten.
-Public Const PArt1_Gleis                     As String = "Gls"
-Public Const PArt1_Bahnsteig                 As String = "Bstg"
-Public Const PArt1_GVP                       As String = "GVP"
-Public Const PArt1_Festpunkt                 As String = "PSx"
-Public Const PArt2_Gleis                     As String = "Gleis"
-Public Const PArt2_Bahnsteig                 As String = "Bahnsteig"
-Public Const PArt2_GVP                       As String = "GVP"
-Public Const PArt2_Festpunkt                 As String = "Festpunkt"
+Public Const PArt1_None                      As String = ""
+Public Const PArt1_FixPoint                  As String = "FP"
+Public Const PArt1_FixPoint1D                As String = "HFP"
+Public Const PArt1_FixPoint2D                As String = "LFP"
+Public Const PArt1_FixPoint3D                As String = "LHFP"
+Public Const PArt1_Platform                  As String = "Bstg"
+Public Const PArt1_Rails                     As String = "Gls"
+Public Const PArt1_RailsFixPoint             As String = "GVP"
+Public Const PArt2_None                      As String = "unbekannt"
+Public Const PArt2_FixPoint                  As String = "Festpunkt"
+Public Const PArt2_FixPoint1D                As String = "Festpkt 1D"
+Public Const PArt2_FixPoint2D                As String = "Festpkt 2D"
+Public Const PArt2_FixPoint3D                As String = "Festpkt 3D"
+Public Const PArt2_Platform                  As String = "Bahnsteig"
+Public Const PArt2_Rails                     As String = "Gleis"
+Public Const PArt2_RailsFixPoint             As String = "GVP"
 
 'Spezielle Zeichenketten für Oberfläche.
 Public Const SpName_unbekannt                As String = "unbekannt"

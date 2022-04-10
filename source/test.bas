@@ -289,7 +289,7 @@ Private Sub u()
   'dim d as Double
   txt = "Gl 9/D U= -  u= 9"
   'txt = "Gl /D    ="
-  MsgBox Ueberhoehung(txt, True)
+  'MsgBox Ueberhoehung(txt, True)
 
 End Sub
 

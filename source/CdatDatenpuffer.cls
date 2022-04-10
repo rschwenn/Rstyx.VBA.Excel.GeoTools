@@ -129,6 +129,7 @@ End Enum
 Dim MarkType2Kind           As Scripting.Dictionary
 Dim DefaultKindTextShort    As Scripting.Dictionary
 Dim DefaultKindTextLong     As Scripting.Dictionary
+Dim InfoCantPatterns        As Scripting.Dictionary
 
 
 Private Sub Class_Initialize()
@@ -193,6 +194,11 @@ Private Sub Class_Initialize()
   DefaultKindTextLong.Add GeoPointKind.Platform      , PArt2_Platform
   DefaultKindTextLong.Add GeoPointKind.Rails         , PArt2_Rails
   DefaultKindTextLong.Add GeoPointKind.RailsFixPoint , PArt2_RailsFixPoint
+  
+  ' Patterns for recognizing actual cant from info text.
+  Set InfoCantPatterns = New Scripting.Dictionary
+  InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
+  InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -1144,9 +1150,10 @@ Private Sub Vektor2Datenuffer(Vektor, SpName As String, byVal blnUeberschreiben 
   '
   'ACHTUNG: Formeln werden unverändert übernommen - und nur, wenn der Vektor als Ganzes
   '         übernommen wird!
-  '         Die Behandlung von Formeln ist demnach auf genau zwei Anwendungsfälle abgestimmt:
+  '         Die Behandlung von Formeln ist demnach auf genau drei Anwendungsfälle abgestimmt:
   '         1. Es gibt keine ;-)
-  '         2. Einrichten einer Ersatzspalte
+  '         2. blnUeberschreiben = True
+  '         3. Einrichten einer Ersatzspalte
   
   On Error GoTo Fehler
   
@@ -1416,6 +1423,74 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
     Exit Function
   Fehler:
   FehlerNachricht "CdatDatenpuffer.Parse_iTC()"
+End Function
+
+Function ParseInfoForActualCant(ByVal PointInfoText As String, _
+                                ByRef Kind          As GeoPointKind, _
+                                ByRef ActualCant    As Variant, _
+                                ByRef ActualCantAbs As Variant, _
+                                ByRef NewInfo       As String _
+                               ) As Boolean
+ '------------------------------------------------------------------------------    
+ ' A given string will be parsed for actual cant:
+ '
+ ' Eingabe:  PointInfoText ... Punktinfo original
+ ' Ausgabe:  Kind          ... Punktart
+ ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
+ ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
+ ' Ausgabe:  NewInfo       ... PointInfoText ohne gefundene Überhöhungsangabe
+ ' Rückgabe: True, wenn eine Überhöhungsangabe gefunden wurde.
+ '  
+ ' Erwartete Formate:
+ '  ueb *= *([+-]? *[0-9]+)  Actual absolute cant (sign as iGeo)
+ '  u *= *([+-]? *[0-9]+)    Actual relative cant
+ '------------------------------------------------------------------------------    
+    
+    
+    Dim i           As Integer = 0
+    Dim SearchCount As Integer = If(TryComment, 2, 1)
+    Dim SearchText  As String  = Me.Info
+    Dim FoundCant   As Boolean = False
+    
+    Kind          = GeoPointKind.None
+    ActualCant    = Null
+    ActualCantAbs = Null
+    NewInfo       = ""
+    
+    If (Trim(PointInfoText) <> "") Then
+        
+        ' Test EVERY pattern against PointInfoText, since both "ueb=" and "u=" may be there.
+        For Each Pattern In InfoCantPatterns
+            
+            ThisWorkbook.RegExp.IgnoreCase = True
+            ThisWorkbook.RegExp.Global     = False
+            ThisWorkbook.RegExp.Pattern    = Pattern
+            Set oMatches = ThisWorkbook.RegExp.Execute(PointInfoText)
+            
+            If (oMatches.Count > 0) Then
+                
+                FoundCant = True
+                Kind      = GeoPointKind.Rails
+                
+  'InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
+  'InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
+                
+                ' Get actual cant and remove cant pattern from PointInfoText.
+                Select Case LCase(oMatches(0).SubMatches(0))
+                    Case "ueb":  ActualCantAbs = -1 * CDbl(Replace(oMatches(0).SubMatches(1), " ", "")) / 1000
+                    Case "u":    ActualCant    =      CDbl(Replace(oMatches(0).SubMatches(1), " ", "")) / 1000
+                End Select
+                
+                PointInfoText = PointInfoText.Remove(oMatch.Index, oMatch.Length).TrimEnd()
+            End If
+        Next
+        NewInfo = PointInfoText
+    End If
+    
+    ParseInfoForActualCant = FoundCant
+    Exit Function
+  Fehler:
+  FehlerNachricht "CdatDatenpuffer.ParseInfoForActualCant()"
 End Function
 
 

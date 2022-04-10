@@ -947,7 +947,7 @@ Sub Mod_UeberhoehungAusBemerkung()
         'ua_ist(i) = ZielWert
       End If
       
-      '(strenge) Überhöhungsangabe aus Bemerkung entfernen.
+      'Überhöhungsangabe aus Bemerkung entfernen.
       BemerkNeu(i) = substitute("u *= *[-|+]?[0-9]+", "", BemerkAlt, False, False)
     Next
     
@@ -1405,20 +1405,21 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
         
         If (oMatches.Count > 0) Then
             
+            FoundITC          = True
             iTC_Kind          = GeoPointKind.None
             iTC_MarkType      = ""
             iTC_ActualCantAbs = Null
             iTC_ActualCant    = Null
             
             ' Recognize point kinds with attached info.
-            For i = 3 To 20
+            For i = 2 To 19
                 Key = oMatches(0).SubMatches(i)
                 Select Case Key
                     Case "-b":     iTC_Kind = GeoPointKind.Platform
                     Case "-v":     iTC_Kind = GeoPointKind.RailsFixPoint : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
                     Case "-f":     iTC_Kind = GeoPointKind.FixPoint      : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
-                    Case "-iueb":  iTC_Kind = GeoPointKind.Rails         : iTC_ActualCantAbs = -1 * Replace(CDbl(oMatches(0).SubMatches(i + 1)), " ", "") / 1000
-                    Case "-iu":    iTC_Kind = GeoPointKind.Rails         : iTC_ActualCant    =      Replace(CDbl(oMatches(0).SubMatches(i + 1)), " ", "") / 1000
+                    Case "-iueb":  iTC_Kind = GeoPointKind.Rails         : iTC_ActualCantAbs = -1 * CDbl(Replace(oMatches(0).SubMatches(i + 1)), " ", "") / 1000
+                    Case "-iu":    iTC_Kind = GeoPointKind.Rails         : iTC_ActualCant    =      CDbl(Replace(oMatches(0).SubMatches(i + 1)), " ", "") / 1000
                     Case "-i":     iTC_Kind = GeoPointKind.Rails
                 End Select
                 'Exit For -> not exit, because both "-iueb" and "-iu" may be there.
@@ -1451,10 +1452,10 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
             End If
             
             ' Special mark type.
-            MarkTypeAB = oMatches(0).SubMatches(1)
+            MarkTypeAB = oMatches(0).SubMatches(0)
             
             ' Point info text.
-            NewInfo = Trim(oMatches(0).SubMatches(23))
+            NewInfo = Trim(oMatches(0).SubMatches(22))
         End If
     End If
     Parse_iTC = FoundITC

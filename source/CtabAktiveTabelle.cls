@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -1353,42 +1353,22 @@ End Sub
 
 
 
-Public Sub Mod_UeberhoehungAusBemerkung()
-  'Manipulation der Tabellendaten: Berechnen von Fehlern und Verbesserungen.
+Public Sub Mod_InfoTextAuswerten()
+  'Manipulation der Tabellendaten: Auswerten des InfoTextes.
   On Error GoTo Fehler
   Dim oExpim    As CdatExpim
   Set oExpim = New CdatExpim
   oExpim.GetQuelldaten_XlTabAktiv
   oExpim.Opt_FormelnErhalten = Me.ModOpt_FormelnErhalten
   oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = Me.ModOpt_VorhWerteUeberschreiben
-  oExpim.Datenpuffer.Mod_UeberhoehungAusBemerkung
+  oExpim.Datenpuffer.Mod_InfoTextAuswerten
   oExpim.SchreibeDatenpuffer_XlTabAktiv
   call ClearStatusBarDelayed(StatusBarClearDelay)
   Set oExpim = Nothing
   Exit Sub
 Fehler:
   Set oExpim = Nothing
-  FehlerNachricht "CtabAktiveTabelle.Mod_UeberhoehungAusBemerkung()"
-End Sub
-
-
-
-Public Sub Mod_iTrassenCodeAusBemerkung()
-  'Manipulation der Tabellendaten: Extraktion der iTrassen-Codierung.
-  On Error GoTo Fehler
-  Dim oExpim    As CdatExpim
-  Set oExpim = New CdatExpim
-  oExpim.GetQuelldaten_XlTabAktiv
-  oExpim.Opt_FormelnErhalten = Me.ModOpt_FormelnErhalten
-  oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = Me.ModOpt_VorhWerteUeberschreiben
-  oExpim.Datenpuffer.Mod_iTrassenCodeAusBemerkung
-  oExpim.SchreibeDatenpuffer_XlTabAktiv
-  call ClearStatusBarDelayed(StatusBarClearDelay)
-  Set oExpim = Nothing
-  Exit Sub
-Fehler:
-  Set oExpim = Nothing
-  FehlerNachricht "CtabAktiveTabelle.Mod_iTrassenCodeAusBemerkung()"
+  FehlerNachricht "CtabAktiveTabelle.Mod_InfoTextAuswerten()"
 End Sub
 
 

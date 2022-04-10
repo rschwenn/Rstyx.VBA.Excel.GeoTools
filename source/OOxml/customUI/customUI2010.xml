@@ -168,24 +168,10 @@
                   keytip="b"
                   imageMso="EquationEdit"
                   >
-                  <button id="CalcDiffsButton"
-                          label="Fehler und Verbesserungen"
-                          screentip="Fehler und Verbesserungen berechnen"
-                          supertip="Für Größen, die mit Soll- und Istwerten in der Tabelle vertreten sind, werden Fehler und Verbesserungen berechnet."
-                          onAction="GeoToolsButtonAction"
-                          getEnabled="GetEnabledGeoToolsTable"
-                          />
-                  <button id="CalcITraCodeButton"
-                          label="iTrassen-Codierung aus Bemerkung"
-                          screentip="Bemerkung als iTrassen-Codierung interpretieren"
-                          supertip="Enthält die Bemerkung eine iTrassen-Codierung, werden die verfügbaren Info's extrahiert (Vermarkung iGeo-Absteckbuch, Punktart, Festpunkt-Vermarkung, Ist-Überhöhung, InfoText). Ist 'Überschreiben' aktiviert, wird die Bemerkung mit dem neuen InfoText belegt."
-                          onAction="GeoToolsButtonAction"
-                          getEnabled="GetEnabledGeoToolsTable"
-                          />
-                  <button id="CalcCantButton"
-                          label="Ist-Überhöhung aus Bemerkung"
-                          screentip="Ist-Überhöhung aus Bemerkung extrahieren"
-                          supertip="Enthält die Bemerkung (Punktinfo') Angaben der Form 'u=xxx' oder 'ueb=xxx', dann wird 'xxx' als Ist-Überhöhung interpretiert. Ist 'Überschreiben' aktiviert, wird die genannte Angabe aus der Bemerkung entfernt."
+                  <button id="CalcParseInfoTextButton"
+                          label="InfoText auswerten"
+                          screentip="Punktart und Ist-Überhöhung aus InfoText extrahieren"
+                          supertip="Der InfoText (Punktinfo') wird nach iTrassen-Codierung und Überhöhungsangaben ('u=xxx', 'ueb=xxx') durchsucht. Gefundene Werte werden in die entsprechenden Spalten eingetragen. Ist 'Überschreiben' aktiviert, werden sie aus der Bemerkung entfernt."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
@@ -200,6 +186,13 @@
                           label="Gleissystem => Trassenkoo'"
                           screentip="Transformation: Gleissystem (gedreht) => Trassensystem"
                           supertip="Koordinaten im Gleissystem (QG, HG) werden ins Trassensystem (Q, HSOK) transformiert."
+                          onAction="GeoToolsButtonAction"
+                          getEnabled="GetEnabledGeoToolsTable"
+                          />
+                  <button id="CalcDiffsButton"
+                          label="Fehler und Verbesserungen"
+                          screentip="Fehler und Verbesserungen berechnen"
+                          supertip="Für Größen, die mit Soll- und Istwerten in der Tabelle vertreten sind, werden Fehler und Verbesserungen berechnet."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />

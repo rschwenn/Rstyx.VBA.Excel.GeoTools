@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================

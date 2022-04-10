@@ -15,7 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -1863,6 +1863,7 @@ Private Sub Changed_CsvDateiname()
           oExpimGlobal.Datenpuffer.Opt_UebAusInfoStreng = CBool(oCsvSpezial.Opt_UebAusInfoStreng)
           oExpimGlobal.Datenpuffer.Opt_FehlerVerbesserungen = CBool(oCsvSpezial.Opt_FehlerVerbesserungen)
           oExpimGlobal.Datenpuffer.Opt_UeberhoehungAusBemerkung = CBool(oCsvSpezial.Opt_UeberhoehungAusBemerkung)
+          oExpimGlobal.Datenpuffer.Opt_iTrassenCodeAusBemerkung = CBool(oCsvSpezial.Opt_iTrassenCodeAusBemerkung)
           oExpimGlobal.Datenpuffer.Opt_Transfo_Tk2Gls = CBool(oCsvSpezial.Opt_Transfo_Tk2Gls)
         
         'b, ... an der Oberfläche widerspiegeln

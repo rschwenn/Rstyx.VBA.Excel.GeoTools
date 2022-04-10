@@ -409,7 +409,7 @@ Sub test_Mod_XlTabAktiv()
   oExpim.Datenpuffer.Opt_VorhWerteUeberschreiben = True
   'oExpim.Datenpuffer.Opt_Transfo_Tk2Gls = True
   'oExpim.Datenpuffer.Daten_Bearbeiten
-  oExpim.Datenpuffer.Mod_UeberhoehungAusBemerkung
+  'oExpim.Datenpuffer.Mod_UeberhoehungAusBemerkung
   oExpim.Datenpuffer.Mod_Transfo_Tk2Gls
   oExpim.Datenpuffer.Mod_FehlerVerbesserung
   

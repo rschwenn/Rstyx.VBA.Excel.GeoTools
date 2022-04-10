@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2020  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -1164,6 +1164,7 @@ Private Function GetQuelldaten_CsvSpezial(oCSV As CtabCSV) As Long
   Me.Datenpuffer.Opt_UebAusInfoStreng = CBool(oCSV.Opt_UebAusInfoStreng)
   Me.Datenpuffer.Opt_FehlerVerbesserungen = CBool(oCSV.Opt_FehlerVerbesserungen)
   Me.Datenpuffer.Opt_UeberhoehungAusBemerkung = CBool(oCSV.Opt_UeberhoehungAusBemerkung)
+  Me.Datenpuffer.Opt_iTrassenCodeAusBemerkung = CBool(oCSV.Opt_iTrassenCodeAusBemerkung)
   Me.Datenpuffer.Opt_Transfo_Tk2Gls = CBool(oCSV.Opt_Transfo_Tk2Gls)
   On Error GoTo Fehler
   

@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -133,8 +133,7 @@ Private oRibbon As IRibbonUI
             Case "TableStructureButton"         : Call TabellenStruktur
             Case "FormatButton"                 : Call FormatDaten
             Case "CalcDiffsButton"              : Call Mod_FehlerVerbesserung
-            Case "CalcITraCodeButton"           : Call Mod_iTrassenCodeAusBemerkung
-            Case "CalcCantButton"               : Call Mod_UeberhoehungAusBemerkung
+            Case "CalcParseInfoTextButton"      : Call Mod_InfoTextAuswerten
             Case "CalcHorizontalToCantedButton" : Call Mod_Transfo_Tk2Gls
             Case "CalcCantedToHorizontalButton" : Call Mod_Transfo_Gls2Tk
             Case "FormulaButton"                : Call UebertragenFormeln

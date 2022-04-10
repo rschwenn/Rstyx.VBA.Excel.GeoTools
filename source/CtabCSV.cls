@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2009-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2009-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -125,6 +125,7 @@ Private Sub Class_Initialize()
   oDataImportOptions.add "EditOpt_OverwriteExistingValues", null
   oDataImportOptions.add "EditOpt_GetSlantStrong", null
   oDataImportOptions.add "EditModule_SlantFromInfo", null
+  oDataImportOptions.add "EditModule_Parse_iTC", null
   oDataImportOptions.add "EditModule_Differences", null
   oDataImportOptions.add "EditModule_RailCooTransfo", null
   
@@ -143,6 +144,7 @@ Private Sub Class_Initialize()
   oDataImportOptionsTyp.add "EditOpt_OverwriteExistingValues", vbBoolean
   oDataImportOptionsTyp.add "EditOpt_GetSlantStrong", vbBoolean
   oDataImportOptionsTyp.add "EditModule_SlantFromInfo", vbBoolean
+  oDataImportOptionsTyp.add "EditModule_Parse_iTC", vbBoolean
   oDataImportOptionsTyp.add "EditModule_Differences", vbBoolean
   oDataImportOptionsTyp.add "EditModule_RailCooTransfo", vbBoolean
   
@@ -382,6 +384,11 @@ End Property
 Property Get Opt_UeberhoehungAusBemerkung() As Variant
   'Liefert die entsprechende Import-Option.
   Opt_UeberhoehungAusBemerkung = oDataImportOptions("EditModule_SlantFromInfo")
+End Property
+
+Property Get Opt_iTrassenCodeAusBemerkung() As Variant
+  'Liefert die entsprechende Import-Option.
+  Opt_iTrassenCodeAusBemerkung = oDataImportOptions("EditModule_Parse_iTC")
 End Property
 
 Property Get Opt_Transfo_Tk2Gls() As Variant

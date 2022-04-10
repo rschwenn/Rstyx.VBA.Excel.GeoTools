@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -108,39 +108,20 @@ Sub Mod_FehlerVerbesserung()
 End Sub
 
 
-Sub Mod_UeberhoehungAusBemerkung()
+Sub Mod_InfoTextAuswerten()
   'Modifiziert Daten der aktiven Tabelle.
   On Error GoTo Fehler
   Dim success As Boolean
   Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
   success = SetRequiredSeparators()
-  ThisWorkbook.AktiveTabelle.Mod_UeberhoehungAusBemerkung
+  ThisWorkbook.AktiveTabelle.Mod_InfoTextAuswerten
   call ClearStatusBarDelayed(StatusBarClearDelay)
   success = RestoreLastSeparators()
   Application.ScreenUpdating = True
   
   Exit Sub
   Fehler:
-  FehlerNachricht "mdlBefehle.Mod_UeberhoehungAusBemerkung()"
-  Application.ScreenUpdating = True
-  success = RestoreLastSeparators()
-End Sub
-
-
-Sub Mod_iTrassenCodeAusBemerkung()
-  'Modifiziert Daten der aktiven Tabelle.
-  On Error GoTo Fehler
-  Dim success As Boolean
-  Application.ScreenUpdating = False  ' Umschalten des Dezimaltrenners optisch verstecken.
-  success = SetRequiredSeparators()
-  ThisWorkbook.AktiveTabelle.Mod_iTrassenCodeAusBemerkung
-  call ClearStatusBarDelayed(StatusBarClearDelay)
-  success = RestoreLastSeparators()
-  Application.ScreenUpdating = True
-  
-  Exit Sub
-  Fehler:
-  FehlerNachricht "mdlBefehle.Mod_iTrassenCodeAusBemerkung()"
+  FehlerNachricht "mdlBefehle.Mod_InfoTextAuswerten()"
   Application.ScreenUpdating = True
   success = RestoreLastSeparators()
 End Sub

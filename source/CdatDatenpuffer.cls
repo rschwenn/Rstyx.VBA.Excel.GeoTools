@@ -65,8 +65,10 @@ Attribute VB_Exposed = False
  '              2. Soll: Radius und relative Überhöhung (S.Tra.Radius, S.Tra.u)
  '              3. Ist : Absolute Überhöhung (Tra.ua)
  '              4. Ist : Radius und relative Überhöhung (Tra.Radius, Tra.u)
- '   04.2022  - Parse_iTC() generalüberholt: Interpretation der iTrassen-Codierung
+ '10.04.2022  - Parse_iTC() generalüberholt: Interpretation der iTrassen-Codierung
  '              an iGeo und Rstyx.Utilities 2.8 angeglichen.
+ '            - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
+'               zusammengefasst zu Mod_InfoTextAuswerten()
 '====================================================================================
 
 
@@ -892,9 +894,11 @@ End Sub
 Sub Mod_InfoTextAuswerten()
   '--------------------------------------------------------------------------------------------------------'
   ' Modifikation am Datenpuffer: Der InfoText (PunktInfo) wird auf diverse Informationen 
-  ' untersucht. Gefundene Werte werden in die entsprechenden Felder eingetragen:
+  ' untersucht. Gefundene Werte werden aus dem InfoText entfernt und in die
+  ' entsprechenden Felder eingetragen:
   '  - Auswertung als iTrassen-Codierung (und Entfernung aus InfoText)
   '  - Überhöhungsangabe der Form "u=xx" (und Entfernung aus InfoText)
+  ' Formeln im InfoText gehen verloren!
   '--------------------------------------------------------------------------------------------------------'
   ' - Bei Erfolg werden folgende Teilinformationen extrahiert:
   '   

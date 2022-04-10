@@ -38,7 +38,12 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner nagelegt,
+'10.04.2022 v3.3.0  - CdatDatenpuffer: 
+'                     - Zerlegen der iTrassen-Codierung angepasst an iGeo und Rstyx.Utilities
+'                     - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
+'                       zusammengefasst zu Mod_InfoTextAuswerten()
+'                   - GUI->Berechnung: "InfoText auswerten" statt zwei einzelne Aktionen (s.o.)
+'11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner abgelegt,
 '                     weil dieser oft geleert wird. Wenn möglich, wird 
 '                     "%LOCALAPPDATA%\GeoTools\GeoTools_xltcache.txt" verwendet, erst bei Mißerfolg
 '                     "%Temp%\GeoTools_xltcache.txt".

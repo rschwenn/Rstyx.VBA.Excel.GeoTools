@@ -924,126 +924,121 @@ Sub Mod_InfoTextAuswerten()
   '   -            -f*                   PSx               Festpunkt           * = Vermarkungsart
   '   -            -v*                   GVP               GVP                 * = Vermarkungsart
   '--------------------------------------------------------------------------------------------------------'
-  
-  On Error GoTo Fehler
-  
-  Dim lb                   As Long
-  Dim ub                   As Long
-  Dim i                    As Long
-  
-  Dim u_ist()              As String
-  Dim ua_ist()             As String
-  Dim PArtBez1()           As String
-  Dim PArtBez2()           As String
-  Dim VArtKz1()            As String
-  Dim VArtKz2()            As String
-  Dim BemerkNeu()          As String
-  
-  Dim intPArt              As GeoPointKind
-  Dim strVArtKz1           As String
-  Dim strVArtKz2           As String
-  Dim strInfoNeu           As String
-  
-  Dim BemerkAlt            As String
-  Dim varUebQuelle         As Variant
-  Dim varUebAbsQuelle      As Variant
-  Dim keineFormeln         As Boolean
-  Dim FoundITC             As Boolean
-  Dim IsUnknownCant        As Boolean
-  Dim ParseCant            As Boolean
-  
-  Echo vbnewline & "InfoText auswerten (Punktart, Überhöhung usw.)"
-  Echo "  Einstellung: iTrassen-Codierung auswerten   = " & bool2String(Me.Opt_iTrassenCodeAusBemerkung)
-  Echo "  Einstellung: Überhöhung aus InfoText (u=xx) = " & bool2String(Me.Opt_UeberhoehungAusBemerkung)
-  Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
-  Application.StatusBar = "InfoText auswerten."
-  ErrMessage = "Fehler bei Auswerten des InfoTextes"
-  
-  If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
+    On Error GoTo Fehler
     
-    lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
-    ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
-    ReDim u_ist(lb To ub)
-    ReDim ua_ist(lb To ub)
-    ReDim PArtBez1(lb To ub)
-    ReDim PArtBez2(lb To ub)
-    ReDim VArtKz1(lb To ub)
-    ReDim VArtKz2(lb To ub)
-    ReDim BemerkNeu(lb To ub)
-    keineFormeln = (CountDim(oDaten(SpN_Pkt_Erl_L)) = 1)
-    FoundITC = False
+    Dim lb                   As Long
+    Dim ub                   As Long
+    Dim i                    As Long
     
-    For i = lb To ub
-      'Vorbereitungen.
-      If (keineFormeln) Then
-        BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i)
-      Else
-        BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
-      End If
-      IsUnknownCant = True
-      intPArt = GeoPointKind.None
-      
-      'iTrassen-Codierung zerlegen.
-      If (Me.Opt_iTrassenCodeAusBemerkung) Then
-        FoundITC = Parse_iTC(BemerkAlt, intPArt, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
-      End If
-      
-      'BemerkNeu(i) und ggf. weitere Felder belegen.
-      If (Not FoundITC) Then
-        BemerkNeu(i) = BemerkAlt
-      Else
-        'Felder im Vektor belegen.
-        If (IsNumeric(varUebQuelle)) Then
-          u_ist(i)   = varUebQuelle
-        End If
-        If (IsNumeric(varUebAbsQuelle)) Then
-          ua_ist(i)  = varUebAbsQuelle
-        End If
-        
-        PArtBez1(i)  = DefaultKindTextShort(intPArt)
-        PArtBez2(i)  = DefaultKindTextLong(intPArt)
-        VArtKz1(i)   = strVArtKz1
-        VArtKz2(i)   = strVArtKz2
-        BemerkNeu(i) = strInfoNeu
-        
-        ' Flag setzen, wenn keine Überhöhung erkannt worden ist.
-        If (IsNumeric(varUebQuelle) Or IsNumeric(varUebAbsQuelle)) Then
-          IsUnknownCant = False
-        End If
-      End If
-      
-      'klassische Überhöhungsangabe aus verbliebenem InfoText.
-      ParseCant = ((intPArt = GeoPointKind.None) Or ((intPArt = GeoPointKind.Rails) And IsUnknownCant))
-      If (Me.Opt_UeberhoehungAusBemerkung And ParseCant) Then
-        
-        varUebQuelle = Ueberhoehung(BemerkNeu(i), Me.Opt_UebAusInfoStreng)  'u in [mm]
-        
-        If (IsNumeric(varUebQuelle)) Then
-          u_ist(i) = CDbl(varUebQuelle) / 1000
-        End If
-        
-        'Überhöhungsangabe aus Bemerkung entfernen.
-        BemerkNeu(i) = substitute("u *= *[-|+]? *[0-9]+", "", BemerkNeu(i), False, False)
-      End If
-    Next
+    Dim u_ist()              As String
+    Dim ua_ist()             As String
+    Dim PArtBez1()           As String
+    Dim PArtBez2()           As String
+    Dim VArtKz1()            As String
+    Dim VArtKz2()            As String
+    Dim BemerkNeu()          As String
     
-    'Neue Werte in den Datenpuffer schreiben.
-    Call Vektor2Datenuffer(u_ist,     SpN_Tra_u,        Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(ua_ist,    SpN_Tra_ua,       Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(VArtKz2,   SpN_Pkt_VArt_Kz2, Me.Opt_VorhWerteUeberschreiben)
-    Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L,    Me.Opt_VorhWerteUeberschreiben)
-  End If
-  
-  'SpaltenInfo aktualisieren.
-  Call Daten_GetSpaltenInfo
-  
-  Exit Sub
-  
-  Fehler:
-  FehlerNachricht "CdatDatenpuffer.Mod_InfoTextAuswerten()"
+    Dim intPArt              As GeoPointKind
+    Dim strVArtKz1           As String
+    Dim strVArtKz2           As String
+    Dim strInfoNeu           As String
+    
+    Dim BemerkAlt            As String
+    Dim varUebQuelle         As Variant
+    Dim varUebAbsQuelle      As Variant
+    Dim keineFormeln         As Boolean
+    Dim FoundITC             As Boolean
+    Dim FoundCant            As Boolean
+    Dim IsUnknownCant        As Boolean
+    Dim ParseCant            As Boolean
+    
+    Echo vbnewline & "InfoText auswerten (Punktart, Überhöhung usw.)"
+    Echo "  Einstellung: iTrassen-Codierung auswerten   = " & bool2String(Me.Opt_iTrassenCodeAusBemerkung)
+    Echo "  Einstellung: Überhöhung aus InfoText (u=xx) = " & bool2String(Me.Opt_UeberhoehungAusBemerkung)
+    Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
+    Application.StatusBar = "InfoText auswerten."
+    ErrMessage = "Fehler bei Auswerten des InfoTextes"
+    
+    If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
+        
+        lb = LBound(oDaten(SpN_Pkt_Erl_L), 1)
+        ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
+        ReDim u_ist(lb To ub)
+        ReDim ua_ist(lb To ub)
+        ReDim PArtBez1(lb To ub)
+        ReDim PArtBez2(lb To ub)
+        ReDim VArtKz1(lb To ub)
+        ReDim VArtKz2(lb To ub)
+        ReDim BemerkNeu(lb To ub)
+        keineFormeln = (CountDim(oDaten(SpN_Pkt_Erl_L)) = 1)
+        FoundITC = False
+        
+        For i = lb To ub
+            ' Vorbereitungen.
+            If (keineFormeln) Then
+                BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i)
+            Else
+                BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
+            End If
+            strInfoNeu      = BemerkAlt
+            intPArt         = GeoPointKind.None
+            strVArtKz1      = ""
+            strVArtKz2      = ""
+            varUebQuelle    = ""
+            varUebAbsQuelle = ""
+            IsUnknownCant   = True
+            
+            ' iTrassen-Codierung.
+            If (Me.Opt_iTrassenCodeAusBemerkung) Then
+                FoundITC = Parse_iTC(BemerkAlt, intPArt, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
+                
+                ' Flag setzen, wenn Überhöhung erkannt worden ist.
+                If (FoundITC) Then
+                    If (IsNumeric(varUebQuelle) Or IsNumeric(varUebAbsQuelle)) Then
+                      IsUnknownCant = False
+                    End If
+                End If
+            End If
+            
+            ' Klassische Überhöhungsangabe aus verbliebenem InfoText.
+            ParseCant = ((intPArt = GeoPointKind.None) Or ((intPArt = GeoPointKind.Rails) And IsUnknownCant))
+            If (Me.Opt_UeberhoehungAusBemerkung And ParseCant) Then
+                FoundCant = ParseInfoForActualCant(strInfoNeu, intPArt, varUebQuelle, varUebAbsQuelle, strInfoNeu)
+            End If
+            
+            ' Felder im Vektor belegen.
+            If (FoundITC Or FoundCant) Then
+                If (IsNumeric(varUebQuelle)) Then
+                  u_ist(i) = varUebQuelle
+                End If
+                If (IsNumeric(varUebAbsQuelle)) Then
+                  ua_ist(i) = varUebAbsQuelle
+                End If
+            End If
+            BemerkNeu(i) = strInfoNeu
+            VArtKz1(i)   = strVArtKz1
+            VArtKz2(i)   = strVArtKz2
+            PArtBez1(i)  = DefaultKindTextShort(intPArt)
+            PArtBez2(i)  = DefaultKindTextLong(intPArt)
+        Next
+        
+        ' Neue Werte in den Datenpuffer schreiben.
+        Call Vektor2Datenuffer(u_ist,     SpN_Tra_u,        Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(ua_ist,    SpN_Tra_ua,       Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(VArtKz2,   SpN_Pkt_VArt_Kz2, Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L,    Me.Opt_VorhWerteUeberschreiben)
+    End If
+    
+    'SpaltenInfo aktualisieren.
+    Call Daten_GetSpaltenInfo
+    
+    Exit Sub
+    
+    Fehler:
+    FehlerNachricht "CdatDatenpuffer.Mod_InfoTextAuswerten()"
 End Sub
 
 
@@ -1318,28 +1313,28 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
                            ByRef ActualCantAbs As Variant, _
                            ByRef NewInfo       As String _
                           ) As Boolean
- '------------------------------------------------------------------------------    
- ' A given string will be parsed as iGeo "iTrassen-Codierung":
- '
- ' Eingabe:  PointInfoText ... Punktinfo original
- ' Ausgabe:  Kind          ... Punktart
- ' Ausgabe:  MarkType      ... Vermarkungsart (für Festpunkt oder GVP)
- ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
- ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
- ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
- ' Ausgabe:  NewInfo       ... Text-Teil der iTrassen-Codierung
- ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
- '  
- ' Erwartete Formate:
- '  -b                    Platform                                 
- '  -iueb[=]?[+-]?[0-9]+  Actual rails with actual absolute cant (sign as iGeo)
- '  -iu[=]?[+-]?[0-9]+    Actual rails with actual relative cant
- '  -i                    Actual rails without actual cant
- '  -v[0-9]+              Rails fix point [with numeric mark type] 
- '  -f[0-9]+              Other fix point [with numeric mark type] 
- '  ?-                    If one of the above codes is there, it may be preceeded 
- '                        by one word character which will be treated as MarkTypeAB.
- '------------------------------------------------------------------------------
+  '------------------------------------------------------------------------------    
+  ' A given string will be parsed as iGeo "iTrassen-Codierung":
+  '
+  ' Eingabe:  PointInfoText ... Punktinfo original
+  ' Ausgabe:  Kind          ... Punktart
+  ' Ausgabe:  MarkType      ... Vermarkungsart (für Festpunkt oder GVP)
+  ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
+  ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
+  ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
+  ' Ausgabe:  NewInfo       ... Text-Teil der iTrassen-Codierung
+  ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
+  '  
+  ' Erwartete Formate:
+  '  -b                    Platform                                 
+  '  -iueb[=]?[+-]?[0-9]+  Actual rails with actual absolute cant (sign as iGeo)
+  '  -iu[=]?[+-]?[0-9]+    Actual rails with actual relative cant
+  '  -i                    Actual rails without actual cant
+  '  -v[0-9]+              Rails fix point [with numeric mark type] 
+  '  -f[0-9]+              Other fix point [with numeric mark type] 
+  '  ?-                    If one of the above codes is there, it may be preceeded 
+  '                        by one word character which will be treated as MarkTypeAB.
+  '------------------------------------------------------------------------------
     Dim FoundITC          As Boolean
     Dim oMatches          As Object
     Dim Key               As String
@@ -1435,9 +1430,9 @@ Function ParseInfoForActualCant(ByVal PointInfoText As String, _
  ' A given string will be parsed for actual cant:
  '
  ' Eingabe:  PointInfoText ... Punktinfo original
- ' Ausgabe:  Kind          ... Punktart
- ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
- ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
+ ' Ausgabe:  Kind          ... Punktart. Wird nur auf GeoPointKind.Rails geändert, falls Überhöhung gefunden wurde.
+ ' Ausgabe:  ActualCant    ... Null oder Ist-Überhöhung (für Gleispunkt)
+ ' Ausgabe:  ActualCantAbs ... Null oder Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
  ' Ausgabe:  NewInfo       ... PointInfoText ohne gefundene Überhöhungsangabe
  ' Rückgabe: True, wenn eine Überhöhungsangabe gefunden wurde.
  '  
@@ -1445,17 +1440,11 @@ Function ParseInfoForActualCant(ByVal PointInfoText As String, _
  '  ueb *= *([+-]? *[0-9]+)  Actual absolute cant (sign as iGeo)
  '  u *= *([+-]? *[0-9]+)    Actual relative cant
  '------------------------------------------------------------------------------    
+    Dim FoundCant As Boolean
     
-    
-    Dim i           As Integer = 0
-    Dim SearchCount As Integer = If(TryComment, 2, 1)
-    Dim SearchText  As String  = Me.Info
-    Dim FoundCant   As Boolean = False
-    
-    Kind          = GeoPointKind.None
-    ActualCant    = Null
-    ActualCantAbs = Null
-    NewInfo       = ""
+    FoundCant     = False
+    ActualCant    = ""
+    ActualCantAbs = ""
     
     If (Trim(PointInfoText) <> "") Then
         
@@ -1472,20 +1461,17 @@ Function ParseInfoForActualCant(ByVal PointInfoText As String, _
                 FoundCant = True
                 Kind      = GeoPointKind.Rails
                 
-  'InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
-  'InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
-                
                 ' Get actual cant and remove cant pattern from PointInfoText.
                 Select Case LCase(oMatches(0).SubMatches(0))
                     Case "ueb":  ActualCantAbs = -1 * CDbl(Replace(oMatches(0).SubMatches(1), " ", "")) / 1000
                     Case "u":    ActualCant    =      CDbl(Replace(oMatches(0).SubMatches(1), " ", "")) / 1000
                 End Select
-                
-                PointInfoText = PointInfoText.Remove(oMatch.Index, oMatch.Length).TrimEnd()
+                'PointInfoText = substitute(oMatches(0).SubMatches(0), "", PointInfoText, False, False)
+                PointInfoText = Left(PointInfoText, oMatches(0).FirstIndex) & Mid(PointInfoText, oMatches(0).FirstIndex + oMatches(0).Length + 1)
             End If
         Next
-        NewInfo = PointInfoText
     End If
+    NewInfo = PointInfoText
     
     ParseInfoForActualCant = FoundCant
     Exit Function

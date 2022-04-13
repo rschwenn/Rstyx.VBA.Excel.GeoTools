@@ -130,6 +130,7 @@ Dim MarkType2Kind           As Scripting.Dictionary
 Dim DefaultKindTextShort    As Scripting.Dictionary
 Dim DefaultKindTextLong     As Scripting.Dictionary
 Dim InfoCantPatterns        As Scripting.Dictionary
+Dim InfoKindPatterns        As Scripting.Dictionary
 
 
 Private Sub Class_Initialize()
@@ -199,6 +200,17 @@ Private Sub Class_Initialize()
   Set InfoCantPatterns = New Scripting.Dictionary
   InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
   InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
+  
+  ' Patterns for recognizing point kind from info text.
+  Set InfoKindPatterns  = New Scripting.Dictionary
+  InfoKindPatterns.Add "\bGls\b|\bGleis\b"             , GeoPointKind.Rails
+  InfoKindPatterns.Add "\bBst\b|\bBstg\b|\bBahnst"     , GeoPointKind.Platform
+  InfoKindPatterns.Add "\bPS4\b|\bGVP"                 , GeoPointKind.RailsFixPoint
+  InfoKindPatterns.Add "\bPS3\b|\bHFP\b|\bHB\b|\bHP\b" , GeoPointKind.FixPoint1D
+  InfoKindPatterns.Add "\bPS2\b|\bLFP\b|\bPPB\b"       , GeoPointKind.FixPoint2D
+  InfoKindPatterns.Add "\bPS1\b|\bGPSC\b|\bLHFP\b"     , GeoPointKind.FixPoint3D
+  InfoKindPatterns.Add "\bPS0\b|\bNXO\b|\bDBRF\b"      , GeoPointKind.FixPoint3D
+  InfoKindPatterns.Add "\bPP\b|\bAP\b|\bPSx\b"         , GeoPointKind.FixPoint
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -1008,6 +1020,11 @@ Sub Mod_InfoTextAuswerten()
                 FoundCant = ParseInfoForActualCant(strInfoNeu, intPArt, varUebQuelle, varUebAbsQuelle, strInfoNeu)
             End If
             
+            ' Parse for point kind.
+            If (intPArt = GeoPointKind.None) Then
+                intPArt = ParseInfoForPointKind(strInfoNeu)
+            End If
+            
             ' Felder im Vektor belegen.
             If (FoundITC Or FoundCant) Then
                 If (IsNumeric(varUebQuelle)) Then
@@ -1481,6 +1498,48 @@ Function ParseInfoForActualCant(ByVal PointInfoText As String, _
     Exit Function
   Fehler:
   FehlerNachricht "CdatDatenpuffer.ParseInfoForActualCant()"
+End Function
+
+Function ParseInfoForPointKind(ByVal PointInfoText As String) As GeoPointKind
+ '------------------------------------------------------------------------------    
+ ' Guesses the point kind from PointInfoText (somewhat heuristic).
+ '
+ ' Eingabe:  PointInfoText ... Punktinfo
+ ' Rückgabe: Kind          ... erkannte Punktart, sonst GeoPointKind.None
+ '  
+ ' The following patterns somewhere in PointInfoText lead to guessing the point kind: 
+ '  Gls, Gleis        => Actual rails (without actual cant)
+ '  Bstg, Bst, Bahnst => Platform
+ '  PS4, GVP          => Rails fix point
+ '  PS3, HFP, HB, HP  => Fix point 1D
+ '  PS2, LFP, PPB     => Fix point 2D
+ '  PS1, GPSC, LHFP   => Fix point 3D
+ '  PS0, NXO, DBRF    => Fix point 3D
+ '  PP, AP, PSx       => General fix point
+ '------------------------------------------------------------------------------    
+    Dim Pattern   As Variant
+    Dim oMatches  As Object
+    Dim RetValue  As GeoPointKind
+    
+    RetValue      = GeoPointKind.None
+    
+    If (Trim(PointInfoText) <> "") Then
+            
+        For Each Pattern In InfoKindPatterns
+            
+            ThisWorkbook.RegExp.IgnoreCase = True
+            ThisWorkbook.RegExp.Global     = False
+            ThisWorkbook.RegExp.Pattern    = Pattern
+            Set oMatches = ThisWorkbook.RegExp.Execute(PointInfoText)
+            
+            If (oMatches.Count > 0) Then
+                RetValue = InfoKindPatterns(Pattern)
+                Exit For
+            End If
+        Next
+    End If
+    
+    ParseInfoForPointKind = RetValue
 End Function
 
 

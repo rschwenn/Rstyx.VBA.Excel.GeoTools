@@ -43,6 +43,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '                     - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
 '                       zusammengefasst zu Mod_InfoTextAuswerten()
 '                     - ParseInfoForActualCant() ersetzt mdlToolsAllgemein.Ueberhoehung()
+'                     - Mod_InfoTextAuswerten(): Punktarterkennung aus klassischem InfoText
+'                       ergänzt via ParseInfoForPointKind()
 '                   - GUI->Berechnung: "InfoText auswerten" statt zwei einzelne Aktionen (s.o.)
 '11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner abgelegt,
 '                     weil dieser oft geleert wird. Wenn möglich, wird 

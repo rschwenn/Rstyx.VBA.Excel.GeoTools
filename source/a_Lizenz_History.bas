@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2021 Robert Schwenn
+' Copyright (c) 2003-2022 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -38,10 +38,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'10.04.2022 v3.3.0  - CdatDatenpuffer: 
+'13.04.2022 v3.3.0  - CdatDatenpuffer: 
 '                     - Zerlegen der iTrassen-Codierung angepasst an iGeo und Rstyx.Utilities
 '                     - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
 '                       zusammengefasst zu Mod_InfoTextAuswerten()
+'                     - ParseInfoForActualCant() ersetzt mdlToolsAllgemein.Ueberhoehung()
 '                   - GUI->Berechnung: "InfoText auswerten" statt zwei einzelne Aktionen (s.o.)
 '11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner abgelegt,
 '                     weil dieser oft geleert wird. Wenn möglich, wird 

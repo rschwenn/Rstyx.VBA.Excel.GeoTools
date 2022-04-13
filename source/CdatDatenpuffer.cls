@@ -186,7 +186,7 @@ Private Sub Class_Initialize()
   
   ' Mapping:  GeoPointKind => Long Text (GeoPointKind, String)
   Set DefaultKindTextLong = New Scripting.Dictionary
-  DefaultKindTextLong.Add GeoPointKind.None          , PArt2_None 
+  DefaultKindTextLong.Add GeoPointKind.None          , ""  ' PArt2_None 
   DefaultKindTextLong.Add GeoPointKind.FixPoint      , PArt2_FixPoint
   DefaultKindTextLong.Add GeoPointKind.FixPoint1D    , PArt2_FixPoint1D
   DefaultKindTextLong.Add GeoPointKind.FixPoint2D    , PArt2_FixPoint2D
@@ -997,6 +997,8 @@ Sub Mod_InfoTextAuswerten()
                     If (IsNumeric(varUebQuelle) Or IsNumeric(varUebAbsQuelle)) Then
                       IsUnknownCant = False
                     End If
+                Else
+                    strInfoNeu = BemerkAlt
                 End If
             End If
             
@@ -1441,6 +1443,8 @@ Function ParseInfoForActualCant(ByVal PointInfoText As String, _
  '  u *= *([+-]? *[0-9]+)    Actual relative cant
  '------------------------------------------------------------------------------    
     Dim FoundCant As Boolean
+    Dim Pattern   As Variant
+    Dim oMatches  As Object
     
     FoundCant     = False
     ActualCant    = ""

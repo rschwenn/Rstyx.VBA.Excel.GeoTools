@@ -1648,6 +1648,7 @@ Private Sub GetFormatliste_XlVorlagen()
       oTS_XltCache.Close
     End If
   End If
+  Call ProgressbarAllgemein(TemplatesCount, TemplatesCount, "Anzahl verfügbarer XL-Vorlagen = " & CStr(TemplatesCount))
   
   'Nachbereitung
     Set oFS = Nothing

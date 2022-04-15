@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -144,6 +144,7 @@ Sub ProgressbarAllgemein(ByVal MaxValue As Double, ByVal CurrentValue As Double,
   
   Application.DisplayStatusBar = True
   Application.StatusBar = Bar
+  DoEvents
   
   Exit Sub
   
@@ -182,6 +183,7 @@ Sub ProgressbarDateiLesen(ByVal Dateinummer As Integer)
   End If
   Application.DisplayStatusBar = True
   Application.StatusBar = Bar
+  DoEvents
   
   Exit Sub
   
@@ -193,6 +195,8 @@ Sub ClearStatusBarDelayed(Seconds as integer)
   'Clears the statusbar after a given amount of seconds.
   On Error GoTo Fehler
   Application.OnTime Now + TimeSerial(0,0,Seconds), "ClearStatusBar"
+  Application.DisplayStatusBar = True
+  DoEvents
   Exit Sub
 Fehler:
   Err.Clear
@@ -202,6 +206,8 @@ Sub ClearStatusBar()
   'This method is needed for ClearStatusBarDelayed()...
   On Error GoTo Fehler
   Application.StatusBar = ""
+  Application.DisplayStatusBar = True
+  DoEvents
   Exit Sub
 Fehler:
   Err.Clear
@@ -210,8 +216,9 @@ End Sub
 Sub WriteStatusBar(Message as String)
   'This method is needed to catch different status bar handling in different VBA hosts.
   On Error GoTo Fehler
+  Application.DisplayStatusBar = True
   Application.StatusBar = Message
-  
+  DoEvents
   Exit Sub
 Fehler:
   Err.Clear

@@ -122,7 +122,10 @@ Private Sub Class_Initialize()
   
   Set oDatenpuffer = New CdatDatenpuffer
   Set oEinstellungen = New Scripting.Dictionary
-  Application.DisplayStatusBar = True
+  
+  'Die Statuszeile wird erst nach Schlieﬂen des modalen Dialogs eingeblendet:
+  'Application.DisplayStatusBar = True
+  'DoEvents
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)

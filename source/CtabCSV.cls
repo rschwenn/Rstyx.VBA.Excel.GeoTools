@@ -123,7 +123,6 @@ Private Sub Class_Initialize()
   oDataImportOptions.add "UseBackupColumns", null
   oDataImportOptions.add "EditData", null
   oDataImportOptions.add "EditOpt_OverwriteExistingValues", null
-  oDataImportOptions.add "EditOpt_GetSlantStrong", null
   oDataImportOptions.add "EditModule_SlantFromInfo", null
   oDataImportOptions.add "EditModule_Parse_iTC", null
   oDataImportOptions.add "EditModule_Differences", null
@@ -142,7 +141,6 @@ Private Sub Class_Initialize()
   oDataImportOptionsTyp.add "UseBackupColumns", vbBoolean
   oDataImportOptionsTyp.add "EditData", vbBoolean
   oDataImportOptionsTyp.add "EditOpt_OverwriteExistingValues", vbBoolean
-  oDataImportOptionsTyp.add "EditOpt_GetSlantStrong", vbBoolean
   oDataImportOptionsTyp.add "EditModule_SlantFromInfo", vbBoolean
   oDataImportOptionsTyp.add "EditModule_Parse_iTC", vbBoolean
   oDataImportOptionsTyp.add "EditModule_Differences", vbBoolean
@@ -369,11 +367,6 @@ End Property
 Property Get Opt_VorhWerteUeberschreiben() As Variant
   'Liefert die entsprechende Import-Option.
   Opt_VorhWerteUeberschreiben = oDataImportOptions("EditOpt_OverwriteExistingValues")
-End Property
-
-Property Get Opt_UebAusInfoStreng() As Variant
-  'Liefert die entsprechende Import-Option.
-  Opt_UebAusInfoStreng = oDataImportOptions("EditOpt_GetSlantStrong")
 End Property
 
 Property Get Opt_FehlerVerbesserungen() As Variant

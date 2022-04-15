@@ -1161,7 +1161,6 @@ Private Function GetQuelldaten_CsvSpezial(oCSV As CtabCSV) As Long
   Me.Opt_ErsatzZielspaltenVerwenden = CBool(oCSV.Opt_ErsatzZielspaltenVerwenden)
   Me.Opt_DatenModifizieren = CBool(oCSV.Opt_DatenModifizieren)
   Me.Datenpuffer.Opt_VorhWerteUeberschreiben = CBool(oCSV.Opt_VorhWerteUeberschreiben)
-  Me.Datenpuffer.Opt_UebAusInfoStreng = CBool(oCSV.Opt_UebAusInfoStreng)
   Me.Datenpuffer.Opt_FehlerVerbesserungen = CBool(oCSV.Opt_FehlerVerbesserungen)
   Me.Datenpuffer.Opt_UeberhoehungAusBemerkung = CBool(oCSV.Opt_UeberhoehungAusBemerkung)
   Me.Datenpuffer.Opt_iTrassenCodeAusBemerkung = CBool(oCSV.Opt_iTrassenCodeAusBemerkung)

@@ -83,7 +83,6 @@ Dim bln_FehlerVerbesserungen            As Boolean
 Dim bln_UeberhoehungAusBemerkung        As Boolean
 Dim bln_iTrassenCodeAusBemerkung        As Boolean
 Dim bln_Transfo_Tk2Gls                  As Boolean
-Dim bln_UebAusInfoStreng                As Boolean
 Dim dbl_TkBasisUeberhoehung             As Double
 
 'Objekte
@@ -267,19 +266,6 @@ Property Let Opt_VorhWerteUeberschreiben(inp_VorhWerteUeberschreiben As Boolean)
 End Property
 
 
-Property Get Opt_UebAusInfoStreng() As Boolean
-  'Liefert die Einstellung, ob die Angabe der Ist-Überhöhung in der Punktinfo'
-  'in der Form u=xxx vorliegen muss oder ob anderenfalls auch die erste Zahl verwendet wird.
-  Opt_UebAusInfoStreng = bln_UebAusInfoStreng
-End Property
-
-Property Let Opt_UebAusInfoStreng(inp_UebAusInfoStreng As Boolean)
-  'Setzt die Einstellung, ob die Angabe der Ist-Überhöhung in der Punktinfo'
-  'in der Form u=xxx vorliegen muss oder ob anderenfalls auch die erste Zahl verwendet wird.
-  bln_UebAusInfoStreng = inp_UebAusInfoStreng
-End Property
-
-
 Property Get TkBasisUeberhoehung() As Double
   'Liefert "Basis für Überhöhung" in [m] als Vorgabe für Transfo' Trassensystem <=> Gleissystem.
   TkBasisUeberhoehung = dbl_TkBasisUeberhoehung
@@ -351,12 +337,10 @@ Public Sub SetzeStandardEinstellungen()
   'Für einige Einstellungen: Konfiguration übernehmen, falls verfügbar
   If (Not ThisWorkbook.Konfig Is Nothing) Then
     bln_VorhWerteUeberschreiben = String2Bool(ThisWorkbook.Konfig.Expim_Ueberschreiben)
-    bln_UebAusInfoStreng        = String2Bool(ThisWorkbook.Konfig.UebAusInfoStreng)
     dbl_TkBasisUeberhoehung     = ThisWorkbook.Konfig.TkBasisUeberhoehung  'gibt garantiert einen Double-Wert zurück.
   Else
     DebugEcho "CdatDatenpuffer.SetzeStandardEinstellungen(): Keine Konfiguration verfügbar => Setze hart kodierte Standard-Einstellungen."
     bln_VorhWerteUeberschreiben = Std_VorhWerteUeberschreiben
-    bln_UebAusInfoStreng        = Std_UebAusInfoStreng
     dbl_TkBasisUeberhoehung     = Std_TkBasisUeberhoehung
   End If
   

@@ -1375,7 +1375,6 @@ Private Sub ReflektiereDatenEinstellungen()
     'Me.chkMod_FormelnErhalten.Enabled
     
   'Datenpuffer-Optionen, die bisher nicht auf der Oberfläche schaltbar sind.
-    'oExpimGlobal.Datenpuffer.Opt_UebAusInfoStreng
     'oExpimGlobal.Datenpuffer.Opt_FehlerVerbesserungen
     'oExpimGlobal.Datenpuffer.Opt_UeberhoehungAusBemerkung
     'oExpimGlobal.Datenpuffer.Opt_Transfo_Tk2Gls
@@ -1860,7 +1859,6 @@ Private Sub Changed_CsvDateiname()
           
           'Eigenschaften ohne Steuerelement an der Oberfläche
           On Error Resume Next
-          oExpimGlobal.Datenpuffer.Opt_UebAusInfoStreng = CBool(oCsvSpezial.Opt_UebAusInfoStreng)
           oExpimGlobal.Datenpuffer.Opt_FehlerVerbesserungen = CBool(oCsvSpezial.Opt_FehlerVerbesserungen)
           oExpimGlobal.Datenpuffer.Opt_UeberhoehungAusBemerkung = CBool(oCsvSpezial.Opt_UeberhoehungAusBemerkung)
           oExpimGlobal.Datenpuffer.Opt_iTrassenCodeAusBemerkung = CBool(oCsvSpezial.Opt_iTrassenCodeAusBemerkung)

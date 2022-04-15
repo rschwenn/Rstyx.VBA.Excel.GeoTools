@@ -39,7 +39,6 @@ Public Const RequiredXLUsesSystemSeparators  As Boolean = False
 
 'Standard-Einstellungen
 Public Const Std_TkBasisUeberhoehung         As Double  = 1.500
-Public Const Std_UebAusInfoStreng            As Boolean = true
 Public Const Std_VorhWerteUeberschreiben     As Boolean = false
 Public Const Std_DatenModifizieren           As Boolean = true
 Public Const Std_ErsatzZielspaltenVerwenden  As Boolean = true

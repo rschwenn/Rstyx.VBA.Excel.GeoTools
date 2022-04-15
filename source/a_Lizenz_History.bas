@@ -38,14 +38,19 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'13.04.2022 v3.3.0  - CdatDatenpuffer: 
+'15.04.2022 v3.3.0  - CdatDatenpuffer: 
 '                     - Zerlegen der iTrassen-Codierung angepasst an iGeo und Rstyx.Utilities
 '                     - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
 '                       zusammengefasst zu Mod_InfoTextAuswerten()
 '                     - ParseInfoForActualCant() ersetzt mdlToolsAllgemein.Ueberhoehung()
+'                       und erfordert immer die "strenge" Angabe "u=xx".
 '                     - Mod_InfoTextAuswerten(): Punktarterkennung aus klassischem InfoText
 '                       ergänzt via ParseInfoForPointKind()
 '                   - GUI->Berechnung: "InfoText auswerten" statt zwei einzelne Aktionen (s.o.)
+'                   - Option "UebAusInfoStreng" global entfernt. Betroffene Module:
+'                     - GeoToolscfg.xlsx, CdatKonfig, CtabCSV, frmStartExpim, CdatExpim, CdatDatenpuffer
+'                     - Unterstützte Angabe in GeoTools-Spezial-CSV: "EditOpt_GetSlantStrong"
+'                   - Neue Angabe in GeoTools-Spezial-CSV: "EditModule_Parse_iTC"
 '11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner abgelegt,
 '                     weil dieser oft geleert wird. Wenn möglich, wird 
 '                     "%LOCALAPPDATA%\GeoTools\GeoTools_xltcache.txt" verwendet, erst bei Mißerfolg

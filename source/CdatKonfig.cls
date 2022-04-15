@@ -51,7 +51,6 @@ Const Var_Expim_FormelnErhalten  As String = "Expim_FormelnErhalten"
 Const Var_Expim_ErsatzSpalten    As String = "Expim_ErsatzSpalten"
 Const Var_Expim_SchlussMeldung   As String = "Expim_SchlussMeldung"
 Const Var_TkBasisUeberhoehung    As String = "TkBasisUeberhoehung"
-Const Var_UebAusInfoStreng       As String = "UebAusInfoStreng"
 
 'Fehler.
 Dim ErrMsgCfgFehlt               As String
@@ -151,7 +150,6 @@ Private Sub Class_Initialize()
   oEinstellungen.Add Var_Expim_ErsatzSpalten, Bool2String(Std_ErsatzZielspaltenVerwenden)
   oEinstellungen.Add Var_Expim_SchlussMeldung, Bool2String(Std_ExpimSchlussMeldung)
   oEinstellungen.Add Var_TkBasisUeberhoehung, cStr(Std_TkBasisUeberhoehung)
-  oEinstellungen.Add Var_UebAusInfoStreng, Bool2String(Std_UebAusInfoStreng)
   
   'Wert-Status, gilt für alle Spalten mit konfigurierter Einheit, d.h. numerische Werte.
   oStatusPrefix.Add StatusBez_Ist, ""
@@ -284,12 +282,6 @@ Property Get TkBasisUeberhoehung() As Double
   strWert = replace(oEinstellungen(Var_TkBasisUeberhoehung), ".", ",")
   if (IsNumeric(strWert)) then dblWert = cDbl(strWert) else dblWert = Std_TkBasisUeberhoehung
   TkBasisUeberhoehung = dblWert
-End Property
-
-Property Get UebAusInfoStreng() As Boolean
-  'Liefert Einstellung, ob die Angabe der Ist-Überhöhung in der Punktinfo'
-  'in der Form u=xxx vorliegen muss oder ob anderenfalls auch die erste Zahl verwendet wird.
-  UebAusInfoStreng = String2Bool(oEinstellungen(Var_UebAusInfoStreng))
 End Property
 
 

@@ -51,6 +51,10 @@ Attribute VB_Name = "a_Lizenz_History"
 '                     - GeoToolscfg.xlsx, CdatKonfig, CtabCSV, frmStartExpim, CdatExpim, CdatDatenpuffer
 '                     - Unterstützte Angabe in GeoTools-Spezial-CSV: "EditOpt_GetSlantStrong"
 '                   - Neue Angabe in GeoTools-Spezial-CSV: "EditModule_Parse_iTC"
+'                   - frmStartExpim: Statusmeldungen für Vorlagenanalyse werden mit 100% abgeschlossen.
+'                   - Jede Ribbon-Aktion blendet die Statuszeile ein. Gründe:
+'                     - Alle Statuszeilen-Methoden tun dies jetzt.
+'                     - Jede Ribbon-Aktion ruft ohnehin ClearStatusBarDelayed() auf.
 '11.07.2021 v3.2.1  - Vorlagencache wird jetzt vorzugsweise nicht mehr im TEMP-Ordner abgelegt,
 '                     weil dieser oft geleert wird. Wenn möglich, wird 
 '                     "%LOCALAPPDATA%\GeoTools\GeoTools_xltcache.txt" verwendet, erst bei Mißerfolg

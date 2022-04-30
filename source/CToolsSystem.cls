@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -51,15 +51,31 @@ Attribute VB_Exposed = False
   '  G  LangID              ... Language ID (dezimal, lt. System-Ländereinstellungen).
   '                         
   '  G  UEditExe            ... Pfad\Dateiname der exe von UEdit, falls installiert. 
+  '                             Gesucht wird nach:  uedit32.exe und uedit64.exe
+  '                             Gesucht wird unter: - %PROGRAMFILES%\IDM Computer Solutions\UltraEdit
+  '                                                 - %PROGRAMFILES(X86)%\IDM Computer Solutions\UltraEdit
+  '                                                 - %PROGRAMW6432%\IDM Computer Solutions\UltraEdit
+  '                                                 - HKEY_CLASSES_ROOT\UltraEdit.txt\shell\open\command\
+  '                                                 - HKEY_CLASSES_ROOT\Applications\UEdit32.exe\shell\edit\command\
+  '                                                 - HKEY_CLASSES_ROOT\UltraEdit-32 Document\shell\open\command\
   '  G  CEditExe            ... Pfad\Dateiname der exe von Crimson Editor, falls installiert. 
+  '                             Gesucht wird nach:  cedt.exe
+  '                             Gesucht wird unter: - HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Crimson Editor 3.72\DisplayIcon
+  '                                                 - G:\Tools\Crimson Editor
+  '                                                 - %PROGRAMFILES%\Crimson Editor
+  '                                                 - %PROGRAMFILES%\Tools\Crimson Editor
   '  G  JavaExe             ... Pfad\Dateiname der exe von Java, falls installiert.
+  '                             Gesucht wird nach:  javaw.exe
+  '                             Gesucht wird unter: - %JAVA_HOME%
+  '                                                 - %JEDIT_HOME%\jre
+  '                                                 - HKEY_CLASSES_ROOT\jarfile\shell\open\command\
   '  G  JAVA_HOME           ... Stammverzeichnis der zu verwendenden Java-Platform (Umgebungsvariable)
   '  G  JEDIT_HOME          ... Verzeichnis, in dem jEdit.jar gefunden wurde.
   '                             Gesucht wird unter: - %JEDIT_HOME%
-  '                                                  - %PROGRAMFILES%\jedit
-  '                                                  - %PROGRAMFILES(X86)%\jedit
-  '                                                  - %PROGRAMW6432%\jedit
-  '                                                  - ThisWorkbook.Konfig.JEDIT_HOME (aus Konfigurationsdatei).
+  '                                                 - %PROGRAMFILES%\jedit
+  '                                                 - %PROGRAMFILES(X86)%\jedit
+  '                                                 - %PROGRAMW6432%\jedit
+  '                                                 - ThisWorkbook.Konfig.JEDIT_HOME (aus Konfigurationsdatei).
   '  G  JEDIT_SETTINGS      ... jEdit-Einstellungsverzeichnis (Umgebungsvariable)
   '  G  jEditJar            ... Pfad\Dateiname von jEdit.jar, falls gefunden.
   '  G  Editoren            ... Liste unterstützter Editoren (2d-Array als Variant).
@@ -134,6 +150,7 @@ Attribute VB_Exposed = False
  '              - StartJEdit() verwendet keine speziellen Kommandozeilenschalter mehr
  '20.04.2020  - Umstellung "Declare" auf VBA 7.
  '05.01.2021  - Neu: GetSeparators und SetSeparators via Windows-API.
+ '30.04.2022  - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
 '====================================================================================
 
 Option Explicit
@@ -141,7 +158,7 @@ Option Explicit
 'Konstanten
 Const   VBAHostNameExcel       as String = "Microsoft Excel"
 Const   RegValueEditor         as String = "HKCU\Software\VB and VBA Program Settings\Common\Editor"    'Registry-Value für aktuell zu verwendenden Editor
-Public  cKeinEditor            as String   'Quasi-Konstante (Eine Konstante kann nich Public sein...)
+Public  cKeinEditor            as String   'Quasi-Konstante (Eine Konstante kann nicht Public sein...)
 
 'Eigenschaften
 Public  VBAHostName            As String
@@ -344,10 +361,10 @@ Private Sub Class_Initialize()
   call GetInternational()
   
   'Ermitteln diverser Pfade installierter Anwendungen.
+  call GetJEditUmgebung()  ' Muss vor GetJavaExe() aufgerufen werden!
   UEditExe = GetUEditExe()
   CEditExe = GetCEditExe()
   JavaExe  = GetJavaExe()
-  call GetJEditUmgebung()
   
   'Liste unterstützter Editoren aufbauen, Standardeditor setzen.
   call InitEditoren()
@@ -1519,25 +1536,47 @@ End function
 
 Private Function GetUEditExe()
   'Funktionswert = Pfad\Dateiname der registrierten und existierenden EXE von UEdit oder "".
-  dim Key_UEditExe, UEditExe
+  dim Key_UEditExe, UEditExe, UEditExeExists, i
   on error goto 0
   DebugEcho "Programmdatei von UltraEdit ermitteln."
+    
+  ' Standard-Pfade für Exe testen.
+  Dim ExeFileNames(5) As String
+  ExeFileNames(0) = Environ("PROGRAMFILES")      & "\IDM Computer Solutions\UltraEdit\uedit32.exe"
+  ExeFileNames(1) = Environ("PROGRAMFILES")      & "\IDM Computer Solutions\UltraEdit\uedit64.exe"
+  ExeFileNames(2) = Environ("PROGRAMW6432")      & "\IDM Computer Solutions\UltraEdit\uedit32.exe"
+  ExeFileNames(3) = Environ("PROGRAMW6432")      & "\IDM Computer Solutions\UltraEdit\uedit64.exe"
+  ExeFileNames(4) = Environ("PROGRAMFILES(X86)") & "\IDM Computer Solutions\UltraEdit\uedit32.exe"
+  ExeFileNames(5) = Environ("PROGRAMFILES(X86)") & "\IDM Computer Solutions\UltraEdit\uedit64.exe"
+  on error resume next
+  for i = 0 to ubound(ExeFileNames)
+    UEditExeExists = fs.FileExists(ExeFileNames(i))
+    debugecho " - " & ExeFileNames(i) & " existiert = " & UEditExeExists
+    if (UEditExeExists) then
+      UEditExe = ExeFileNames(i)
+      exit for
+    end if
+  next
+  on error goto 0
   
-  'Versionen 6 bis 10:
-  Key_UEditExe = "HKEY_CLASSES_ROOT\Applications\UEdit32.exe\shell\edit\command\"
-  UEditExe = GetExeAusRegistry(Key_UEditExe)
-  if (UEditExe = "") then
-    Key_UEditExe = "HKEY_CLASSES_ROOT\UltraEdit-32 Document\shell\open\command\"
-    UEditExe = GetExeAusRegistry(Key_UEditExe)
-  end if
-  
-  'Version 11
+  'Version 11 (und folgende ?)
   if (UEditExe = "") then
     'Voraussetzung für die Existenz des folgenden Schlüssels ist leider
     'die von UltraEdit aus erfolgte Dateizuordnung des Typs ".txt"!!!
     Key_UEditExe = "HKEY_CLASSES_ROOT\UltraEdit.txt\shell\open\command\"
     UEditExe = GetExeAusRegistry(Key_UEditExe)
   end if
+  
+  'Versionen 6 bis 10:
+  if (UEditExe = "") then
+    Key_UEditExe = "HKEY_CLASSES_ROOT\Applications\UEdit32.exe\shell\edit\command\"
+    UEditExe = GetExeAusRegistry(Key_UEditExe)
+    if (UEditExe = "") then
+      Key_UEditExe = "HKEY_CLASSES_ROOT\UltraEdit-32 Document\shell\open\command\"
+      UEditExe = GetExeAusRegistry(Key_UEditExe)
+    end if
+  end if
+  
   GetUEditExe = UEditExe
 End Function
 
@@ -1599,6 +1638,7 @@ Private Function GetJavaExe()
   'Funktionswert = Pfad\Dateiname der registrierten und existierenden Javaw.exe oder "".
   'legt folgende öffentlichen Variablen fest:
   'JAVA_HOME = Home-Verzeichnis von Java
+  'Voraussetzung: GetJEditUmgebung() muss bereits aufgerufen worden sein (wegen JEDIT_HOME)!
   on error goto 0
   dim Key_JavaExe, Pfad_JavaExe, Erfolg
   const ExeName = "javaw.exe"
@@ -1616,17 +1656,49 @@ Private Function GetJavaExe()
       DebugEcho "GetJavaExe(): javaw.exe nicht gefunden im Verzeichnis der Umgebungsvariable %JAVA_HOME%='" & JAVA_HOME & "'"
     end if
   end if
-    
-  if (not Erfolg) then
-    Pfad_JavaExe = OSinfo.WindowsSys & "\" & ExeName
+  
+  ' Search Java in %JEDIT_HOME%\jre
+  if ((not Erfolg) And (JEDIT_HOME <> "")) then
+    DebugEcho "GetJavaExe(): Programmdatei von Java im Dateisystem suchen unter %JEDIT_HOME%\jre"
+    JAVA_HOME    = JEDIT_HOME & "\jre"
+    Pfad_JavaExe = JAVA_HOME & "\bin\" & ExeName
     if (fs.FileExists(Pfad_JavaExe)) then
       Erfolg = true
     else
-      DebugEcho "GetJavaExe(): javaw.exe nicht gefunden im Windows Systemverzeichnis '" & OSinfo.WindowsSys & "'"
+      DebugEcho "GetJavaExe(): javaw.exe nicht gefunden unter %JEDIT_HOME%\jre = '" & JAVA_HOME & "'"
     end if
   end if
   
-  if (not Erfolg) then Pfad_JavaExe = GetExeAusRegistry(Key_JavaExe)
+  ' Default app for .jar files
+  if (not Erfolg) then
+    Pfad_JavaExe = GetExeAusRegistry(Key_JavaExe)
+    if (Pfad_JavaExe <> "") then
+      Erfolg = true
+    end if
+  end if
+  
+  '' Search in %SYSTEMROOT%\system32
+  'if (not Erfolg) then
+  '  Pfad_JavaExe = OSinfo.WindowsSys & "\" & ExeName
+  '  if (fs.FileExists(Pfad_JavaExe)) then
+  '    Erfolg = true
+  '  else
+  '    DebugEcho "GetJavaExe(): javaw.exe nicht gefunden im Windows Systemverzeichnis '" & OSinfo.WindowsSys & "'"
+  '  end if
+  'end if
+  
+  ' JAVA_HOME festlegen
+  if (not Erfolg) then
+    JAVA_HOME = ""
+    DebugEcho "GetJavaExe(): Programmdatei von Java nicht gefunden."
+  else
+    JAVA_HOME = fs.GetParentFolderName(Pfad_JavaExe)
+    if (lcase(right(JAVA_HOME, 4)) = "\bin") then
+      JAVA_HOME = left(JAVA_HOME, len(JAVA_HOME) - 4)
+    end if
+    DebugEcho "getJavaEnvironment(): Programmdatei von Java gefunden: '" & Pfad_JavaExe & "'"
+    DebugEcho "getJavaEnvironment(): JAVA_HOME davon abgeleitet:      '" & JAVA_HOME & "'"
+  end if
   
   GetJavaExe = Pfad_JavaExe
 End Function
@@ -1895,4 +1967,4 @@ Private sub GetNetzUmgebung()
 End sub
 
 
-'für jEdit:  :folding=indent::collapseFolds=1:
+'for jEdit:  :folding=indent::collapseFolds=1:mode=visualbasic:

@@ -38,7 +38,10 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'30.04.2022 v3.3.1  - CToolsSystem: Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
+'01.05.2022 v3.3.1  - CToolsSystem: 
+'                     - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
+'                     - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
+'                     - IsDatei() und OpenTextFile(): Existenzprüfung verbessert (aus Microstation übernommen) 
 '15.04.2022 v3.3.0  - CdatDatenpuffer: 
 '                     - Zerlegen der iTrassen-Codierung angepasst an iGeo und Rstyx.Utilities
 '                     - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()

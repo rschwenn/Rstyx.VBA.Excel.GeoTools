@@ -85,8 +85,8 @@ Attribute VB_Exposed = False
  '  Methoden
   '  ==> (mit "#" gekennzeichnete Methoden gibt's noch nicht!)
   '  
-  '  isDatei                ... Prüft, ob die angegebene Datei existiert.
-  '  isVerzeichnis          ... Prüft, ob das angegebene Verzeichnis existiert.
+  '  IsDatei                ... Prüft, ob die angegebene Datei existiert.
+  '  IsVerzeichnis          ... Prüft, ob das angegebene Verzeichnis existiert.
   '  
   '  GetTmpDateiPfadName    ... Ermittelt kompletten Dateinamen für eine temporäre Datei.
   ' #LastBackslashDelete    ... Zeichenkette ohne Backslash am Ende.
@@ -150,26 +150,23 @@ Attribute VB_Exposed = False
  '              - StartJEdit() verwendet keine speziellen Kommandozeilenschalter mehr
  '20.04.2020  - Umstellung "Declare" auf VBA 7.
  '05.01.2021  - Neu: GetSeparators und SetSeparators via Windows-API.
- '30.04.2022  - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
+ '01.05.2022  - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
+ '            - IsDatei() und OpenTextFile(): Existenzprüfung verbessert (aus Microstation übernommen).
+ '            - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
 '====================================================================================
 
 Option Explicit
 
 'Konstanten
-Const   VBAHostNameExcel       as String = "Microsoft Excel"
-Const   RegValueEditor         as String = "HKCU\Software\VB and VBA Program Settings\Common\Editor"    'Registry-Value für aktuell zu verwendenden Editor
-Public  cKeinEditor            as String   'Quasi-Konstante (Eine Konstante kann nicht Public sein...)
+Const   VBAHostNameExcel       As String = "Microsoft Excel"
+Const   RegValueEditor         As String = "HKCU\Software\VB and VBA Program Settings\Common\Editor"    'Registry-Value für aktuell zu verwendenden Editor
+Public  cKeinEditor            As String   'Quasi-Konstante (Eine Konstante kann nicht Public sein...)
 
 'Eigenschaften
 Public  VBAHostName            As String
 Public  VBAHostVersion         As String
 'Public  VBAProjectName         As String
 'Public  VBAProjectFileName     As String
-
-Public  OS_Type                As String
-Public  OS_SystemDrive         As String
-Public  OS_SystemRoot          As String
-Public  OS_WindowsSys          As String
 
 Public  Username               As String
 Public  Computername           As String
@@ -187,6 +184,11 @@ Public  DezimalTrenner         As String
 Public  TausenderTrenner       As String
 Public  LangID                 As String
 Public  Editoren               As Variant
+
+Public  OS_Type                As String
+Public  OS_SystemDrive         As String
+Public  OS_SystemRoot          As String
+Public  OS_WindowsSys          As String
 
 'Private Vaiablen
 Private strEditor              As String
@@ -455,6 +457,8 @@ Function StarteDatei(ByVal DateiPfadName As String)
   Const bWaitOnReturn = False
   Const intWindowStyle = 5     'Aktiviert das Fenster und zeigt es in der aktuellen Größe und Position an.
   wshShell.Run """" & DateiPfadName & """", intWindowStyle, bWaitOnReturn
+  
+  StarteDatei = True
   Exit Function
   
 Fehler:
@@ -629,12 +633,16 @@ Function OpenTextFile(ByVal FileName as String, ByVal FileReadWrite, ByVal NewFi
   AbsoluteFileName = fs.GetAbsolutePathname(trim(FileName))
   DebugEcho " - absoluter Dateiname = '" & AbsoluteFileName & "'."
   
-  if ((FileReadWrite = ForReading) and (not fs.FileExists(AbsoluteFileName))) then
+  if ((FileReadWrite = ForReading) and (not IsDatei(AbsoluteFileName))) then
     ErrEcho " ==> Datei '" & AbsoluteFileName & "' existiert nicht!"
     set oTS = nothing
     Erfolg  = False
+  elseif ((FileReadWrite = ForWriting) and (IsVerzeichnis(AbsoluteFileName))) then
+    ErrEcho " ==> Datei '" & AbsoluteFileName & "' ist ein Verzeichnis!"
+    set oTS = nothing
+    Erfolg  = False
   else
-    DebugEcho " - Datei '" & AbsoluteFileName & "' existiert. Versuche, sie zu öffnen."
+    DebugEcho " - Datei '" & AbsoluteFileName & "' wird geöffnet."
     on error resume next
     Set oTS = fs.OpenTextFile(AbsoluteFileName, FileReadWrite, NewFileIfNotExist, Format)
     if (err.number = 0) then
@@ -873,25 +881,33 @@ Fehler:
   FehlerNachricht "CToolsSystem.Dateiliste()"
 End Function
 
-Public Function isDatei(ByVal Datei As String) As Boolean
+Public Function IsDatei(ByVal Datei As String) As Boolean
   'Gibt "true" zurück, wenn die angegebene Datei existiert.
   '"Datei" kann mit absolutem oder relativen bzw. ohne Pfad angegeben sein.
-  isDatei = fs.FileExists(fs.GetAbsolutePathName(Datei))
+  if ((Datei = vbNullString) or IsVerzeichnis(Datei))then
+    IsDatei = false
+  else
+    IsDatei = fs.FileExists(fs.GetAbsolutePathName(Datei))
+  end if
   Exit Function
 Fehler:
-  isDatei = False
-  'FehlerNachricht "CToolsSystem.isDatei()"
+  IsDatei = False
+  'FehlerNachricht "CToolsSystem.IsDatei()"
 End Function
 
 
-Public Function isVerzeichnis(ByVal Verzeichnis As String) As Boolean
+Public Function IsVerzeichnis(ByVal Verzeichnis As String) As Boolean
   'Gibt "true" zurück, wenn das angegebene Verzeichnis existiert.
   '"Verzeichnis" kann mit absolutem oder relativen bzw. ohne Pfad angegeben sein.
-  isVerzeichnis = fs.FolderExists(fs.GetAbsolutePathName(Verzeichnis))
+  if (Verzeichnis = vbNullString) then
+    IsVerzeichnis = false
+  else
+    IsVerzeichnis = fs.FolderExists(fs.GetAbsolutePathName(Verzeichnis))
+  end if
   Exit Function
 Fehler:
-  isVerzeichnis = False
-  'FehlerNachricht "CToolsSystem.isVerzeichnis()"
+  IsVerzeichnis = False
+  'FehlerNachricht "CToolsSystem.IsVerzeichnis()"
 End Function
 
 
@@ -1463,7 +1479,8 @@ public function FileErrorsShowInJEdit(byVal ListeLeeren as Boolean) as Boolean
               'Quelltext = vsprintf("    DefaultErrorSource.DefaultError err = new DefaultErrorSource.DefaultError(errsrc, %s, ""%s"", %d, %d, %d, ""%s"");", _
               '                     array(, , , , ))
               Quelltext = "    DefaultErrorSource.DefaultError err = new DefaultErrorSource.DefaultError(errsrc, " & _
-                          Typ & ", """ & Datei & """, " & cStr(Zeile) & ", " & cStr(SpAnf) & ", " & cStr(SpEnd) & ", """ & Meldung & """);"
+                          Typ & ", """ & Datei & """, " & cStr(Zeile) & ", " & cStr(SpAnf) & ", " & cStr(SpEnd) & ", """ & Meldung & "  [Zeile " & cStr(Zeile + 1) & "]"");"
+                    'ALT: Typ & ", """ & Datei & """, " & cStr(Zeile) & ", " & cStr(SpAnf) & ", " & cStr(SpEnd) & ", """ & Meldung & """);"
                         
               oBsh.WriteLine Quelltext
             

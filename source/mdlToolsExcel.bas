@@ -195,8 +195,6 @@ Sub ClearStatusBarDelayed(Seconds as integer)
   'Clears the statusbar after a given amount of seconds.
   On Error GoTo Fehler
   Application.OnTime Now + TimeSerial(0,0,Seconds), "ClearStatusBar"
-  Application.DisplayStatusBar = True
-  DoEvents
   Exit Sub
 Fehler:
   Err.Clear
@@ -206,7 +204,12 @@ Sub ClearStatusBar()
   'This method is needed for ClearStatusBarDelayed()...
   On Error GoTo Fehler
   Application.StatusBar = ""
-  Application.DisplayStatusBar = True
+  
+  ' This statement cancels an active copied status of a range.
+  ' Since UpdateGeoToolsRibbon() calls this, It won't be possible
+  ' to paste into another sheet!
+  'Application.DisplayStatusBar = True
+  
   DoEvents
   Exit Sub
 Fehler:

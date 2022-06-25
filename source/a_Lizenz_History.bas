@@ -38,6 +38,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'25.06.2022 v3.3.2  - BUGFIX: mdlToolsExcel: 
+'                     - ClearStatusBar() versucht nicht mehr, die Statusleiste anzuzeigen,
+'                       weil dadurch Kopieren in ein anderes Tabellenblatt nicht mehr möglich ist.
 '01.05.2022 v3.3.1  - CToolsSystem: 
 '                     - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
 '                     - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)

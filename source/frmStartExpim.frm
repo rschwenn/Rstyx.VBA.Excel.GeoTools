@@ -1176,7 +1176,16 @@ Private Function GetQuellDateinameAusDialog() As String
   Dim Verzeichnis    As String
   
   'Startverzeichnis des Dialoges festlegen, wenn möglich.
-  Call SetArbeitsverzeichnis(Verz(oExpimGlobal.Quelle_AsciiDatei_Name))
+  'Call SetArbeitsverzeichnis(Verz(oExpimGlobal.Quelle_AsciiDatei_Name))
+  If (ThisWorkbook.SysTools.IsDatei(oExpimGlobal.Quelle_AsciiDatei_Name)) Then
+    ' Arbeitsverzeichnis setzen auf das der eingetragenen Datei.
+    ThisWorkbook.SysTools.ArbeitsVerz = Verz(oExpimGlobal.Quelle_AsciiDatei_Name)
+  Else
+    ' Arbeitsverzeichnis setzen auf das der aktiven Arbeitsmappe.
+    If (Not ActiveWorkbook Is Nothing) Then
+        ThisWorkbook.SysTools.ArbeitsVerz = ActiveWorkbook.Path
+    End If
+  End If
   
   'Dateidialog starten.
   Err.Clear
@@ -1185,7 +1194,8 @@ Private Function GetQuellDateinameAusDialog() As String
   
   If (ThisWorkbook.SysTools.IsDatei(DateiPfadName)) Then
     'Arbeitsverzeichnis der Eingabedatei setzen (für künftige Öffnen/Speichern-Dialoge)
-    Call SetArbeitsverzeichnis(Verz(DateiPfadName))
+    'Call SetArbeitsverzeichnis(Verz(DateiPfadName))
+    ThisWorkbook.SysTools.ArbeitsVerz = Verz(DateiPfadName)
   Else
     DateiPfadName = ""
   End If

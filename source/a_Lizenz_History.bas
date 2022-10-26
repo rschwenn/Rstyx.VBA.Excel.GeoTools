@@ -38,6 +38,11 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'26.10.2022 v3.3.3  - CimpTrassenkoo: Neues Feld "Tra.NameAcfg" für iGeo-TK.
+'                   - CToolsSystem: ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
+'                   - mdlToolsExcel.SetArbeitsverzeichnis() ersetzt durch ThisWorkbook.SysTools.ArbeitsVerz.
+'                   - frmStartExpim: Verz. für Dateidialog wird auf das der aktiven Datei gesetzt,
+'                     falls das Dateinamensfeld keinen gültigen Dateinamen enthält.
 '25.06.2022 v3.3.2  - BUGFIX: mdlToolsExcel: 
 '                     - ClearStatusBar() versucht nicht mehr, die Statusleiste anzuzeigen,
 '                       weil dadurch Kopieren in ein anderes Tabellenblatt nicht mehr möglich ist.

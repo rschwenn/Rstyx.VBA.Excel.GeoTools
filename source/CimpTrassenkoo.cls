@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -81,6 +81,7 @@ Dim Feld()               As String     'einzelne Felder der aktuellen Zeile (1. 
 Dim N_KmLinie()          As String
 Dim N_Trasse()           As String
 Dim N_Gra()              As String
+Dim N_Acfg()             As String
 Dim N_UebBand()          As String
 Dim N_RegPrf()           As String
 Dim N_TunPrf()           As String
@@ -225,6 +226,7 @@ Private Sub Class_Initialize()
   Me.Quelle_Einheiten.Add SpN_S_DGM_ZDGM, "m"
   Me.Quelle_Einheiten.Add SpN_DGM_NameDGM, "ohne"
   
+  Me.Quelle_Einheiten.Add SpN_Tra_NameAcfg, "ohne"
   Me.Quelle_Einheiten.Add SpN_Tra_NameGra, "ohne"
   Me.Quelle_Einheiten.Add SpN_Tra_NameKML, "ohne"
   Me.Quelle_Einheiten.Add SpN_Tra_NameTra, "ohne"
@@ -511,6 +513,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim Tra_STB8(1 To 1)
     ReDim Tra_STB9(1 To 1)
     
+    ReDim N_Acfg(1 To 1)
     ReDim N_UebBand(1 To 1)
     ReDim N_RegPrf(1 To 1)
     ReDim N_TunPrf(1 To 1)
@@ -694,6 +697,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       Me.Quelle_Datenpuffer.Add SpN_Tra_STB7,      Tra_STB7
       Me.Quelle_Datenpuffer.Add SpN_Tra_STB8,      Tra_STB8
       Me.Quelle_Datenpuffer.Add SpN_Tra_STB9,      Tra_STB9
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameAcfg,  N_Acfg
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb,   N_UebBand
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg,   N_RegPrf
       Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun,   N_TunPrf
@@ -766,6 +770,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim Tra_XA(0)      
       ReDim Tra_YA(0)      
       ReDim Tra_ZA(0)      
+      ReDim N_Acfg(0)
       ReDim N_UebBand(0)
       ReDim N_RegPrf(0)
       ReDim N_TunPrf(0)
@@ -814,6 +819,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim Meldung         As String
     Dim Meldung2        As String
     
+    Dim NAcfg           As String
     Dim NTra            As String
     Dim NKML            As String
     Dim NGra            As String
@@ -914,6 +920,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     const TkEntstehung   As String = "Ausgabe"
     const DoublePipeMask As String = "D1o2u3b4l5e6P7i8p9e0"
     
+    NAcfg        = ""
     NKML         = ""
     NGra         = ""
     NTra         = ""
@@ -1034,18 +1041,19 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             Key = Trim(oMatches(0).SubMatches(0))
             Wert = oMatches(0).SubMatches(1)
             Select Case Key
-              Case "Achse":               NTra    = oFSO.GetBaseName(Wert)
-              Case "Gradiente":           NGra    = oFSO.GetBaseName(Wert)
-              Case "Ueberhöhungsband":    NUeb    = oFSO.GetBaseName(Wert)  ' iTrassePC
-              Case "Überhöhungsband":     NUeb    = oFSO.GetBaseName(Wert)  ' iGeo
-              Case "Stationierungsachse": NKML    = oFSO.GetBaseName(Wert)  ' iTrassePC
-              Case "Km-Linie":            NKML    = oFSO.GetBaseName(Wert)  ' iGeo
-              Case "Regelprofilbereich":  NRegel  = oFSO.GetBaseName(Wert)
-              Case "Tunnelprofilbereich": NTunnel = oFSO.GetBaseName(Wert)
-              Case "Profilpunktbereich":  NPrfPkt = oFSO.GetBaseName(Wert)
-              Case "Gleisprofilbereich":  NGlsPrf = oFSO.GetBaseName(Wert)
-              Case "DGM":                 NDGM    = oFSO.GetBaseName(Wert)
-              Case "Feldnamen":           FieldNamesString = trim(Wert)     ' Format "A0"
+              Case "Trassenkonfiguration":  NAcfg   = oFSO.GetBaseName(Wert)
+              Case "Achse":                 NTra    = oFSO.GetBaseName(Wert)
+              Case "Gradiente":             NGra    = oFSO.GetBaseName(Wert)
+              Case "Ueberhöhungsband":      NUeb    = oFSO.GetBaseName(Wert)  ' iTrassePC
+              Case "Überhöhungsband":       NUeb    = oFSO.GetBaseName(Wert)  ' iGeo
+              Case "Stationierungsachse":   NKML    = oFSO.GetBaseName(Wert)  ' iTrassePC
+              Case "Km-Linie":              NKML    = oFSO.GetBaseName(Wert)  ' iGeo
+              Case "Regelprofilbereich":    NRegel  = oFSO.GetBaseName(Wert)
+              Case "Tunnelprofilbereich":   NTunnel = oFSO.GetBaseName(Wert)
+              Case "Profilpunktbereich":    NPrfPkt = oFSO.GetBaseName(Wert)
+              Case "Gleisprofilbereich":    NGlsPrf = oFSO.GetBaseName(Wert)
+              Case "DGM":                   NDGM    = oFSO.GetBaseName(Wert)
+              Case "Feldnamen":             FieldNamesString = trim(Wert)     ' Format "A0"
               
               Case "Format"
                   UmfEnde = true  'Kommentarblock der nächsten "Umformung" von iGeo/iTrassePC => d.h. die bisherige Umformung ist zu Ende.
@@ -1302,6 +1310,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve N_KmLinie(1 To AnzPkt)
               ReDim Preserve N_Trasse(1 To AnzPkt)
               ReDim Preserve N_Gra(1 To AnzPkt)
+              ReDim Preserve N_Acfg(1 To AnzPkt)
               ReDim Preserve N_UebBand(1 To AnzPkt)
               ReDim Preserve N_RegPrf(1 To AnzPkt)
               ReDim Preserve N_TunPrf(1 To AnzPkt)
@@ -1546,6 +1555,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             'Werte im Gleissystem: nicht hier ermitteln => wird nachträglich gemacht.
             
             'Namen der diversen Bänder
+              N_Acfg(AnzPkt)    = NAcfg
               N_KmLinie(AnzPkt) = NKML
               N_Trasse(AnzPkt)  = NTra
               N_Gra(AnzPkt)     = NGra
@@ -1571,6 +1581,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Loop While (Not UmfEnde)
     
     'Dokumentation der Trassenbandnamen (auch bei Nicht-Erfolg)
+    if (NAcfg   <> "") then Echo "   - Trassenkonfig: " & NAcfg
                             Echo "   - Achse:         " & NTra
     if (NKML    <> "") then Echo "   - KM-Linie:      " & NKML
     if (NGra    <> "") then Echo "   - Gradiente:     " & NGra

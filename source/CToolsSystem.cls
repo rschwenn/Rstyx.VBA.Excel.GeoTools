@@ -153,6 +153,7 @@ Attribute VB_Exposed = False
  '01.05.2022  - Suche nach Editoren und Java angepasst an Tools_1.vbi 4.5
  '            - IsDatei() und OpenTextFile(): Existenzprüfung verbessert (aus Microstation übernommen).
  '            - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
+ '25.10.2022  - ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
 '====================================================================================
 
 Option Explicit
@@ -438,6 +439,12 @@ property get ArbeitsVerz()
 end property
 
 property let ArbeitsVerz(inpVerz)
+  ' Zunächst Sonderfall abfangen (Wurzelverzeichnis).
+  if (Not (inpVerz = "")) then
+    if (Right(inpVerz, 1) = ":") then
+        inpVerz = inpVerz & Application.PathSeparator
+    end If
+  end If
   if (fs.FolderExists(inpVerz)) then
     WshShell.CurrentDirectory = inpVerz
     debugecho "CToolsSystem.ArbeitsVerz(Let): Arbeitsverzeichnis gesetzt auf '" & inpVerz & "'."

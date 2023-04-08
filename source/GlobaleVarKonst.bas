@@ -1,7 +1,7 @@
 Attribute VB_Name = "GlobaleVarKonst"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2023  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -15,9 +15,9 @@ Option Explicit
 
 'Programminfo'
 Public Const ProgName     As String = "GeoTools"
-Public Const VersionNr    As String = "3.3.3"
-Public Const VersionDate  As String = "Oktober 2022"
-Public Const Copyright    As String = "© 2003 - 2022  Robert Schwenn"
+Public Const VersionNr    As String = "3.3.4"
+Public Const VersionDate  As String = "April 2023"
+Public Const Copyright    As String = "© 2003 - 2023  Robert Schwenn"
 Public Const eMail        As String = "devel@rstyx.de"
 
 
@@ -83,6 +83,13 @@ Public Const PArt1_FixPoint3D                As String = "LHFP"
 Public Const PArt1_Platform                  As String = "Bstg"
 Public Const PArt1_Rails                     As String = "Gls"
 Public Const PArt1_RailsFixPoint             As String = "GVP"
+Public Const PArt1_RailTop                   As String = "SOK"
+Public Const PArt1_RailTop1                  As String = "SOK1"
+Public Const PArt1_RailTop2                  As String = "SOK2"
+Public Const PArt1_MeasurePoint              As String = "MP"
+Public Const PArt1_MeasurePoint1             As String = "MP1"
+Public Const PArt1_MeasurePoint2             As String = "MP2"
+
 Public Const PArt2_None                      As String = "unbekannt"
 Public Const PArt2_FixPoint                  As String = "Festpunkt"
 Public Const PArt2_FixPoint1D                As String = "Festpkt 1D"
@@ -91,6 +98,12 @@ Public Const PArt2_FixPoint3D                As String = "Festpkt 3D"
 Public Const PArt2_Platform                  As String = "Bahnsteig"
 Public Const PArt2_Rails                     As String = "Gleis"
 Public Const PArt2_RailsFixPoint             As String = "GVP"
+Public Const PArt2_RailTop                   As String = "Schiene"
+Public Const PArt2_RailTop1                  As String = "Schiene 1"
+Public Const PArt2_RailTop2                  As String = "Schiene 2"
+Public Const PArt2_MeasurePoint              As String = "Messpunkt"
+Public Const PArt2_MeasurePoint1             As String = "Messpunkt 1"
+Public Const PArt2_MeasurePoint2             As String = "Messpunkt 2"
 
 'Spezielle Zeichenketten für Oberfläche.
 Public Const SpName_unbekannt                As String = "unbekannt"
@@ -184,6 +197,7 @@ Public Const SpN_Tra_STB8                    As String = "Tra.STB8"
 Public Const SpN_Tra_STB9                    As String = "Tra.STB9"
 Public Const SpN_Tra_u                       As String = "Tra.u"
 Public Const SpN_Tra_ua                      As String = "Tra.ua"
+Public Const SpN_Tra_sp                      As String = "Tra.sp"
 Public Const SpN_Tra_Radius                  As String = "Tra.Radius"
 
 Public Const SpN_S_Tra_Radius                As String = "S.Tra.Radius"

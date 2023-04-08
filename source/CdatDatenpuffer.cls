@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2023  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -68,7 +68,14 @@ Attribute VB_Exposed = False
  '10.04.2022  - Parse_iTC() generalüberholt: Interpretation der iTrassen-Codierung
  '              an iGeo und Rstyx.Utilities 2.8 angeglichen.
  '            - Mod_iTrassenCodeAusBemerkung() und Mod_UeberhoehungAusBemerkung()
-'               zusammengefasst zu Mod_InfoTextAuswerten()
+ '              zusammengefasst zu Mod_InfoTextAuswerten()
+ '08.04.2023  - Unterstützung für erweiterte iTrassen-Codierung:
+ '              - Neue Punktarten: "Messpunkt" (1,2) und "SOK" (1,2)
+ '              - Spurweite als neues Attribut für Gleispunkt
+ '              - Alternative Attribut-Schreibweisen "-u*" and "-ueb*" (w/o "i")
+ '              - Überhöhung und Spurweite werden auch mit NKS erkannt und geschrieben.
+ '            - InfoText: Angaben für Überhöhung werden auch mit NKS erkannt.
+ '            - Punktarterkennung jetzt auch von PArtText (KindText)
 '====================================================================================
 
 
@@ -76,6 +83,9 @@ Option Explicit
 
 'Konstanten
 Const strKlasse_Name                    As String = "CdatDatenpuffer"
+
+'Pseudo-Konstanten
+Dim iTC_Pattern                         As String
 
 'Eigenschaften
 Dim bln_VorhWerteUeberschreiben         As Boolean
@@ -122,10 +132,29 @@ Public Enum GeoPointKind
     
     ''' <summary> Rails fix point. </summary>
     RailsFixPoint = 7
+        
+    ''' <summary> Measure point. </summary>
+    MeasurePoint = 8
+    
+    ''' <summary> Measure point 1. </summary>
+    MeasurePoint1 = 9
+    
+    ''' <summary> Measure point 2. </summary>
+    MeasurePoint2 = 10
+    
+    ''' <summary> Top of rail. </summary>
+    RailTop = 11
+    
+    ''' <summary> Top of rail 1. </summary>
+    RailTop1 = 12
+    
+    ''' <summary> Top of rail 2. </summary>
+    RailTop2 = 13
     
 End Enum
 
 Dim MarkType2Kind           As Scripting.Dictionary
+Dim KindText2Kind           As Scripting.Dictionary
 Dim DefaultKindTextShort    As Scripting.Dictionary
 Dim DefaultKindTextLong     As Scripting.Dictionary
 Dim InfoCantPatterns        As Scripting.Dictionary
@@ -172,6 +201,34 @@ Private Sub Class_Initialize()
   MarkType2Kind.Add "14", GeoPointKind.FixPoint2D      ' Nagel 
   MarkType2Kind.Add "15", GeoPointKind.FixPoint2D      ' Kreuz 
   MarkType2Kind.Add "16", GeoPointKind.FixPoint3D      ' Bolzen mit eingravierter ID DB-Referenzsystem
+                
+  ' Mapping:  KindText => Kind.
+  Set KindText2Kind = New Scripting.Dictionary
+  KindText2Kind.Add "Gls" , GeoPointKind.Rails
+  KindText2Kind.Add "Bstg", GeoPointKind.Platform
+  KindText2Kind.Add "DBRF", GeoPointKind.FixPoint3D
+  KindText2Kind.Add "GPSC", GeoPointKind.FixPoint3D
+  KindText2Kind.Add "GVPV", GeoPointKind.RailsFixPoint
+  KindText2Kind.Add "GVP" , GeoPointKind.RailsFixPoint
+  KindText2Kind.Add "HBH" , GeoPointKind.FixPoint1D
+  KindText2Kind.Add "HFP" , GeoPointKind.FixPoint1D
+  KindText2Kind.Add "LFP" , GeoPointKind.FixPoint2D
+  KindText2Kind.Add "NXO" , GeoPointKind.FixPoint3D
+  KindText2Kind.Add "PPB" , GeoPointKind.FixPoint2D
+  KindText2Kind.Add "PS0" , GeoPointKind.FixPoint3D
+  KindText2Kind.Add "PS1" , GeoPointKind.FixPoint3D
+  KindText2Kind.Add "PS2" , GeoPointKind.FixPoint2D 
+  KindText2Kind.Add "PS3" , GeoPointKind.FixPoint1D
+  KindText2Kind.Add "PS4" , GeoPointKind.RailsFixPoint
+  KindText2Kind.Add "PSx" , GeoPointKind.FixPoint
+  KindText2Kind.Add "PP"  , GeoPointKind.FixPoint
+  KindText2Kind.Add "AP"  , GeoPointKind.FixPoint
+  KindText2Kind.Add "SOK" , GeoPointKind.RailTop
+  KindText2Kind.Add "SOK1", GeoPointKind.RailTop1
+  KindText2Kind.Add "SOK2", GeoPointKind.RailTop2
+  KindText2Kind.Add "MP"  , GeoPointKind.MeasurePoint
+  KindText2Kind.Add "MP1" , GeoPointKind.MeasurePoint1
+  KindText2Kind.Add "MP2" , GeoPointKind.MeasurePoint2
   
   ' Mapping:  GeoPointKind => Short Text (GeoPointKind, String)
   Set DefaultKindTextShort = New Scripting.Dictionary
@@ -183,6 +240,12 @@ Private Sub Class_Initialize()
   DefaultKindTextShort.Add GeoPointKind.Platform      , PArt1_Platform
   DefaultKindTextShort.Add GeoPointKind.Rails         , PArt1_Rails
   DefaultKindTextShort.Add GeoPointKind.RailsFixPoint , PArt1_RailsFixPoint
+  DefaultKindTextShort.Add GeoPointKind.RailTop       , PArt1_RailTop
+  DefaultKindTextShort.Add GeoPointKind.RailTop1      , PArt1_RailTop1
+  DefaultKindTextShort.Add GeoPointKind.RailTop2      , PArt1_RailTop2
+  DefaultKindTextShort.Add GeoPointKind.MeasurePoint  , PArt1_MeasurePoint
+  DefaultKindTextShort.Add GeoPointKind.MeasurePoint1 , PArt1_MeasurePoint1
+  DefaultKindTextShort.Add GeoPointKind.MeasurePoint2 , PArt1_MeasurePoint2
   
   ' Mapping:  GeoPointKind => Long Text (GeoPointKind, String)
   Set DefaultKindTextLong = New Scripting.Dictionary
@@ -194,22 +257,110 @@ Private Sub Class_Initialize()
   DefaultKindTextLong.Add GeoPointKind.Platform      , PArt2_Platform
   DefaultKindTextLong.Add GeoPointKind.Rails         , PArt2_Rails
   DefaultKindTextLong.Add GeoPointKind.RailsFixPoint , PArt2_RailsFixPoint
+  DefaultKindTextLong.Add GeoPointKind.RailTop       , PArt2_RailTop
+  DefaultKindTextLong.Add GeoPointKind.RailTop1      , PArt2_RailTop1
+  DefaultKindTextLong.Add GeoPointKind.RailTop2      , PArt2_RailTop2
+  DefaultKindTextLong.Add GeoPointKind.MeasurePoint  , PArt2_MeasurePoint
+  DefaultKindTextLong.Add GeoPointKind.MeasurePoint1 , PArt2_MeasurePoint1
+  DefaultKindTextLong.Add GeoPointKind.MeasurePoint2 , PArt2_MeasurePoint2
   
   ' Patterns for recognizing actual cant from info text.
+  ' 08.04.2023: Cant value now may be a decimal instead of only integer.
+  Const RegExDecimal_Info As String = " *= *([+-]?([0-9]*[.])?[0-9]+)\s*"
   Set InfoCantPatterns = New Scripting.Dictionary
-  InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
-  InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
+  InfoCantPatterns.Add "(u)"   & RegExDecimal_Info, "relative or indefinite cant"
+  InfoCantPatterns.Add "(ueb)" & RegExDecimal_Info, "absolute cant"
+  'InfoCantPatterns.Add "(u) *= *([+-]? *[0-9]+)\s*"  , "relative or indefinite cant"
+  'InfoCantPatterns.Add "(ueb) *= *([+-]? *[0-9]+)\s*", "absolute cant"
   
   ' Patterns for recognizing point kind from info text.
   Set InfoKindPatterns  = New Scripting.Dictionary
   InfoKindPatterns.Add "\bGls\b|\bGleis\b"             , GeoPointKind.Rails
   InfoKindPatterns.Add "\bBst\b|\bBstg\b|\bBahnst"     , GeoPointKind.Platform
+  InfoKindPatterns.Add "\bBst_|\bBstg_"                , GeoPointKind.Platform
   InfoKindPatterns.Add "\bPS4\b|\bGVP"                 , GeoPointKind.RailsFixPoint
   InfoKindPatterns.Add "\bPS3\b|\bHFP\b|\bHB\b|\bHP\b" , GeoPointKind.FixPoint1D
   InfoKindPatterns.Add "\bPS2\b|\bLFP\b|\bPPB\b"       , GeoPointKind.FixPoint2D
   InfoKindPatterns.Add "\bPS1\b|\bGPSC\b|\bLHFP\b"     , GeoPointKind.FixPoint3D
   InfoKindPatterns.Add "\bPS0\b|\bNXO\b|\bDBRF\b"      , GeoPointKind.FixPoint3D
   InfoKindPatterns.Add "\bPP\b|\bAP\b|\bPSx\b"         , GeoPointKind.FixPoint
+  InfoKindPatterns.Add "\bSOK1\b"                      , GeoPointKind.RailTop1
+  InfoKindPatterns.Add "\bSOK2\b"                      , GeoPointKind.RailTop2
+  InfoKindPatterns.Add "\bSOK\b"                       , GeoPointKind.RailTop
+  InfoKindPatterns.Add "\bMesspkt1\b|\bMesspunkt1\b"   , GeoPointKind.MeasurePoint1
+  InfoKindPatterns.Add "\bMesspkt2\b|\bMesspunkt2\b"   , GeoPointKind.MeasurePoint2
+  InfoKindPatterns.Add "\bMesspkt\b|\bMesspunkt\b"     , GeoPointKind.MeasurePoint
+  
+  
+  ' Pattern to recognize a text as iGeo "iTrassen-Codierung".
+   Const RegExDecimal_iTC As String = " *=? *([+-]?([0-9]*[.])?[0-9]+)"
+   
+   iTC_Pattern = "^ *"
+   iTC_Pattern = iTC_Pattern & "(\w)?"            ' PointKindAB
+   
+   iTC_Pattern = iTC_Pattern & "("                ' Start attributes
+   
+   iTC_Pattern = iTC_Pattern & "(-b)"             ' Platform
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-v)([0-9]+)?"    ' Rails fixpoint
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-f)([0-9]+)?"    ' Fixpoint
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-s1)"            ' Rail point 1
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-s2)"            ' Rail point 2
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-m1)"            ' Measure point 1
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-m2)"            ' Measure point 2
+   iTC_Pattern = iTC_Pattern & "|"
+   
+   ' Rails may have and are recognized by several attributes in arbitrary order:
+   ' - 3 different attributes: relative and absolute cant, track gauge.
+   ' - 2 attributes each in 2 different notations:
+   '   - Absolute cant is "-iueb*" or "-ueb*"
+   '   - Relative cant is "-iu*"   or "-u*"
+   iTC_Pattern = iTC_Pattern & "(-i?ueb)" & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?u)"   & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-sp)"    & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   
+   iTC_Pattern = iTC_Pattern & "(-i?ueb)" & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?ueb)" & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?u)"   & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?u)"   & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-sp)"    & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-sp)"    & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   
+   iTC_Pattern = iTC_Pattern & "(-i?ueb)" & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?ueb)" & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?u)"   & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i?u)"   & RegExDecimal_iTC & " *(-sp)"    & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-sp)"    & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-sp)"    & RegExDecimal_iTC & " *(-i?u)"   & RegExDecimal_iTC & " *(-i?ueb)" & RegExDecimal_iTC
+   
+   iTC_Pattern = iTC_Pattern & "|"
+   iTC_Pattern = iTC_Pattern & "(-i)"             ' Rails.  In fact, in iGeo this is meant generally as *actual position*.
+   
+   iTC_Pattern = iTC_Pattern & ")?"               ' End attributes
+   
+   iTC_Pattern = iTC_Pattern & " *((#) ?(.*))?"   ' Comment
+   iTC_Pattern = iTC_Pattern & "$"
+  '
+  
   
   'Mathematische Konstanten
   pi = 4 * Atn(1)
@@ -909,16 +1060,20 @@ Sub Mod_InfoTextAuswerten()
   '   - Spalte.Pkt.Art.Bez2  :  Punktart Bezeichnung lang
   '   - Spalte.Pkt.V.ArtKz.2 :  Vermarkungsart für iGeo-Absteckbuch
   '   - Spalte.Pkt.V.ArtKz   :  Vermarkungsart (für Festpunkt oder GVP)
+  '   - Spalte.Tra.sp        :  Ist-Spurweite  (für Gleispunkt)
   '   - Spalte.Tra.u         :  Ist-Überhöhung (für Gleispunkt)
   '   - Spalte.Tra.ua        :  Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
   '    
   ' - Punktarten:  iTrassen-Codierung    Bezeichnung kurz  Bezeichnung lang    Hinweis
   '   -            -i                    Gls               Gleis               ohne Überhöhung
-  '   -            -iu*                  Gls               Gleis               mit  Überhöhung
-  '   -            -iueb*                Gls               Gleis               mit  Überhöhung im iGeo-Stil ("+" => rechte Schiene überhöht) 
+  '   -            -iu*   , -u*          Gls               Gleis               mit  Überhöhung
+  '   -            -iueb* , -ueb*        Gls               Gleis               mit  Überhöhung im iGeo-Stil ("+" => rechte Schiene überhöht) 
+  '   -            -sp*                  Gls               Gleis               mit  Spurweite
   '   -            -b                    Bstg              Bahnsteig
   '   -            -f*                   PSx               Festpunkt           * = Vermarkungsart
   '   -            -v*                   GVP               GVP                 * = Vermarkungsart
+  '   -            -s1 , -s2             SOK1, SOK2        Schiene   1 / 2
+  '   -            -m1 , -m2             MP1 , MP2         Messpunkt 1 / 2
   '--------------------------------------------------------------------------------------------------------'
     On Error GoTo Fehler
     
@@ -928,6 +1083,7 @@ Sub Mod_InfoTextAuswerten()
     
     Dim u_ist()              As String
     Dim ua_ist()             As String
+    Dim sp_ist()             As String
     Dim PArtBez1()           As String
     Dim PArtBez2()           As String
     Dim VArtKz1()            As String
@@ -935,6 +1091,7 @@ Sub Mod_InfoTextAuswerten()
     Dim BemerkNeu()          As String
     
     Dim intPArt              As GeoPointKind
+    Dim strPArtText          As String
     Dim strVArtKz1           As String
     Dim strVArtKz2           As String
     Dim strInfoNeu           As String
@@ -942,6 +1099,7 @@ Sub Mod_InfoTextAuswerten()
     Dim BemerkAlt            As String
     Dim varUebQuelle         As Variant
     Dim varUebAbsQuelle      As Variant
+    Dim varSpurwQuelle       As Variant
     Dim keineFormeln         As Boolean
     Dim FoundITC             As Boolean
     Dim FoundCant            As Boolean
@@ -961,6 +1119,7 @@ Sub Mod_InfoTextAuswerten()
         ub = UBound(oDaten(SpN_Pkt_Erl_L), 1)
         ReDim u_ist(lb To ub)
         ReDim ua_ist(lb To ub)
+        ReDim sp_ist(lb To ub)
         ReDim PArtBez1(lb To ub)
         ReDim PArtBez2(lb To ub)
         ReDim VArtKz1(lb To ub)
@@ -972,9 +1131,11 @@ Sub Mod_InfoTextAuswerten()
         For i = lb To ub
             ' Vorbereitungen.
             If (keineFormeln) Then
-                BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i)
+                BemerkAlt   = oDaten(SpN_Pkt_Erl_L)(i)
+                strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i)
             Else
-                BemerkAlt = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
+                BemerkAlt   = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
+                strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i, DPidxWert)
             End If
             strInfoNeu      = BemerkAlt
             intPArt         = GeoPointKind.None
@@ -982,11 +1143,12 @@ Sub Mod_InfoTextAuswerten()
             strVArtKz2      = ""
             varUebQuelle    = ""
             varUebAbsQuelle = ""
+            varSpurwQuelle  = ""
             IsUnknownCant   = True
             
             ' iTrassen-Codierung.
             If (Me.Opt_iTrassenCodeAusBemerkung) Then
-                FoundITC = Parse_iTC(BemerkAlt, intPArt, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, strInfoNeu)
+                FoundITC = Parse_iTC(BemerkAlt, intPArt, strVArtKz1, strVArtKz2, varUebQuelle, varUebAbsQuelle, varSpurwQuelle, strInfoNeu)
                 
                 ' Flag setzen, wenn Überhöhung erkannt worden ist.
                 If (FoundITC) Then
@@ -995,6 +1157,14 @@ Sub Mod_InfoTextAuswerten()
                     End If
                 Else
                     strInfoNeu = BemerkAlt
+                End If
+            End If
+            
+            ' Punktart aus PunktartText ableiten.
+            strPArtText = Trim(strPArtText)
+            If ((intPArt = GeoPointKind.None) And (strPArtText <> "")) Then
+                If (KindText2Kind.Exists(strPArtText)) Then
+                    intPArt = KindText2Kind(strPArtText)
                 End If
             End If
             
@@ -1017,17 +1187,25 @@ Sub Mod_InfoTextAuswerten()
                 If (IsNumeric(varUebAbsQuelle)) Then
                   ua_ist(i) = varUebAbsQuelle
                 End If
+                If (IsNumeric(varSpurwQuelle)) Then
+                  sp_ist(i) = varSpurwQuelle
+                End If
             End If
             BemerkNeu(i) = strInfoNeu
             VArtKz1(i)   = strVArtKz1
             VArtKz2(i)   = strVArtKz2
-            PArtBez1(i)  = DefaultKindTextShort(intPArt)
             PArtBez2(i)  = DefaultKindTextLong(intPArt)
+            If (strPArtText <> "") Then
+                PArtBez1(i) = strPArtText
+            Else
+                PArtBez1(i) = DefaultKindTextShort(intPArt)
+            End If
         Next
         
         ' Neue Werte in den Datenpuffer schreiben.
         Call Vektor2Datenuffer(u_ist,     SpN_Tra_u,        Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(ua_ist,    SpN_Tra_ua,       Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(sp_ist,    SpN_Tra_sp,       Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
@@ -1314,6 +1492,7 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
                            ByRef MarkTypeAB    As String, _
                            ByRef ActualCant    As Variant, _
                            ByRef ActualCantAbs As Variant, _
+                           ByRef ActualGauge   As Variant, _
                            ByRef NewInfo       As String _
                           ) As Boolean
   '------------------------------------------------------------------------------    
@@ -1325,18 +1504,22 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
   ' Ausgabe:  MarkTypeAB    ... Vermarkungsart für iGeo-Absteckbuch
   ' Ausgabe:  ActualCant    ... Ist-Überhöhung (für Gleispunkt)
   ' Ausgabe:  ActualCantAbs ... Ist-Überhöhung (für Gleispunkt), absolut ("+" => linke Schiene überhöht)
+  ' Ausgabe:  ActualGauge   ... Ist-Spurweite  (für Gleispunkt)
   ' Ausgabe:  NewInfo       ... Text-Teil der iTrassen-Codierung
   ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
   '  
   ' Erwartete Formate:
-  '  -b                    Platform                                 
-  '  -iueb[=]?[+-]?[0-9]+  Actual rails with actual absolute cant (sign as iGeo)
-  '  -iu[=]?[+-]?[0-9]+    Actual rails with actual relative cant
-  '  -i                    Actual rails without actual cant
-  '  -v[0-9]+              Rails fix point [with numeric mark type] 
-  '  -f[0-9]+              Other fix point [with numeric mark type] 
-  '  ?-                    If one of the above codes is there, it may be preceeded 
-  '                        by one word character which will be treated as MarkTypeAB.
+  '  -b                        Platform                                 
+  '  -i?ueb *=? *<a decimal>  Actual rails with actual absolute cant (sign as iGeo)
+  '  -i?u *=? *<a decimal>    Actual rails with actual relative cant
+  '  -i                       Actual rails without actual cant
+  '  -sp                      Actual rails with actual track gauge
+  '  -s1 or -s2               Rail top 1 or 2
+  '  -m1 or -m2               Measure point 1 or 2
+  '  -v[0-9]+                 Rails fix point [with numeric mark type] 
+  '  -f[0-9]+                 Other fix point [with numeric mark type] 
+  '  ?-                       If one of the above codes is there, it may be preceeded 
+  '                           by one word character which will be treated as MarkTypeAB.
   '------------------------------------------------------------------------------
     Dim FoundITC          As Boolean
     Dim oMatches          As Object
@@ -1344,23 +1527,25 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
     Dim i                 As Integer
     Dim iTC_MarkType      As String
     Dim iTC_Kind          As GeoPointKind
-    Dim iTC_ActualCantAbs As Variant
     Dim iTC_ActualCant    As Variant
+    Dim iTC_ActualCantAbs As Variant
+    Dim iTC_ActualGauge  As Variant
     Dim KindFromMark      As GeoPointKind
     
     FoundITC      = False
     Kind          = GeoPointKind.None
     MarkType      = ""
     MarkTypeAB    = ""
-    ActualCant    = ""
     ActualCantAbs = ""
+    ActualCant    = ""
+    ActualGauge   = ""
     NewInfo       = ""
     
     If (Trim(PointInfoText) <> "") Then
         
         ThisWorkbook.RegExp.IgnoreCase = True
         ThisWorkbook.RegExp.Global     = False
-        ThisWorkbook.RegExp.Pattern    = "^ *(\w)?((-b)|(-v)([0-9]+)?|(-f)([0-9]+)?|(-iueb) *=? *([+-]? *[0-9]+) *(-iu) *=? *([+-]? *[0-9]+)|(-iu) *=? *([+-]? *[0-9]+) *(-iueb) *=? *([+-]? *[0-9]+)|(-iueb) *=? *([+-]? *[0-9]+)|(-iu) *=? *([+-]? *[0-9]+)|(-i))? *((#) ?(.*))?$"
+        ThisWorkbook.RegExp.Pattern    = iTC_Pattern
         Set oMatches = ThisWorkbook.RegExp.Execute(PointInfoText)
         
         If (oMatches.Count > 0) Then
@@ -1370,19 +1555,28 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
             iTC_MarkType      = ""
             iTC_ActualCantAbs = Null
             iTC_ActualCant    = Null
+            iTC_ActualGauge   = Null
             
             ' Recognize point kinds with attached info.
-            For i = 2 To 19
+            For i = 2 To 110
                 Key = oMatches(0).SubMatches(i)
                 Select Case Key
-                    Case "-b":     iTC_Kind = GeoPointKind.Platform
-                    Case "-v":     iTC_Kind = GeoPointKind.RailsFixPoint : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
-                    Case "-f":     iTC_Kind = GeoPointKind.FixPoint      : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
-                    Case "-iueb":  iTC_Kind = GeoPointKind.Rails         : iTC_ActualCantAbs = -1 * CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
-                    Case "-iu":    iTC_Kind = GeoPointKind.Rails         : iTC_ActualCant    =      CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
-                    Case "-i":     iTC_Kind = GeoPointKind.Rails
+                    Case "-b":             iTC_Kind = GeoPointKind.Platform
+                    Case "-v":             iTC_Kind = GeoPointKind.RailsFixPoint : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
+                    Case "-f":             iTC_Kind = GeoPointKind.FixPoint      : iTC_MarkType      = oMatches(0).SubMatches(i + 1)
+                    Case "-iueb", "-ueb":  iTC_Kind = GeoPointKind.Rails         : iTC_ActualCantAbs = -1 * CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
+                    Case "-iu"  , "-u":    iTC_Kind = GeoPointKind.Rails         : iTC_ActualCant    =      CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
+                    Case "-sp":            iTC_Kind = GeoPointKind.Rails         : iTC_ActualGauge   =      CDbl(Replace(oMatches(0).SubMatches(i + 1), " ", "")) / 1000
+                    Case "-i":             iTC_Kind = GeoPointKind.Rails
+                    Case "-s1":            iTC_Kind = GeoPointKind.RailTop1
+                    Case "-s2":            iTC_Kind = GeoPointKind.RailTop2
+                    Case "-m1":            iTC_Kind = GeoPointKind.MeasurePoint1
+                    Case "-m2":            iTC_Kind = GeoPointKind.MeasurePoint2
                 End Select
-                'Exit For -> not exit, because both "-iueb" and "-iu" may be there.
+                ' Exit For -> not if rails, because "-iueb", "-iu" and "-sp" may be there.
+                If ((iTC_Kind <> GeoPointKind.None) And (iTC_Kind <> GeoPointKind.Rails)) Then
+                    Exit For
+                End If
             Next
                             
             ' Fixpoint: Try to state kind more precisely from mark type.
@@ -1408,13 +1602,17 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
                 If (Not IsNull(iTC_ActualCant)) Then
                     ActualCant = iTC_ActualCant
                 End If
+                
+                If (Not IsNull(iTC_ActualGauge)) Then
+                    ActualGauge = iTC_ActualGauge
+                End If
             End If
             
             ' Special mark type.
             MarkTypeAB = oMatches(0).SubMatches(0)
             
             ' Point info text.
-            NewInfo = Trim(oMatches(0).SubMatches(22))
+            NewInfo = Trim(oMatches(0).SubMatches(113))
         End If
     End If
     Parse_iTC = FoundITC
@@ -1505,7 +1703,7 @@ Function ParseInfoForPointKind(ByVal PointInfoText As String) As GeoPointKind
     Dim oMatches  As Object
     Dim RetValue  As GeoPointKind
     
-    RetValue      = GeoPointKind.None
+    RetValue = GeoPointKind.None
     
     If (Trim(PointInfoText) <> "") Then
             

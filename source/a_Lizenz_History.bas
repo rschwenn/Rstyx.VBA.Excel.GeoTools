@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2022 Robert Schwenn
+' Copyright (c) 2003-2023 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,13 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'08.04.2023 v3.3.4  - CdatDatenpuffer: Unterstützung für erweiterte iTrassen-Codierung:
+'                     - Neue Punktarten: "Messpunkt" (1,2) und "SOK" (1,2)
+'                     - Spurweite als neues Attribut für Gleispunkt
+'                     - Alternative Attribut-Schreibweisen "-u*" and "-ueb*" (w/o "i")
+'                     - Überhöhung und Spurweite werden auch mit NKS erkannt und geschrieben.
+'                   - InfoText: Angaben für Überhöhung werden auch mit NKS erkannt.
+'                   - Punktarterkennung jetzt auch von PArtText (KindText)
 '26.10.2022 v3.3.3  - CimpTrassenkoo: Neues Feld "Tra.NameAcfg" für iGeo-TK.
 '                   - CToolsSystem: ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
 '                   - mdlToolsExcel.SetArbeitsverzeichnis() ersetzt durch ThisWorkbook.SysTools.ArbeitsVerz.

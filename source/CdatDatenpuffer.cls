@@ -1105,6 +1105,7 @@ Sub Mod_InfoTextAuswerten()
     Dim FoundCant            As Boolean
     Dim IsUnknownCant        As Boolean
     Dim ParseCant            As Boolean
+    Dim PArtTextExist        As String
     
     Echo vbnewline & "InfoText auswerten (Punktart, Überhöhung usw.)"
     Echo "  Einstellung: iTrassen-Codierung auswerten   = " & bool2String(Me.Opt_iTrassenCodeAusBemerkung)
@@ -1112,6 +1113,8 @@ Sub Mod_InfoTextAuswerten()
     Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
     Application.StatusBar = "InfoText auswerten."
     ErrMessage = "Fehler bei Auswerten des InfoTextes"
+    
+    PArtTextExist = oDaten.Exists(SpN_Pkt_Art_Bez1)
     
     If (oDaten.Exists(SpN_Pkt_Erl_L)) Then
         
@@ -1132,10 +1135,18 @@ Sub Mod_InfoTextAuswerten()
             ' Vorbereitungen.
             If (keineFormeln) Then
                 BemerkAlt   = oDaten(SpN_Pkt_Erl_L)(i)
-                strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i)
+                If (PArtTextExist) Then
+                    strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i)
+                Else
+                    strPArtText = ""
+                End If
             Else
                 BemerkAlt   = oDaten(SpN_Pkt_Erl_L)(i, DPidxWert)
-                strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i, DPidxWert)
+                If (PArtTextExist) Then
+                    strPArtText = oDaten(SpN_Pkt_Art_Bez1)(i, DPidxWert)
+                Else
+                    strPArtText = ""
+                End If
             End If
             strInfoNeu      = BemerkAlt
             intPArt         = GeoPointKind.None

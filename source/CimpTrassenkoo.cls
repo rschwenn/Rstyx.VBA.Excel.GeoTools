@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2023  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -25,15 +25,14 @@ Attribute VB_Exposed = False
 '                   - 1-zeilig und 2-zeilig
 '                   - Ab Spalte 83/84 kann eine Punktinfo stehen (max. 13-stellig).
 ' 
-'      - iTrassePC: - Programmversion: 2.0.2 (final)
-'                   - Ausgabeformat A1
-'                   - Am Zeilenende kann nach einem "#" ein Kommentar stehen,
-'                     der als Punktinfo gewertet wird
-'                   - Die Eingabedatei darf mehrere Ausgaben (auch verschiedener Formate) enthalten.
-'                     Die dazugehörigen Kommentarblöcke müssen komplett erhalten sein!
-' 
 '      - iGeo:      - Programmversion: Trassenbibliothek V241
 '                   - Ausgabeformate A0 und A1
+'                   - Am Zeilenende der A1 kann nach einem "#" ein Kommentar stehen,
+'                     der als Punktinfo gewertet wird
+' 
+'      HINWEISE:    - Die Eingabedatei darf mehrere Ausgaben enthalten, ABER:
+'                     => ENTWEDER Verm.esn ODER iGeo!
+'                   - Die dazugehörigen Kommentarblöcke müssen komplett erhalten sein!
 '==================================================================================================
 
 
@@ -42,7 +41,7 @@ Option Explicit
 'Modulkonstanten
 Const strKlasse_Name                    As String = "CimpTrassenkoo"
 
-Const strTitel                          As String = "Trassenkoo': Verm.esn und iGeo/iTrassePC A0 und A1"
+Const strTitel                          As String = "iGeo-A0/A1 *ODER* VermEsn-Umformungen"
 Const strKategorien                     As String = "tabTK_iGeo;Punktbeschreibung;Koordinaten (Trasse);Trassenparameter;Koordinaten (rechtwinklig)"
 
 'Const strQuelle_AsciiDatei_DialogFilter As String = "Trassenkoo' Verm.esn (*.txt),*.txt, Trassenkoo' iGeo A0 (*.a0),*.a0, Trassenkoo' iGeo A1 (*.a1),*.a1, Alle Dateien (*.*),*.*"

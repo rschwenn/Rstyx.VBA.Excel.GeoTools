@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003-2023  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -1808,25 +1808,31 @@ End Sub
 
 
 Public Sub Syncronisieren()
-  'Syncronisiert die Daten einiger Eigenschaften mit der aktiven Tabelle.
-  ' - Datenbereich
-  ' - Spaltennamen und -Einheiten
-  ' - Kategorien
-  ' - Verfügbarkeit von Methoden signalisieren
+  '1. Arbeitsverzeichnis wird auf das der aktiven Arbeitsmappe gesetzt.
+  '2. Syncronisiert die Daten einiger Eigenschaften mit der aktiven Tabelle.
+  '   - Datenbereich
+  '   - Spaltennamen und -Einheiten
+  '   - Kategorien
+  '   - Verfügbarkeit von Methoden signalisieren
   On Error GoTo Fehler
   DebugEcho "CtabAktiveTabelle.Syncronisieren(): Syncronisiere Tabelle: '" & Me.TabName & "'."
   
-  '1. Position und Ausdehnung des Datenbereiches bestimmen.
+  '1. Arbeitsverzeichnis setzen auf das der aktiven Arbeitsmappe.
+  If (Not ActiveWorkbook Is Nothing) Then
+      ThisWorkbook.SysTools.ArbeitsVerz = ActiveWorkbook.Path
+  End If
+  
+  '2. Position und Ausdehnung des Datenbereiches bestimmen.
   Call BestimmeDatenbereich()
   
-  '2. Benannte Spalten der aktiven Tabelle erfassen.
+  '3. Benannte Spalten der aktiven Tabelle erfassen.
   Call GetSpaltenInfo(PrefixSpaltenname, oSpaltenErsteZellen, oSpaltenEinheiten, _
                       oSpaltenFormate, oSpaltenBuchst2Name)
     
-  '3. Kategorien konfigurierter Spaltennamen ermitteln.
+  '4. Kategorien konfigurierter Spaltennamen ermitteln.
   strKategorien = GetKategorien()
   
-  '4. Verfügbarkeit von Methoden
+  '5. Verfügbarkeit von Methoden
   Call UpdateGeoToolsRibbon
   
   Call Me.ZeigeSpalten()

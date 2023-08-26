@@ -1041,17 +1041,17 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             Wert = oMatches(0).SubMatches(1)
             Select Case Key
               Case "Trassenkonfiguration":  NAcfg   = oFSO.GetBaseName(Wert)
-              Case "Achse":                 NTra    = oFSO.GetBaseName(Wert)
-              Case "Gradiente":             NGra    = oFSO.GetBaseName(Wert)
-              Case "Ueberhöhungsband":      NUeb    = oFSO.GetBaseName(Wert)  ' iTrassePC
-              Case "Überhöhungsband":       NUeb    = oFSO.GetBaseName(Wert)  ' iGeo
-              Case "Stationierungsachse":   NKML    = oFSO.GetBaseName(Wert)  ' iTrassePC
-              Case "Km-Linie":              NKML    = oFSO.GetBaseName(Wert)  ' iGeo
-              Case "Regelprofilbereich":    NRegel  = oFSO.GetBaseName(Wert)
-              Case "Tunnelprofilbereich":   NTunnel = oFSO.GetBaseName(Wert)
-              Case "Profilpunktbereich":    NPrfPkt = oFSO.GetBaseName(Wert)
-              Case "Gleisprofilbereich":    NGlsPrf = oFSO.GetBaseName(Wert)
-              Case "DGM":                   NDGM    = oFSO.GetBaseName(Wert)
+              Case "Achse":                 NTra    = Wert
+              Case "Gradiente":             NGra    = Wert
+              Case "Ueberhöhungsband":      NUeb    = Wert  ' iTrassePC
+              Case "Überhöhungsband":       NUeb    = Wert  ' iGeo
+              Case "Stationierungsachse":   NKML    = Wert  ' iTrassePC
+              Case "Km-Linie":              NKML    = Wert  ' iGeo
+              Case "Regelprofilbereich":    NRegel  = Wert
+              Case "Tunnelprofilbereich":   NTunnel = Wert
+              Case "Profilpunktbereich":    NPrfPkt = Wert
+              Case "Gleisprofilbereich":    NGlsPrf = Wert
+              Case "DGM":                   NDGM    = Wert
               Case "Feldnamen":             FieldNamesString = trim(Wert)     ' Format "A0"
               
               Case "Format"

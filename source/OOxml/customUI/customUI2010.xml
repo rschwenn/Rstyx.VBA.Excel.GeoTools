@@ -171,7 +171,7 @@
                   <button id="CalcParseInfoTextButton"
                           label="InfoText auswerten"
                           screentip="Punktart und Ist-Überhöhung aus InfoText extrahieren"
-                          supertip="Der InfoText (Punktinfo') wird nach iTrassen-Codierung und Überhöhungsangaben ('u=xxx', 'ueb=xxx') durchsucht. Gefundene Werte werden in die entsprechenden Spalten eingetragen. Ist 'Überschreiben' aktiviert, werden sie aus der Bemerkung entfernt."
+                          supertip="Der InfoText (Punktinfo') wird nach iTrassen-Codierung sowie Punktart- und Überhöhungsangaben ('u=xxx', 'ueb=xxx') durchsucht. Gefundene Werte werden in die entsprechenden Spalten eingetragen. Vorhandene Werte in Spalten Pkt.Art.Bez1 und Pkt.V.ArtKz werden nie überschrieben! Ist 'Überschreiben' aktiviert, werden sie aus der Bemerkung entfernt."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />

@@ -1219,7 +1219,7 @@ Sub Mod_InfoTextAuswerten()
         Call Vektor2Datenuffer(sp_ist,    SpN_Tra_sp,       Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(PArtBez1,  SpN_Pkt_Art_Bez1, Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(PArtBez2,  SpN_Pkt_Art_Bez2, Me.Opt_VorhWerteUeberschreiben)
-        Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , Me.Opt_VorhWerteUeberschreiben)
+        Call Vektor2Datenuffer(VArtKz1,   SpN_Pkt_VArt_Kz , False)                          ' Vorh. VArt nicht mit aus InfoText abgeleitetem Wert überschreiben.
         Call Vektor2Datenuffer(VArtKz2,   SpN_Pkt_VArt_Kz2, Me.Opt_VorhWerteUeberschreiben)
         Call Vektor2Datenuffer(BemerkNeu, SpN_Pkt_Erl_L,    Me.Opt_VorhWerteUeberschreiben)
     End If

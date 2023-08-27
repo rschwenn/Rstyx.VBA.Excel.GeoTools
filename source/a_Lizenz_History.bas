@@ -38,8 +38,10 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'16.08.2023 v3.3.5  - CimpTrassenkoo: Bugfix: iGeo-Trassennamen mit "." werden nicht mehr verstümmelt.
+'27.08.2023 v3.3.5  - CimpTrassenkoo: Bugfix: iGeo-Trassennamen mit "." werden nicht mehr verstümmelt.
 '                   - CtabAktiveTabelle.Syncronisieren() setzt jetzt auch Arbeitsverzeichnis.
+'                   - CdatDatenpuffer.Mod_InfoTextAuswerten(): Vorhandene Werte in Spalte Pkt.V.ArtKz
+'                     werden (wie auch Pkt.Art.Bez1) nie überschrieben.
 '08.04.2023 v3.3.4  - CdatDatenpuffer: Unterstützung für erweiterte iTrassen-Codierung:
 '                     - Neue Punktarten: "Messpunkt" (1,2) und "SOK" (1,2)
 '                     - Spurweite als neues Attribut für Gleispunkt

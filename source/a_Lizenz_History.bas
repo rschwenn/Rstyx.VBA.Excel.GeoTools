@@ -38,6 +38,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'24.09.2023 v3.3.6  - Neu mdlBefehle.WorkbookOpened() zwecks Umgehung eines Excel-Fehlers,
+'                     der im Optional-Addin auftritt (FileOpenDirect).
 '27.08.2023 v3.3.5  - CimpTrassenkoo: Bugfix: iGeo-Trassennamen mit "." werden nicht mehr verstümmelt.
 '                   - CtabAktiveTabelle.Syncronisieren() setzt jetzt auch Arbeitsverzeichnis.
 '                   - CdatDatenpuffer.Mod_InfoTextAuswerten(): Vorhandene Werte in Spalte Pkt.V.ArtKz

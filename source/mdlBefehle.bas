@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlBefehle"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2023  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -394,7 +394,7 @@ Sub GeoTools_Info()
   Meldung = ProgName & ": Excel-Werkzeuge (nicht nur) für Geodäten." & vbLf & vbLf & _
             "Version"   & vbTab & vbTab & VersionNr & "  (" & VersionDate & ")" & vbLf & vbLf & _
             "Lizenz"    & vbTab & vbTab & "The MIT License" & vbLf & _
-            "Copyright" & vbTab & vbTab & Copyright & "  (" & eMail & ")"
+            "Copyright" & vbTab         & Copyright & "  (" & eMail & ")"
   
   If (Application.ActiveProtectedViewWindow Is Nothing) Then
     Application.StatusBar = ProgName & " " & VersionNr
@@ -428,6 +428,20 @@ Function IsGeoToolsInitFinished() As Variant
   Fehler:
   FehlerNachricht "mdlBefehle.IsGeoToolsInitFinished()"
 End Function
+
+
+Sub WorkbookOpened()
+  ' Ersatz für ein von Excel unterdrücktes Ereignis "App_WindowActivate".
+  ' Aufruf aus OptionalAddin.FileOpenDirect.FileOpenDialog.
+  On Error GoTo Fehler
+  DebugEcho "mdlBefehle.WorkbookOpened() aufgerufen."
+  If (Not ActiveSheet Is Nothing) Then
+    ThisWorkbook.AktiveTabelle.App_SheetActivate ActiveSheet
+  End If
+  Exit Sub
+  Fehler:
+  FehlerNachricht "mdlBefehle.WorkbookOpened()"
+End Sub
 
 
 'für jEdit:  :folding=indent::collapseFolds=1:

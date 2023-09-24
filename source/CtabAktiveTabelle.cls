@@ -1973,7 +1973,7 @@ End Sub
 
 '= Ereignisroutinen ================================================================
 
-Private Sub App_SheetActivate(ByVal Sh As Object)
+Public Sub App_SheetActivate(ByVal Sh As Object)
   'Wird aufgerufen beim Aktivieren eines Arbeitsblattes in (hoffentlich) jeder Situation.
   On Error Resume Next
   strNeuesBlatt = Sh.Parent.Name & "!" & Sh.Name

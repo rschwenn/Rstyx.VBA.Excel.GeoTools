@@ -1052,7 +1052,6 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               Case "Gradiente":             NGra     = oFSO.GetFileName(Wert)
               Case "Ueberhöhungsband":      NUeb     = oFSO.GetFileName(Wert)  ' iTrassePC
               Case "Überhöhungsband":       NUeb     = oFSO.GetFileName(Wert)  ' iGeo
-              Case "Basis Überhöhung":      BasisUeb = oFSO.GetFileName(Wert)  ' iGeo
               Case "Stationierungsachse":   NKML     = oFSO.GetFileName(Wert)  ' iTrassePC
               Case "Km-Linie":              NKML     = oFSO.GetFileName(Wert)  ' iGeo
               Case "Regelprofilbereich":    NRegel   = oFSO.GetFileName(Wert)
@@ -1060,6 +1059,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               Case "Profilpunktbereich":    NPrfPkt  = oFSO.GetFileName(Wert)
               Case "Gleisprofilbereich":    NGlsPrf  = oFSO.GetFileName(Wert)
               Case "DGM":                   NDGM     = oFSO.GetFileName(Wert)
+              Case "Basis Überhöhung":      BasisUeb = substitute(" *m$", "", Wert, False, False)
               Case "Feldnamen":             FieldNamesString = trim(Wert)     ' Format "A0"
               
               Case "Format"

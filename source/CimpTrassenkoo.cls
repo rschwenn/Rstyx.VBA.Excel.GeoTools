@@ -127,6 +127,7 @@ Dim DGM_HDGM()           As String
 Dim DGM_ZDGM()           As String
 Dim Tra_UebLi()          As String
 Dim Tra_UebRe()          As String
+Dim Tra_BasisUeb()       As String
 Dim Tra_Heb()            As String
 Dim Tra_G()              As String
 Dim Tra_ZLGS()           As String
@@ -209,6 +210,7 @@ Private Sub Class_Initialize()
   
   Me.Quelle_Einheiten.Add SpN_S_Tra_UebLi, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_UebRe, "m"
+  Me.Quelle_Einheiten.Add SpN_S_Tra_BasisUeb, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_Heb, "m"
   Me.Quelle_Einheiten.Add SpN_S_Tra_G, "rad"
   Me.Quelle_Einheiten.Add SpN_S_Tra_ZLGS, "m"
@@ -488,6 +490,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
     ReDim DGM_ZDGM(1 To 1)
     ReDim Tra_UebLi(1 To 1)
     ReDim Tra_UebRe(1 To 1)
+    ReDim Tra_BasisUeb(1 To 1)
     ReDim Tra_Heb(1 To 1)
     ReDim Tra_G(1 To 1)
     ReDim Tra_ZLGS(1 To 1)
@@ -661,50 +664,51 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       'Nur iGeo/iTrassePC
       'Me.Quelle_Datenpuffer.Add SpN_TK_QG, AbstRed
       'Me.Quelle_Datenpuffer.Add SpN_TK_HG, dHRed
-      Me.Quelle_Datenpuffer.Add SpN_TK_H,          TK_H
-      Me.Quelle_Datenpuffer.Add SpN_TK_V,          TK_V
-      Me.Quelle_Datenpuffer.Add SpN_TK_R,          TK_R
-      Me.Quelle_Datenpuffer.Add SpN_TK_L,          TK_L
-      Me.Quelle_Datenpuffer.Add SpN_TK_RG,         TK_RG
-      Me.Quelle_Datenpuffer.Add SpN_TK_LG,         TK_LG
-      Me.Quelle_Datenpuffer.Add SpN_TK_Tm,         TK_Tm
-      Me.Quelle_Datenpuffer.Add SpN_TK_QT,         TK_QT
-      Me.Quelle_Datenpuffer.Add SpN_TK_QGT,        TK_QGT
-      Me.Quelle_Datenpuffer.Add SpN_TK_HGT,        TK_HGT
-      Me.Quelle_Datenpuffer.Add SpN_TK_QGS,        TK_QGS
-      Me.Quelle_Datenpuffer.Add SpN_TK_HGS,        TK_HGS
-      Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus,   TK_KmStatus
-      Me.Quelle_Datenpuffer.Add SpN_TK_KmText,     TK_KmText
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebLi,   Tra_UebLi
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebRe,   Tra_UebRe
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,     Tra_Heb
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_G,       Tra_G
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZLGS,    Tra_ZLGS
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS,   Tra_RaLGS
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS,   Tra_AbLGS
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniR,   Tra_MiniR
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniUeb, Tra_MiniUeb
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_XA,      Tra_XA
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_YA,      Tra_YA
-      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZA,      Tra_ZA
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB1,      Tra_STB1
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB2,      Tra_STB2
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB3,      Tra_STB3
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB4,      Tra_STB4
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB5,      Tra_STB5
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB6,      Tra_STB6
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB7,      Tra_STB7
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB8,      Tra_STB8
-      Me.Quelle_Datenpuffer.Add SpN_Tra_STB9,      Tra_STB9
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameAcfg,  N_Acfg
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb,   N_UebBand
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg,   N_RegPrf
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun,   N_TunPrf
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NamePkt,   N_PrfPkt
-      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGls,   N_GlsPrf
-      Me.Quelle_Datenpuffer.Add SpN_DGM_HDGM,      DGM_HDGM
-      Me.Quelle_Datenpuffer.Add SpN_S_DGM_ZDGM,    DGM_ZDGM
-      Me.Quelle_Datenpuffer.Add SpN_DGM_NameDGM,   N_DGM
+      Me.Quelle_Datenpuffer.Add SpN_TK_H,           TK_H
+      Me.Quelle_Datenpuffer.Add SpN_TK_V,           TK_V
+      Me.Quelle_Datenpuffer.Add SpN_TK_R,           TK_R
+      Me.Quelle_Datenpuffer.Add SpN_TK_L,           TK_L
+      Me.Quelle_Datenpuffer.Add SpN_TK_RG,          TK_RG
+      Me.Quelle_Datenpuffer.Add SpN_TK_LG,          TK_LG
+      Me.Quelle_Datenpuffer.Add SpN_TK_Tm,          TK_Tm
+      Me.Quelle_Datenpuffer.Add SpN_TK_QT,          TK_QT
+      Me.Quelle_Datenpuffer.Add SpN_TK_QGT,         TK_QGT
+      Me.Quelle_Datenpuffer.Add SpN_TK_HGT,         TK_HGT
+      Me.Quelle_Datenpuffer.Add SpN_TK_QGS,         TK_QGS
+      Me.Quelle_Datenpuffer.Add SpN_TK_HGS,         TK_HGS
+      Me.Quelle_Datenpuffer.Add SpN_TK_KmStatus,    TK_KmStatus
+      Me.Quelle_Datenpuffer.Add SpN_TK_KmText,      TK_KmText
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebLi,    Tra_UebLi
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_UebRe,    Tra_UebRe
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_BasisUeb, Tra_BasisUeb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_Heb,      Tra_Heb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_G,        Tra_G
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZLGS,     Tra_ZLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_RaLGS,    Tra_RaLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_AbLGS,    Tra_AbLGS
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniR,    Tra_MiniR
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_MiniUeb,  Tra_MiniUeb
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_XA,       Tra_XA
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_YA,       Tra_YA
+      Me.Quelle_Datenpuffer.Add SpN_S_Tra_ZA,       Tra_ZA
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB1,       Tra_STB1
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB2,       Tra_STB2
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB3,       Tra_STB3
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB4,       Tra_STB4
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB5,       Tra_STB5
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB6,       Tra_STB6
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB7,       Tra_STB7
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB8,       Tra_STB8
+      Me.Quelle_Datenpuffer.Add SpN_Tra_STB9,       Tra_STB9
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameAcfg,   N_Acfg
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameUeb,    N_UebBand
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameReg,    N_RegPrf
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameTun,    N_TunPrf
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NamePkt,    N_PrfPkt
+      Me.Quelle_Datenpuffer.Add SpN_Tra_NameGls,    N_GlsPrf
+      Me.Quelle_Datenpuffer.Add SpN_DGM_HDGM,       DGM_HDGM
+      Me.Quelle_Datenpuffer.Add SpN_S_DGM_ZDGM,     DGM_ZDGM
+      Me.Quelle_Datenpuffer.Add SpN_DGM_NameDGM,    N_DGM
       
     'Speicher freigeben (Wirkung?)
       ReDim N_KmLinie(0)
@@ -750,6 +754,7 @@ Private Function LeseDatei(ByVal Dateiname As String) As Boolean
       ReDim DGM_ZDGM(0)
       ReDim Tra_UebLi(0)
       ReDim Tra_UebRe(0)
+      ReDim Tra_BasisUeb(0)
       ReDim Tra_Heb(0)
       ReDim Tra_G(0)
       ReDim Tra_ZLGS(0)
@@ -828,6 +833,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     Dim NPrfPkt         As String
     Dim NGlsPrf         As String
     Dim NDGM            As String
+    Dim BasisUeb        As String
     Dim FieldName       As String
     Dim FieldNamesString As String
     
@@ -929,6 +935,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
     NPrfPkt      = ""
     NGlsPrf      = ""
     NDGM         = ""
+    BasisUeb     = ""
     FieldNamesString = ""
     
     UmfEnde      = false
@@ -1040,18 +1047,19 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
             Key = Trim(oMatches(0).SubMatches(0))
             Wert = oMatches(0).SubMatches(1)
             Select Case Key
-              Case "Trassenkonfiguration":  NAcfg   = oFSO.GetBaseName(Wert)
-              Case "Achse":                 NTra    = oFSO.GetFileName(Wert)
-              Case "Gradiente":             NGra    = oFSO.GetFileName(Wert)
-              Case "Ueberhöhungsband":      NUeb    = oFSO.GetFileName(Wert)  ' iTrassePC
-              Case "Überhöhungsband":       NUeb    = oFSO.GetFileName(Wert)  ' iGeo
-              Case "Stationierungsachse":   NKML    = oFSO.GetFileName(Wert)  ' iTrassePC
-              Case "Km-Linie":              NKML    = oFSO.GetFileName(Wert)  ' iGeo
-              Case "Regelprofilbereich":    NRegel  = oFSO.GetFileName(Wert)
-              Case "Tunnelprofilbereich":   NTunnel = oFSO.GetFileName(Wert)
-              Case "Profilpunktbereich":    NPrfPkt = oFSO.GetFileName(Wert)
-              Case "Gleisprofilbereich":    NGlsPrf = oFSO.GetFileName(Wert)
-              Case "DGM":                   NDGM    = oFSO.GetFileName(Wert)
+              Case "Trassenkonfiguration":  NAcfg    = oFSO.GetBaseName(Wert)
+              Case "Achse":                 NTra     = oFSO.GetFileName(Wert)
+              Case "Gradiente":             NGra     = oFSO.GetFileName(Wert)
+              Case "Ueberhöhungsband":      NUeb     = oFSO.GetFileName(Wert)  ' iTrassePC
+              Case "Überhöhungsband":       NUeb     = oFSO.GetFileName(Wert)  ' iGeo
+              Case "Basis Überhöhung":      BasisUeb = oFSO.GetFileName(Wert)  ' iGeo
+              Case "Stationierungsachse":   NKML     = oFSO.GetFileName(Wert)  ' iTrassePC
+              Case "Km-Linie":              NKML     = oFSO.GetFileName(Wert)  ' iGeo
+              Case "Regelprofilbereich":    NRegel   = oFSO.GetFileName(Wert)
+              Case "Tunnelprofilbereich":   NTunnel  = oFSO.GetFileName(Wert)
+              Case "Profilpunktbereich":    NPrfPkt  = oFSO.GetFileName(Wert)
+              Case "Gleisprofilbereich":    NGlsPrf  = oFSO.GetFileName(Wert)
+              Case "DGM":                   NDGM     = oFSO.GetFileName(Wert)
               Case "Feldnamen":             FieldNamesString = trim(Wert)     ' Format "A0"
               
               Case "Format"
@@ -1351,6 +1359,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               ReDim Preserve DGM_ZDGM(1 To AnzPkt)
               ReDim Preserve Tra_UebLi(1 To AnzPkt)
               ReDim Preserve Tra_UebRe(1 To AnzPkt)
+              ReDim Preserve Tra_BasisUeb(1 To AnzPkt)
               ReDim Preserve Tra_Heb(1 To AnzPkt)
               ReDim Preserve Tra_G(1 To AnzPkt)
               ReDim Preserve Tra_ZLGS(1 To AnzPkt)
@@ -1392,6 +1401,7 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               'H        ... TK_H
               'UebLi    ... Tra_UebLi
               'UebRe    ... Tra_UebRe
+              '<Header> ... Tra_BasisUeb
               'Heb      ... Tra_Heb
               'G        ... Tra_G
               'ZLGS     ... Tra_ZLGS
@@ -1564,6 +1574,9 @@ Private Function LeseTKiGeo(ByVal Kanal As Integer, ByRef AnzPkt As Long, ByRef 
               N_PrfPkt(AnzPkt)  = NPrfPkt
               N_GlsPrf(AnzPkt)  = NGlsPrf
               N_DGM(AnzPkt)     = NDGM
+              
+            'Andere Werte aus Block-Header
+            Tra_BasisUeb(AnzPkt) = BasisUeb
             
             'Variablen zurücksetzen
               vGradHoehe = ""

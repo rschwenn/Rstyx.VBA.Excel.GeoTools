@@ -199,6 +199,7 @@ Public Const SpN_Tra_u                       As String = "Tra.u"
 Public Const SpN_Tra_ua                      As String = "Tra.ua"
 Public Const SpN_Tra_sp                      As String = "Tra.sp"
 Public Const SpN_Tra_Radius                  As String = "Tra.Radius"
+Public Const SpN_Tra_BasisUeb                As String = "Tra.BasisUeb"
 
 Public Const SpN_S_Tra_Radius                As String = "S.Tra.Radius"
 Public Const SpN_S_Tra_Richtung              As String = "S.Tra.Richtung"

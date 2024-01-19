@@ -76,6 +76,9 @@ Attribute VB_Exposed = False
  '              - Überhöhung und Spurweite werden auch mit NKS erkannt und geschrieben.
  '            - InfoText: Angaben für Überhöhung werden auch mit NKS erkannt.
  '            - Punktarterkennung jetzt auch von PArtText (KindText)
+ '26.12.2023  - Transformationen Tk <-> Gls berücksichtigen nun auch die
+ '              am Punkt gespeicherte Überhöhungsbasis (Soll und Ist). Falls die Berechnung
+ '              für Istwerte erfolgt, dann hat die Ist-Überhöhungsbasis Vorrang, sonst Soll.
 '====================================================================================
 
 
@@ -772,13 +775,24 @@ Sub Mod_Transfo_Tk2Gls()
   Dim SpExists_Ist_R_u     As Boolean
   Dim SpExists_success     As Boolean
   
+  Dim BasisUeb               As Variant
+  Dim SpN_BasisUeb1          As String
+  Dim SpN_BasisUeb2          As String
+  Dim SpExists_BasisUeb1     As Boolean
+  Dim SpExists_BasisUeb2     As Boolean
+  
+  Dim CountDim_Abst          As Integer
+  Dim CountDim_dH            As Integer
+  Dim CountDim_BasisUeb1     As Integer
+  Dim CountDim_BasisUeb2     As Integer
+  
   Echo vbnewline & "Koordinatentransfo' Trasse => Gleis."
-  Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
+  Echo "  Einstellung: Basis für Überhöhung (global)  = " & Format(Me.TkBasisUeberhoehung, "#.000")
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Transformation von Trassenkoo' ins gedrehte Gleissystem (Zwangspunkt-Reduktion)."
   ErrMessage = "Fehler bei Transformation vom Trassen- ins Gleissystem"
   
-  ' Vorhandene Spalten bestimmen.
+  ' Vorhandene Spalten für Radius und Überhöhung bestimmen.
   If (oDaten.Exists(SpN_S_Tra_ua)) Then
     SpExists_Soll_ua  = True
   ElseIf (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
@@ -801,6 +815,18 @@ Sub Mod_Transfo_Tk2Gls()
       SpN_AbstRed = Prefix & SpN_TK_QG
       SpN_dHRed   = Prefix & SpN_TK_HG
       AnzTransfo  = 0
+          
+      ' Bestimmung der Überhöhungsbasis: Vorhandene Spalten und Prioritäten.
+      If (WertStatus = StatusBez_Ist) Then
+        SpN_BasisUeb1 = SpN_Tra_BasisUeb
+        SpN_BasisUeb2 = SpN_S_Tra_BasisUeb
+      Else
+        SpN_BasisUeb1 = SpN_S_Tra_BasisUeb
+        SpN_BasisUeb2 = SpN_Tra_BasisUeb
+      End If
+      SpExists_BasisUeb1 = oDaten.Exists(SpN_BasisUeb1)
+      SpExists_BasisUeb2 = oDaten.Exists(SpN_BasisUeb2)
+      
       
       If (Not (oDaten.Exists(SpN_Abst) And oDaten.Exists(SpN_dH))) Then
         DebugEcho "  Wertstatus '" & WertStatus & "':  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (Q + HSOK / Soll oder Ist)."
@@ -811,11 +837,30 @@ Sub Mod_Transfo_Tk2Gls()
         ReDim AbstRed(lb To ub)
         ReDim dHRed(lb To ub)
         
+        CountDim_Abst = CountDim(oDaten(SpN_Abst))
+        CountDim_dH   = CountDim(oDaten(SpN_dH))  
+        If (SpExists_BasisUeb1) Then CountDim_BasisUeb1 = CountDim(oDaten(SpN_BasisUeb1))
+        If (SpExists_BasisUeb2) Then CountDim_BasisUeb2 = CountDim(oDaten(SpN_BasisUeb2))
+        
         For i = lb To ub
           ' Zu transformierende Werte bestimmen.
-          If (CountDim(oDaten(SpN_Abst)) = 1) Then Abst = oDaten(SpN_Abst)(i)  Else Abst = oDaten(SpN_Abst)(i, DPidxWert)
-          If (CountDim(oDaten(SpN_dH))   = 1) Then dH   = oDaten(SpN_dH)(i)    Else dH   = oDaten(SpN_dH)(i, DPidxWert)
+          If (CountDim_Abst = 1) Then Abst = oDaten(SpN_Abst)(i)  Else Abst = oDaten(SpN_Abst)(i, DPidxWert)
+          If (CountDim_dH   = 1) Then dH   = oDaten(SpN_dH)(i)    Else dH   = oDaten(SpN_dH)(i, DPidxWert)
           
+          ' Überhöhungsbasis bestimmen.
+          If (SpExists_BasisUeb1) Then
+            If (CountDim_BasisUeb1 = 1) Then BasisUeb = oDaten(SpN_BasisUeb1)(i) Else BasisUeb = oDaten(SpN_BasisUeb1)(i, DPidxWert)
+          End If
+          If (IsEmpty(BasisUeb) Or (Not IsNumeric(BasisUeb))) Then
+            If (SpExists_BasisUeb2) Then
+              If (CountDim_BasisUeb2 = 1) Then BasisUeb = oDaten(SpN_BasisUeb2)(i) Else BasisUeb = oDaten(SpN_BasisUeb2)(i, DPidxWert)
+            End If
+          End If
+          If (IsEmpty(BasisUeb) Or (Not IsNumeric(BasisUeb))) Then
+            BasisUeb = Me.TkBasisUeberhoehung
+          End If
+          
+          ' Transformation.
           If (IsNumeric(Abst) And IsNumeric(dH)) Then
             
             ' Trassenparameter bestimmen.
@@ -869,7 +914,7 @@ Sub Mod_Transfo_Tk2Gls()
             
             ' Transformation ausführen.
             If (ValueExists_R_u) Then
-              Call Transfo_Tk2Gls(Radius, u, Me.TkBasisUeberhoehung, Abst, dH, AbstRed(i), dHRed(i))
+              Call Transfo_Tk2Gls(Radius, u, BasisUeb, Abst, dH, AbstRed(i), dHRed(i))
               AnzTransfo = AnzTransfo + 1
             End If
           End If
@@ -882,7 +927,7 @@ Sub Mod_Transfo_Tk2Gls()
       End If
     Next
     
-    'SpaltenInfo aktualisieren.
+    ' SpaltenInfo aktualisieren.
     Call Daten_GetSpaltenInfo
   End If
   
@@ -900,38 +945,49 @@ Sub Mod_Transfo_Gls2Tk()
   
   On Error GoTo Fehler
   
-  Dim lb                   As Long
-  Dim ub                   As Long
-  Dim i                    As Long
-  Dim AnzTransfo           As Long
-  Dim Abst()               As String
-  Dim dH()                 As String
-  Dim Radius               As Variant
-  Dim AbstRed              As Variant
-  Dim dHRed                As Variant
-  Dim u                    As Variant
-  Dim ua                   As Variant
-  Dim SpN_Abst             As String
-  Dim SpN_dH               As String
-  Dim SpN_AbstRed          As String
-  Dim SpN_dHRed            As String
-  Dim WertStatus           As Variant
-  Dim Prefix               As String
-  Dim ValueExists_R_u      As Boolean
+  Dim lb                     As Long
+  Dim ub                     As Long
+  Dim i                      As Long
+  Dim AnzTransfo             As Long
+  Dim Abst()                 As String
+  Dim dH()                   As String
+  Dim Radius                 As Variant
+  Dim AbstRed                As Variant
+  Dim dHRed                  As Variant
+  Dim u                      As Variant
+  Dim ua                     As Variant
+  Dim SpN_Abst               As String
+  Dim SpN_dH                 As String
+  Dim SpN_AbstRed            As String
+  Dim SpN_dHRed              As String
+  Dim WertStatus             As Variant
+  Dim Prefix                 As String
+  Dim ValueExists_R_u        As Boolean
   
-  Dim SpExists_Soll_ua     As Boolean
-  Dim SpExists_Soll_R_u    As Boolean
-  Dim SpExists_Ist_ua      As Boolean
-  Dim SpExists_Ist_R_u     As Boolean
-  Dim SpExists_success     As Boolean
+  Dim SpExists_Soll_ua       As Boolean
+  Dim SpExists_Soll_R_u      As Boolean
+  Dim SpExists_Ist_ua        As Boolean
+  Dim SpExists_Ist_R_u       As Boolean
+  Dim SpExists_success       As Boolean
+  
+  Dim BasisUeb               As Variant
+  Dim SpN_BasisUeb1          As String
+  Dim SpN_BasisUeb2          As String
+  Dim SpExists_BasisUeb1     As Boolean
+  Dim SpExists_BasisUeb2     As Boolean
+  
+  Dim CountDim_AbstRed       As Integer
+  Dim CountDim_dHRed         As Integer
+  Dim CountDim_BasisUeb1     As Integer
+  Dim CountDim_BasisUeb2     As Integer
   
   Echo vbnewline & "Koordinatentransfo' Gleis => Trasse."
-  Echo "  Einstellung: Basis für Überhöhung = " & Format(Me.TkBasisUeberhoehung, "#.000")
+  Echo "  Einstellung: Basis für Überhöhung (global)  = " & Format(Me.TkBasisUeberhoehung, "#.000")
   Echo "  Einstellung: Vorhandene Werte überschreiben = " & bool2String(Me.Opt_VorhWerteUeberschreiben)
   Application.StatusBar = "Transformation von Koo' des gedrehten Gleissystems in normale Trassenkoo'."
   ErrMessage = "Fehler bei Transformation vom Gleis- ins Trassensystem"
   
-  ' Vorhandene Spalten bestimmen.
+  ' Vorhandene Spalten für Radius und Überhöhung bestimmen.
   If (oDaten.Exists(SpN_S_Tra_ua)) Then
     SpExists_Soll_ua   = True
   ElseIf (oDaten.Exists(SpN_S_Tra_Radius) And oDaten.Exists(SpN_S_Tra_u)) Then
@@ -954,6 +1010,18 @@ Sub Mod_Transfo_Gls2Tk()
       SpN_AbstRed = Prefix & SpN_TK_QG
       SpN_dHRed   = Prefix & SpN_TK_HG
       AnzTransfo  = 0
+          
+      ' Bestimmung der Überhöhungsbasis: Vorhandene Spalten und Prioritäten.
+      If (WertStatus = StatusBez_Ist) Then
+        SpN_BasisUeb1 = SpN_Tra_BasisUeb
+        SpN_BasisUeb2 = SpN_S_Tra_BasisUeb
+      Else
+        SpN_BasisUeb1 = SpN_S_Tra_BasisUeb
+        SpN_BasisUeb2 = SpN_Tra_BasisUeb
+      End If
+      SpExists_BasisUeb1 = oDaten.Exists(SpN_BasisUeb1)
+      SpExists_BasisUeb2 = oDaten.Exists(SpN_BasisUeb2)
+      
       
       If (Not (oDaten.Exists(SpN_AbstRed) And oDaten.Exists(SpN_dHRed))) Then
         DebugEcho "  Wertstatus '" & WertStatus & "':  => Die Tabelle enthält nicht genügend Spalten für diese Berechnung (QG + HG / Soll oder Ist)."
@@ -964,11 +1032,30 @@ Sub Mod_Transfo_Gls2Tk()
         ReDim Abst(lb To ub)
         ReDim dH(lb To ub)
         
+        CountDim_AbstRed = CountDim(oDaten(SpN_AbstRed))
+        CountDim_dHRed   = CountDim(oDaten(SpN_dHRed))  
+        If (SpExists_BasisUeb1) Then CountDim_BasisUeb1 = CountDim(oDaten(SpN_BasisUeb1))
+        If (SpExists_BasisUeb2) Then CountDim_BasisUeb2 = CountDim(oDaten(SpN_BasisUeb2))
+        
         For i = lb To ub
           ' Zu transformierende Werte bestimmen.
-          If (CountDim(oDaten(SpN_AbstRed)) = 1) Then AbstRed = oDaten(SpN_AbstRed)(i) Else AbstRed = oDaten(SpN_AbstRed)(i, DPidxWert)
-          If (CountDim(oDaten(SpN_dHRed))   = 1) Then dHRed   = oDaten(SpN_dHRed)(i)   Else dHRed   = oDaten(SpN_dHRed)(i, DPidxWert)
+          If (CountDim_AbstRed = 1) Then AbstRed = oDaten(SpN_AbstRed)(i) Else AbstRed = oDaten(SpN_AbstRed)(i, DPidxWert)
+          If (CountDim_dHRed   = 1) Then dHRed   = oDaten(SpN_dHRed)(i)   Else dHRed   = oDaten(SpN_dHRed)(i, DPidxWert)
           
+          ' Überhöhungsbasis bestimmen.
+          If (SpExists_BasisUeb1) Then
+            If (CountDim_BasisUeb1 = 1) Then BasisUeb = oDaten(SpN_BasisUeb1)(i) Else BasisUeb = oDaten(SpN_BasisUeb1)(i, DPidxWert)
+          End If
+          If (IsEmpty(BasisUeb) Or (Not IsNumeric(BasisUeb))) Then
+            If (SpExists_BasisUeb2) Then
+              If (CountDim_BasisUeb2 = 1) Then BasisUeb = oDaten(SpN_BasisUeb2)(i) Else BasisUeb = oDaten(SpN_BasisUeb2)(i, DPidxWert)
+            End If
+          End If
+          If (IsEmpty(BasisUeb) Or (Not IsNumeric(BasisUeb))) Then
+            BasisUeb = Me.TkBasisUeberhoehung
+          End If
+          
+          ' Transformation.
           If (IsNumeric(AbstRed) And IsNumeric(dHRed)) Then
             
             ' Trassenparameter bestimmen.
@@ -1022,7 +1109,7 @@ Sub Mod_Transfo_Gls2Tk()
             
             ' Transformation ausführen.
             If (ValueExists_R_u) Then
-              Call Transfo_Gls2Tk(Radius, u, Me.TkBasisUeberhoehung, AbstRed, dHRed, Abst(i), dH(i))
+              Call Transfo_Gls2Tk(Radius, u, BasisUeb, AbstRed, dHRed, Abst(i), dH(i))
               AnzTransfo = AnzTransfo + 1
             End If
           End If
@@ -1036,7 +1123,7 @@ Sub Mod_Transfo_Gls2Tk()
     Next
   End If
   
-  'SpaltenInfo aktualisieren.
+  ' SpaltenInfo aktualisieren.
   Call Daten_GetSpaltenInfo
   
   Exit Sub
@@ -1265,10 +1352,10 @@ End Sub
 Private Sub Daten_LoeschenLeereSpalten()
   'Manipulation am Datenpuffer: Leere Spalten werden gelöscht.
   On Error GoTo Fehler
-  Dim Spalte    As Variant
+  Dim Spalte As Variant
   For Each Spalte In oDaten
     If (isSpalteLeer(oDaten(Spalte))) Then
-      oDaten.Remove (Spalte)
+      oDaten.Remove Spalte
     End If
   Next
   'SpaltenInfo nicht aktualisieren, da Aufruf aus Daten_GetSpaltenInfo heraus erfolgt!
@@ -1472,8 +1559,8 @@ Private Function isSpalteLeer(Vektor) As Boolean
   'Rückgabe:  false, wenn nicht alle Werte (und Formeln) des Vektors leer sind bzw. "",
   '           true in allen anderen Fällen (auch bei Fehler).
   On Error GoTo Fehler
-  Dim i         As Long
-  Dim k         As Long
+  Dim i As Long
+  Dim k As Long
   
   isSpalteLeer = True
   For i = LBound(Vektor, 1) To UBound(Vektor, 1)

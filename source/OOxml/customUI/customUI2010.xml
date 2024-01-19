@@ -178,14 +178,14 @@
                   <button id="CalcHorizontalToCantedButton"
                           label="Trassenkoo' => Gleissystem"
                           screentip="Transformation: Trassensystem => Gleissystem (gedreht)"
-                          supertip="Trassenkoordinaten (Q, HSOK) werden ins Gleissystem (QG, HG) transformiert."
+                          supertip="Trassenkoordinaten (Q, HSOK) werden ins Gleissystem (QG, HG) transformiert. Falls die Überhöhungsbasis nicht am Punkt existiert, wird die globale Einstellung (aus Tabelle oder Konfiguration) verwendet."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />
                   <button id="CalcCantedToHorizontalButton"
                           label="Gleissystem => Trassenkoo'"
                           screentip="Transformation: Gleissystem (gedreht) => Trassensystem"
-                          supertip="Koordinaten im Gleissystem (QG, HG) werden ins Trassensystem (Q, HSOK) transformiert."
+                          supertip="Koordinaten im Gleissystem (QG, HG) werden ins Trassensystem (Q, HSOK) transformiert. Falls die Überhöhungsbasis nicht am Punkt existiert, wird die globale Einstellung (aus Tabelle oder Konfiguration) verwendet."
                           onAction="GeoToolsButtonAction"
                           getEnabled="GetEnabledGeoToolsTable"
                           />

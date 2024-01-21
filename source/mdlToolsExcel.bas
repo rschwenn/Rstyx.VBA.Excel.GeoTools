@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlToolsExcel"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2024  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -590,9 +590,11 @@ Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary, Op
   'Rückgabe: True, wenn zumindest ein Feld gefunden und beschrieben wurde.
   '
   'Ist "oTab" nicht oder mit Nothing angegeben, dann ist das aktive Arbeitsblatt gemeint.
+  'Datumswerte werden formatiert, falls Zielzelle als Text formatiert ist.
   
   On Error GoTo Fehler
   Dim Feld             As Variant
+  Dim Value            As Variant
   Dim FeldGeschrieben  As Boolean
   Dim oRangeName       As Range
   
@@ -604,8 +606,20 @@ Public Function SchreibenFelderInTabelle(oDictionary As Scripting.Dictionary, Op
   For Each Feld In oDictionary
     Set oRangeName = GetLokalerZellname(Feld, oTab)
     If (Not oRangeName Is Nothing) Then
+      Value = oDictionary(Feld)
+      
+      ' Spezialbehandlung für Datumswerte, falls Zielzelle als Text formatiert ist.
+      If (VarType(oDictionary(Feld)) = vbDate) Then
+        If (Not IsNull(oRangeName.NumberFormat)) Then
+          If (oRangeName.NumberFormat = "@") Then
+            ' Zielzelle ist als Text formatiert (Einfache Zuweisung würde führen zu z.B. "1/21/2024").
+            Value = Format(oDictionary(Feld), "dd.mm.yyyy")
+          End If
+        End If
+      End If
+      
+      oRangeName.value = Value
       FeldGeschrieben = True
-      oRangeName.value = oDictionary(Feld)
     End If
   Next
   SchreibenFelderInTabelle = FeldGeschrieben

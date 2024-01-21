@@ -42,6 +42,8 @@ Attribute VB_Name = "a_Lizenz_History"
 '                   - CdatDatenpuffer: Transformationen Tk <-> Gls berücksichtigen nun auch die
 '                     am Punkt gespeicherte Überhöhungsbasis (Soll und Ist). Falls die Berechnung
 '                     für Istwerte erfolgt, dann hat die Ist-Überhöhungsbasis Vorrang, sonst Soll.
+'                   - mdlToolsExcel.SchreibenFelderInTabelle(): Datumswerte werden formatiert, 
+'                     falls Zielzelle als Text formatiert ist.
 '07.10.2023 v3.3.7  - CimpTrassenkoo: Bugfix: iGeo-Trassennamen jetzt wieder ohne Pfad.
 '24.09.2023 v3.3.6  - Neu mdlBefehle.WorkbookOpened() zwecks Umgehung eines Excel-Fehlers,
 '                     der im Optional-Addin auftritt (FileOpenDirect).

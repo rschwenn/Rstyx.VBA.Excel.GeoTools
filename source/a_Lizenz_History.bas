@@ -38,7 +38,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'26.12.2023 v3.4.0  - CimpTrassenkoo: Unterstützung für Feld S.Tra.BasisUeb (Import aus A0-Kopf)
+'21.01.2024 v3.4.0  - CimpTrassenkoo: Unterstützung für Feld S.Tra.BasisUeb (Import aus A0-Kopf)
 '                   - CdatDatenpuffer: Transformationen Tk <-> Gls berücksichtigen nun auch die
 '                     am Punkt gespeicherte Überhöhungsbasis (Soll und Ist). Falls die Berechnung
 '                     für Istwerte erfolgt, dann hat die Ist-Überhöhungsbasis Vorrang, sonst Soll.

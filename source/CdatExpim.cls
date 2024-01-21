@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2024  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '==================================================================================================
@@ -49,6 +49,7 @@ Attribute VB_Exposed = False
  '  - GL Meldung_Titel                   ... Schlussmeldung
 '
 'Historie:
+ '21.01.2024  Performance: GetQuelldaten_*(): vermeidet Datenpuffer.Daten_AddSpalte().
  '02.05.2020  Anpassungen für Excel 2016/365: Application.Visible ersetzt durch SetApplicationVisible()
  '31.12.2013  Anpassungen für Excel 2010:
  '            - Speichern der Arbeitsmappe im aktuellen Standardformat.
@@ -791,9 +792,11 @@ Function GetQuelldaten_XlTabAktiv() As Long
         End If
         'MsgBox "ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte)=" & ThisWorkbook.AktiveTabelle.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
         Call Spalte_XL2DP(Feld, ThisWorkbook.AktiveTabelle.SpaltenErsteZellen(Spalte), Faktor)
-        Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
+        'Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
+        Me.Datenpuffer.Daten.Add Spalte, Feld
       Next
       Anzahl = ZeAnz
+      Call Me.Datenpuffer.Daten_GetSpaltenInfo()
     End If
   Else
     Anzahl = 0
@@ -865,9 +868,11 @@ Function GetQuelldaten_XlTab(oTab As Excel.Worksheet) As Long
         End If
         'MsgBox "oGeoToolsTab.SpaltenEinheiten(Spalte)=" & oGeoToolsTab.SpaltenEinheiten(Spalte) & ",   Faktor=" & Faktor
         Call Spalte_XL2DP(Feld, oGeoToolsTab.SpaltenErsteZellen(Spalte), Faktor)
-        Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
+        'Me.Datenpuffer.Daten_AddSpalte Spalte, Feld
+        Me.Datenpuffer.Daten.Add Spalte, Feld
       Next
       Anzahl = ZeAnz
+      Call Me.Datenpuffer.Daten_GetSpaltenInfo()
     End If
   Else
     Anzahl = 0
@@ -1112,8 +1117,8 @@ Private Function GetQuelldaten_AsciiSpezial(oImportobjekt As Object)
     'MsgBox Spalte & ": " & oImportobjekt.Quelle_Einheiten(Spalte) & "=" & CStr(Faktor)
     If ((Faktor = 0) Or (Faktor = 1)) Then
       'Kein Umrechnungsfaktor für die Einheit verfügbar oder Faktor=1.
-      Me.Datenpuffer.Daten_AddSpalte Spalte, oImportobjekt.Quelle_Datenpuffer(Spalte)
-      'Me.Datenpuffer.Daten.Add Spalte, oImportobjekt.Quelle_Datenpuffer(Spalte)
+      'Me.Datenpuffer.Daten_AddSpalte Spalte, oImportobjekt.Quelle_Datenpuffer(Spalte)
+      Me.Datenpuffer.Daten.Add Spalte, oImportobjekt.Quelle_Datenpuffer(Spalte)
     Else
       'Umrechnung für numerische Werte erforderlich
       lb = LBound(oImportobjekt.Quelle_Datenpuffer(Spalte))
@@ -1130,10 +1135,11 @@ Private Function GetQuelldaten_AsciiSpezial(oImportobjekt As Object)
         'MsgBox Spalte & ": Quellwert='" & Quellwert & "'  Zielwert='" & Zielwert & "'  (" & me.Datenpuffer.Daten(Spalte)(i) & ")"
         'MsgBox "existiert='" & "me.Datenpuffer.Daten(" & Spalte & ")(" & i & ") ..." & me.Datenpuffer.Daten.Exists(Spalte)
       Next
-      Me.Datenpuffer.Daten_AddSpalte Spalte, Vektor
-      'Me.Datenpuffer.Daten.Add Spalte, Vektor
+      'Me.Datenpuffer.Daten_AddSpalte Spalte, Vektor
+      Me.Datenpuffer.Daten.Add Spalte, Vektor
     End If
   Next
+  Call Me.Datenpuffer.Daten_GetSpaltenInfo()
   
   'GetQuelldaten_AsciiSpezial = Anzahl
   On Error GoTo 0

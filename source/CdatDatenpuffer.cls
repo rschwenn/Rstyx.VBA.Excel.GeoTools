@@ -43,8 +43,9 @@ Attribute VB_Exposed = False
 '
 'Hinweise:
  ' - Nach Hinzufügen oder Löschen von Spalten muss Daten_GetSpaltenInfo() aufgerufen werden, das
- '   Informationen zu vorhandenen Spalten im Dictionary oSpaltenStatus ablegt. Bei Verwendung
- '   der Methoden Me.Daten_AddSpalte und Me.Daten_LoeschenSpalte erfolgt dies automatisch.
+ '   Informationen zu vorhandenen Spalten im Dictionary oSpaltenStatus ablegt.
+ '   Bei Verwendung der Methoden Me.Daten_AddSpalte und Me.Daten_LoeschenSpalte erfolgt dies 
+ '   automatisch. Deshalb sollten diese Methoden nicht vielfach hintereinander aufgerufen werden.
  ' - Die Methode Me.Daten_Bearbeiten führt im Stapel alle Bearbeitungsmethoden aus,
  '   die durch die entsprechende Option festgelegt sind.
  ' - Me.Daten_SchreibenErsatzSpalte() schreibt Inhalte einer Spalte in die konfigurierte
@@ -79,6 +80,8 @@ Attribute VB_Exposed = False
  '21.01.2024  - Transformationen Tk <-> Gls berücksichtigen nun auch die
  '              am Punkt gespeicherte Überhöhungsbasis (Soll und Ist). Falls die Berechnung
  '              für Istwerte erfolgt, dann hat die Ist-Überhöhungsbasis Vorrang, sonst Soll.
+ '21.01.2024  - Daten_GetSpaltenInfo() als Public, damit Daten_AddSpalte() bei 
+ '              Massenoperationen vermieden werden kann (siehe CdatExpim).
 '====================================================================================
 
 
@@ -616,6 +619,52 @@ Public Sub Daten_LoeschenAlleSpalten()
   Exit Sub
   Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_LoeschenAlleSpalten()"
+End Sub
+
+
+Public Sub Daten_GetSpaltenInfo()
+  'Analysiert alle Spalten des Datenpuffers und speichert die entsprechenden Informationen
+  'zwecks Verwendung für Manipulationen am Datenpuffer in folgenden Dictionaries:
+  '  oSpaltenStatus("Ist")          ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Fehler".
+  '  oSpaltenStatus("Soll")         ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Soll".
+  '  oSpaltenStatus("Fehler")       ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Fehler".
+  '  oSpaltenStatus("Verbesserung") ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Verbesserung".
+  
+  On Error GoTo Fehler
+  
+  Dim SpNameMitStatus    As Variant
+  Dim SpNameOhneStatus   As String
+  Dim StatusBez          As String
+  Dim oSpNameAttr        As Scripting.Dictionary
+  
+  'Überflüssige (weil leere) Spalten aus dem Datenpuffer entfernen.
+  Call Daten_LoeschenLeereSpalten
+  
+  'Alle Dictionaries werden zunächst geleert.
+  oSpaltenStatus(StatusBez_Ist).RemoveAll
+  oSpaltenStatus(StatusBez_Soll).RemoveAll
+  oSpaltenStatus(StatusBez_Fehler).RemoveAll
+  oSpaltenStatus(StatusBez_Verbesserung).RemoveAll
+  
+  '"Daten_GetSpaltenInfo" wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
+  'Zu diesem Zeitpunkt existiert ThisWorkbook.Konfig noch nicht:
+  If (Not ThisWorkbook.Konfig Is Nothing) Then
+    For Each SpNameMitStatus In oDaten
+      Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(SpNameMitStatus)
+      StatusBez = oSpNameAttr("StatusBez")
+      If (StatusBez <> "") Then
+        SpNameOhneStatus = oSpNameAttr("NamePur")
+        oSpaltenStatus(StatusBez).Add SpNameOhneStatus, SpNameMitStatus
+      End If
+    Next
+  End If
+  
+  Set oSpNameAttr = Nothing
+  Exit Sub
+  
+  Fehler:
+  Set oSpNameAttr = Nothing
+  FehlerNachricht "CdatDatenpuffer.Daten_GetSpaltenInfo()"
 End Sub
 
 
@@ -1364,52 +1413,6 @@ Private Sub Daten_LoeschenLeereSpalten()
   Exit Sub
   Fehler:
   FehlerNachricht "CdatDatenpuffer.Daten_LoeschenLeereSpalten()"
-End Sub
-
-
-Private Sub Daten_GetSpaltenInfo()
-  'Analysiert alle Spalten des Datenpuffers und speichert die entsprechenden Informationen
-  'zwecks Verwendung für Manipulationen am Datenpuffer in folgenden Dictionaries:
-  '  oSpaltenStatus("Ist")          ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Fehler".
-  '  oSpaltenStatus("Soll")         ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Soll".
-  '  oSpaltenStatus("Fehler")       ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Fehler".
-  '  oSpaltenStatus("Verbesserung") ... (Key=Name, Item=Status.Name); Alle Spalten mit WertStatus "Verbesserung".
-  
-  On Error GoTo Fehler
-  
-  Dim SpNameMitStatus    As Variant
-  Dim SpNameOhneStatus   As String
-  Dim StatusBez          As String
-  Dim oSpNameAttr        As Scripting.Dictionary
-  
-  'Überflüssige (weil leere) Spalten aus dem Datenpuffer entfernen.
-  Call Daten_LoeschenLeereSpalten
-  
-  'Alle Dictionaries werden zunächst geleert.
-  oSpaltenStatus(StatusBez_Ist).RemoveAll
-  oSpaltenStatus(StatusBez_Soll).RemoveAll
-  oSpaltenStatus(StatusBez_Fehler).RemoveAll
-  oSpaltenStatus(StatusBez_Verbesserung).RemoveAll
-  
-  '"Daten_GetSpaltenInfo" wird während der Initialisierung des Add-Ins verwendet (ThisWorkbook.Konfig.initialize).
-  'Zu diesem Zeitpunkt existiert ThisWorkbook.Konfig noch nicht:
-  If (Not ThisWorkbook.Konfig Is Nothing) Then
-    For Each SpNameMitStatus In oDaten
-      Set oSpNameAttr = ThisWorkbook.Konfig.SpNameAttr(SpNameMitStatus)
-      StatusBez = oSpNameAttr("StatusBez")
-      If (StatusBez <> "") Then
-        SpNameOhneStatus = oSpNameAttr("NamePur")
-        oSpaltenStatus(StatusBez).Add SpNameOhneStatus, SpNameMitStatus
-      End If
-    Next
-  End If
-  
-  Set oSpNameAttr = Nothing
-  Exit Sub
-  
-  Fehler:
-  Set oSpNameAttr = Nothing
-  FehlerNachricht "CdatDatenpuffer.Daten_GetSpaltenInfo()"
 End Sub
 
 

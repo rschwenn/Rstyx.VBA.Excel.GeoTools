@@ -848,6 +848,7 @@ Sub Mod_Transfo_Tk2Gls()
           If (CountDim_dH   = 1) Then dH   = oDaten(SpN_dH)(i)    Else dH   = oDaten(SpN_dH)(i, DPidxWert)
           
           ' Überhöhungsbasis bestimmen.
+          BasisUeb = Empty
           If (SpExists_BasisUeb1) Then
             If (CountDim_BasisUeb1 = 1) Then BasisUeb = oDaten(SpN_BasisUeb1)(i) Else BasisUeb = oDaten(SpN_BasisUeb1)(i, DPidxWert)
           End If
@@ -1043,6 +1044,7 @@ Sub Mod_Transfo_Gls2Tk()
           If (CountDim_dHRed   = 1) Then dHRed   = oDaten(SpN_dHRed)(i)   Else dHRed   = oDaten(SpN_dHRed)(i, DPidxWert)
           
           ' Überhöhungsbasis bestimmen.
+          BasisUeb = Empty
           If (SpExists_BasisUeb1) Then
             If (CountDim_BasisUeb1 = 1) Then BasisUeb = oDaten(SpN_BasisUeb1)(i) Else BasisUeb = oDaten(SpN_BasisUeb1)(i, DPidxWert)
           End If

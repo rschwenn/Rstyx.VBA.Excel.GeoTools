@@ -38,6 +38,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
+'08.02.2025 v3.4.2  - Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x". 
 '21.01.2024 v3.4.1  - Performance: CdatExpim.GetQuelldaten_*() vermeidet Datenpuffer.Daten_AddSpalte().
 '21.01.2024 v3.4.0  - CimpTrassenkoo: Unterstützung für Feld S.Tra.BasisUeb (Import aus A0-Kopf)
 '                   - CdatDatenpuffer: Transformationen Tk <-> Gls berücksichtigen nun auch die

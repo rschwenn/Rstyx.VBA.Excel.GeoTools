@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2024  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2025  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -82,6 +82,7 @@ Attribute VB_Exposed = False
  '              für Istwerte erfolgt, dann hat die Ist-Überhöhungsbasis Vorrang, sonst Soll.
  '21.01.2024  - Daten_GetSpaltenInfo() als Public, damit Daten_AddSpalte() bei 
  '              Massenoperationen vermieden werden kann (siehe CdatExpim).
+ '08.02.2025  - Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x". 
 '====================================================================================
 
 
@@ -363,7 +364,7 @@ Private Sub Class_Initialize()
    
    iTC_Pattern = iTC_Pattern & ")?"               ' End attributes
    
-   iTC_Pattern = iTC_Pattern & " *((#) ?(.*))?"   ' Comment
+   iTC_Pattern = iTC_Pattern & " *((#|x) ?(.*))?" ' Comment
    iTC_Pattern = iTC_Pattern & "$"
   '
   
@@ -1612,7 +1613,7 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
   ' Rückgabe: True, wenn eine iTrassen-Codierung gefunden wurde.
   '  
   ' Erwartete Formate:
-  '  -b                        Platform                                 
+  '  -b                       Platform                                 
   '  -i?ueb *=? *<a decimal>  Actual rails with actual absolute cant (sign as iGeo)
   '  -i?u *=? *<a decimal>    Actual rails with actual relative cant
   '  -i                       Actual rails without actual cant
@@ -1623,6 +1624,7 @@ Private Function Parse_iTC(ByVal PointInfoText As String, _
   '  -f[0-9]+                 Other fix point [with numeric mark type] 
   '  ?-                       If one of the above codes is there, it may be preceeded 
   '                           by one word character which will be treated as MarkTypeAB.
+  ' Behind the above codes there may be an info text, preceeded by a single "#" or "x".
   '------------------------------------------------------------------------------
     Dim FoundITC          As Boolean
     Dim oMatches          As Object

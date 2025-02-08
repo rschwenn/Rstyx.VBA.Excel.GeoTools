@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2003 - 2021  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2003 - 2025  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
@@ -41,10 +41,12 @@ Private Sub Workbook_Open()
     InitMsg = "GeoTools " & VersionNr & " aktiviert"
     
     ' AddIn mit LoggingConsole laden (Actions.NET).
+    dim StartTime As Single
+    StartTime = Timer()
     LoggingAddInPath   = ThisWorkbook.Path & "\" & ResourcesSubFolder & "\" & LoggingAddInName
     LoggingAddInLoaded = Application.RegisterXLL(LoggingAddInPath)
     If (LoggingAddInLoaded) Then
-        DebugEcho "GeoTools-Protokollierung erfolgreich initialisiert (" & LoggingAddInPath & " geladen und registriert)."
+        DebugEcho "GeoTools-Protokollierung erfolgreich initialisiert (" & LoggingAddInPath & " geladen und registriert in " & cStr(Timer - StartTime) & " Sekunden)."
         strLoggingInfo = "AddIn '" & LoggingAddInPath & "' wurde erfolgreich geladen." & vbLf & vbLf & _
                          "==> Protokollierung sollte zur Verfügung stehen."
     Else

@@ -5,7 +5,7 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 ' The MIT License (MIT)
 ' 
-' Copyright (c) 2003-2024 Robert Schwenn
+' Copyright (c) 2003-2025 Robert Schwenn
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,9 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'08.02.2025 v3.4.2  - Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x". 
+'08.02.2025 v3.4.2  - CdatDatenpuffer.Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x".
+'                   - CToolsSystem: Unterstützung für Notepad++ als Editor
+'                   - CToolsSystem: Unterstützung für jEdit 5.7 (Aufruf und Fehlerliste).
 '21.01.2024 v3.4.1  - Performance: CdatExpim.GetQuelldaten_*() vermeidet Datenpuffer.Daten_AddSpalte().
 '21.01.2024 v3.4.0  - CimpTrassenkoo: Unterstützung für Feld S.Tra.BasisUeb (Import aus A0-Kopf)
 '                   - CdatDatenpuffer: Transformationen Tk <-> Gls berücksichtigen nun auch die

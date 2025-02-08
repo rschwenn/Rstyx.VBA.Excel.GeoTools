@@ -160,6 +160,8 @@ Attribute VB_Exposed = False
  '            - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
  '25.10.2022  - ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
  '08.02.2025  - Unterstützung für Notepad++ in Editorliste und StartEditor.
+ '            - StartjEdit(): Java-Argumente für jEdit 5.7 ergänzt:
+'               -Dfile.encoding=COMPAT --add-opens java.base/java.net=ALL-UNNAMED
 '====================================================================================
 
 Option Explicit
@@ -581,12 +583,13 @@ Function StartJEdit(byVal strArgumente as String) As Boolean
       'Me.ArbeitsVerz = JEDIT_HOME
       'DebugEcho "Arbeitsverzeichnis gesetzt auf " & Me.ArbeitsVerz
       'Kommando = """" & JavaExe & """-ms128m -mx1024m -Dawt.useSystemAAFontSettings=on -Dsun.java2d.noddraw=true -jar """ & jEditJar & """ -reuseview -background "
+      'Kommando = """" & JavaExe & """ -jar """ & jEditJar & """ -reuseview -background "
       
       '-Xms<size> set initial Java heap size
       '-Xmx<size> set maximum Java heap size
       '-Xss<size> set java thread stack size
       
-      Kommando = """" & JavaExe & """ -jar """ & jEditJar & """ -reuseview -background "
+      Kommando = """" & JavaExe & """ -Dfile.encoding=COMPAT --add-opens java.base/java.net=ALL-UNNAMED -jar """ & jEditJar & """ -reuseview -background "
       
       if (JEDIT_SETTINGS <> "") then Kommando = Kommando & """-settings=" & JEDIT_SETTINGS & """ "
       DebugEcho "jEdit-Einstellungsverzeichnis gesetzt auf " & JEDIT_SETTINGS

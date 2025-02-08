@@ -9,14 +9,12 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2004-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2004-2025  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '====================================================================================
 'Klasse CToolsSystem
 '====================================================================================
-'
-' ACHTUNG: Windows 98 wird nicht unterstützt!!!
 '
 ' Stellt Werkzeuge im folgenden Kontext zur Verfügung:
 '  - Betriebssystem und Registry
@@ -50,6 +48,12 @@ Attribute VB_Exposed = False
   '  G  ListenTrenner       ... Listentrennzeichen  (lt. System-Ländereinstellungen).
   '  G  LangID              ... Language ID (dezimal, lt. System-Ländereinstellungen).
   '                         
+  '                         
+  '  G  NotePadPPExe            ... Pfad\Dateiname der exe von NotePad++, falls installiert. 
+  '                             Gesucht wird nach:  notePad++.exe
+  '                             Gesucht wird unter: - HKEY_LOCAL_MACHINE\SOFTWARE\Notepad++\
+  '                                                 - %PROGRAMFILES%\NotePad++
+  '                                                 - %PROGRAMW6432%\NotePad++
   '  G  UEditExe            ... Pfad\Dateiname der exe von UEdit, falls installiert. 
   '                             Gesucht wird nach:  uedit32.exe und uedit64.exe
   '                             Gesucht wird unter: - %PROGRAMFILES%\IDM Computer Solutions\UltraEdit
@@ -99,6 +103,7 @@ Attribute VB_Exposed = False
   '  getFileNameFromDialog  ... Zeigt einen System-Dateidialog ...
   '                         
   '  StarteDatei            ... Startet Datei mit der verknüpften Anwendung.
+  '  StartNotepadPP         ... Start von Notepad++ mit den angegebenen Argumenten.
   '  StartUEdit             ... Start von UltraEdit mit den angegebenen Argumenten.
   '  StartCEdit             ... Start von Crimson Editor mit den angegebenen Argumenten.
   '  StartJEdit             ... Start von jEdit mit den angegebenen Argumenten.
@@ -154,6 +159,7 @@ Attribute VB_Exposed = False
  '            - IsDatei() und OpenTextFile(): Existenzprüfung verbessert (aus Microstation übernommen).
  '            - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
  '25.10.2022  - ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
+ '08.02.2025  - Unterstützung für Notepad++ in Editorliste und StartEditor.
 '====================================================================================
 
 Option Explicit
@@ -179,6 +185,7 @@ Public  JEDIT_HOME             As String
 Public  JEDIT_SETTINGS         As String
 Public  jEditJar               As String
 Public  UEditExe               As String
+Public  NotePadPPExe           As String
 Public  CEditExe               As String
 Public  ListenTrenner          As String
 Public  DezimalTrenner         As String
@@ -365,9 +372,10 @@ Private Sub Class_Initialize()
   
   'Ermitteln diverser Pfade installierter Anwendungen.
   call GetJEditUmgebung()  ' Muss vor GetJavaExe() aufgerufen werden!
-  UEditExe = GetUEditExe()
-  CEditExe = GetCEditExe()
-  JavaExe  = GetJavaExe()
+  UEditExe     = GetUEditExe()
+  CEditExe     = GetCEditExe()
+  JavaExe      = GetJavaExe()
+  NotePadPPExe = GetNotePadPPExe()
   
   'Liste unterstützter Editoren aufbauen, Standardeditor setzen.
   call InitEditoren()
@@ -381,6 +389,7 @@ Private Sub Class_Initialize()
   DebugEcho "JEDIT_HOME = '" & JEDIT_HOME & "'  JEDIT_SETTINGS = '" & JEDIT_SETTINGS & "'."
   DebugEcho "Exe Java = '" & JavaExe & "'."
   DebugEcho "Jar jEdit = '" & jEditJar & "'."
+  DebugEcho "Exe NotePad++ = '" & NotePadPPExe & "'."
   DebugEcho "Exe UltraEdit = '" & UEditExe & "'."
   DebugEcho "Exe Crimson Editor = '" & CEditExe & "'."
   DebugEcho "Aktueller Editor = '" & strEditor & "'."
@@ -477,6 +486,7 @@ End Function
 Function StartEditor(byVal strArgumente as String)
   dim Erfolg
   select case Editor
+    case "Notepad++":       Erfolg = StartNotepadPP(strArgumente)
     case "UltraEdit":       Erfolg = StartUEdit(strArgumente)
     case "Crimson Editor":  Erfolg = StartCEdit(strArgumente)
     case "jEdit":           Erfolg = StartJEdit(strArgumente)
@@ -487,6 +497,28 @@ Function StartEditor(byVal strArgumente as String)
   StartEditor = Erfolg
 End Function
 
+
+Function StartNotepadPP(byVal strArgumente as String)
+  'Start von Notepad++, der die angegebene Datei lädt.
+  dim Kommando, Erfolg
+  Erfolg = false
+  if (NotepadPPExe = "") then
+    ErrEcho "StartNotepadPP(): Notepad++ ist nicht installiert."
+  else
+    Kommando = """" & NotepadPPExe & """ " & strArgumente
+    DebugEcho "Kommando wird ausgeführt: '" & Kommando & "'."
+    On Error resume next
+    call wshShell.Run(Kommando, WindowStyle_normal, WaitOnReturn_no)
+    if (err = 0) then
+      WshShell.AppActivate "Notepad++"
+      Erfolg = true
+    else
+      ErrEcho "StartNotepadPP(): Notepad++ konnte nicht gestartet werden."
+    end if
+    On Error GoTo 0
+  end if
+  StartNotepadPP = Erfolg
+end Function
 
 Function StartUEdit(byVal strArgumente as String)
   'Start von UltraEdit, der die angegebene Datei lädt.
@@ -1558,6 +1590,49 @@ private function String2Java(byVal Text As String) As String
 End function
 
 
+Private Function GetNotepadPPExe()
+  'Funktionswert = Pfad\Dateiname der registrierten und existierenden EXE von Notepad++ oder "".
+  dim Key_NotepadPPExe, NotepadPPExe, NotepadPPVerz, Erfolg
+  on error goto 0
+  const ExeName = "notepad++.exe"
+  Erfolg = false
+  DebugEcho "Programmdatei von Notepad++ ermitteln."
+  
+  'Ordner aus Registry.
+  Key_NotepadPPExe = "HKEY_LOCAL_MACHINE\SOFTWARE\Notepad++\"
+  NotepadPPExe = GetExeAusRegistry(Key_NotepadPPExe)
+  if (fs.FileExists(NotepadPPExe)) then
+    Erfolg = true
+  else
+    DebugEcho "GetNotepadPPExe(): Notepad++ nicht gefunden in Registry => suche in Standardordnern"
+  end if
+  
+  'Suche in Standardordnern.
+  if (not Erfolg) then
+    NotepadPPVerz = Environ("PROGRAMFILES") & "\Notepad++"
+    NotepadPPExe  = NotepadPPVerz & "\" & ExeName
+    if (fs.FileExists(NotepadPPExe)) then
+      Erfolg = true
+    else
+      DebugEcho "GetNotepadPPExe(): notepad++.exe nicht gefunden im Verzeichnis '" & NotepadPPVerz & "'"
+    end if
+  end if
+  
+  if (not Erfolg) then
+    NotepadPPVerz = Environ("PROGRAMW6432") & "\Notepad++"
+    NotepadPPExe  = NotepadPPVerz & "\" & ExeName
+    if (fs.FileExists(NotepadPPExe)) then
+      Erfolg = true
+    else
+      DebugEcho "GetNotepadPPExe(): notepad++.exe nicht gefunden im Verzeichnis '" & NotepadPPVerz & "'"
+    end if
+  end if
+  
+  if (not Erfolg) then NotepadPPExe = ""
+  
+  GetNotepadPPExe = NotepadPPExe
+End Function
+
 Private Function GetUEditExe()
   'Funktionswert = Pfad\Dateiname der registrierten und existierenden EXE von UEdit oder "".
   dim Key_UEditExe, UEditExe, UEditExeExists, i
@@ -1826,6 +1901,13 @@ Private sub InitEditoren()
   'Liste unterstützter und verfügbarer Editoren aufbauen.
   i = -1
   'redim Editoren(1,i)
+  if (NotepadPPExe <> "") then
+    i = i + 1
+    redim Editoren(1,i)
+    'redim preserve Editoren(1,i)
+    Editoren(0,i) = "Notepad++"   'sichtbarer Text in Listbox
+    Editoren(1,i) = "Notepad++"   'Wert der Listbox => muss in diesem Fall identisch sein mit dem Text.
+  end if
   if (UEditExe <> "") then
     i = i + 1
     redim Editoren(1,i)

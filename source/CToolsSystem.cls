@@ -159,18 +159,19 @@ Attribute VB_Exposed = False
  '            - IsDatei() und OpenTextFile(): Existenzprüfung verbessert (aus Microstation übernommen).
  '            - FileErrorsShowInJEdit(): Meldung um Zeilennummer erweitert (wegen ErrorList 1.4)
  '25.10.2022  - ArbeitsVerz (Let): Sonderfall Wurzelverzeichnis abgefangen.
- '08.02.2025  - Unterstützung für Notepad++ in Editorliste und StartEditor.
+ '09.02.2025  - Unterstützung für Notepad++ in Editorliste und StartEditor.
  '            - StartjEdit(): Java-Argumente für jEdit 5.7 ergänzt:
  '              -Dfile.encoding=COMPAT --add-opens java.base/java.net=ALL-UNNAMED
  '            - FileErrorsShowInJEdit(): - Anpassung an jEdit 5.7
  '              - Anzahl der Meldungen auf 100-150 begrenzt, damit jEdit bedienbar bleibt.
+ '            - Eigener Registry-Eintrag für GeoTools-Editor (zwecks Abkopplung von vbs)
 '====================================================================================
 
 Option Explicit
 
 'Konstanten
 Const   VBAHostNameExcel       As String = "Microsoft Excel"
-Const   RegValueEditor         As String = "HKCU\Software\VB and VBA Program Settings\Common\Editor"    'Registry-Value für aktuell zu verwendenden Editor
+Const   RegValueEditor         As String = "HKCU\Software\VB and VBA Program Settings\Common\Editor_GeoTools"    'Registry-Value für aktuell zu verwendenden Editor
 Public  cKeinEditor            As String   'Quasi-Konstante (Eine Konstante kann nicht Public sein...)
 
 'Eigenschaften
@@ -1423,7 +1424,7 @@ End sub
 
 public function FileErrorsShowInJEdit(byVal ListeLeeren as Boolean) as Boolean
   '------------------------------------------------------------------------------------------
-  'Gibt alle bisher durch FileErrorsAdd() gesammelten Fehlermeldungen
+  'Gibt 100..150 bisher bisher durch FileErrorsAdd() gesammelten Fehlermeldungen
   'in der Fehlerliste des jEdit aus.
   'Eingabe:  ListeLeeren ... wenn "true", wird die Fehlerliste gelöscht.
   'Rückgabe: false, wenn jEdit offenbar nicht erfolgreich aufgerufen werden konnte, sonst true.

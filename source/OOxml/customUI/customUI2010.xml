@@ -282,6 +282,18 @@
                   imageMso="SpacingDouble" />
           
           <separator id="ToolsSeparator1" />
+            
+          <dropDown id="EditorDropdown"
+                  label="Aktiver Editor"
+                  showLabel="false"
+                  screentip="Aktiver Editor"
+                  supertip="Unterstützte und gefundene Editoren."
+                  getItemCount="EditorDropdownGetItemCount"
+                  getItemID="EditorDropdownGetItemID"
+                  getItemLabel="EditorDropdownGetItemLabel"
+                  getSelectedItemID="EditorDropdownGetSelectedItemID"
+                  onAction="EditorDropdownAction"
+                  getEnabled="EditorDropdownGetEnabled" />
           
           <button id="EditFileButton"
                   label="Editor"
@@ -290,7 +302,6 @@
                   supertip="Wenn die aktive Zelle einen vollständigen Dateinamen enthält, wird diese Datei im Editor geöffnet."
                   onAction="GeoToolsButtonAction"
                   getEnabled="GetEnabledTable"
-                  keytip="r"
                   imageMso="EditDocument" />
           
           <button id="SetFooterButton"

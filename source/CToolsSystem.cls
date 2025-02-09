@@ -1976,8 +1976,11 @@ Private sub InitEditoren()
   end if
   if (UEditExe <> "") then
     i = i + 1
-    redim Editoren(1,i)
-    'redim preserve Editoren(1,i)
+    if (isEmpty(Editoren)) then
+      redim Editoren(1,i)
+    else
+      redim preserve Editoren(1,i)
+    end if
     Editoren(0,i) = "UltraEdit"   'sichtbarer Text in Listbox
     Editoren(1,i) = "UltraEdit"   'Wert der Listbox => muss in diesem Fall identisch sein mit dem Text.
   end if

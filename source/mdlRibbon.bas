@@ -1,7 +1,7 @@
 Attribute VB_Name = "mdlRibbon"
 '**************************************************************************************************
 ' GeoTools: Excel-Werkzeuge (nicht nur) für Geodäten.
-' Copyright © 2014-2022  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
+' Copyright © 2014-2025  Robert Schwenn  (Lizenzbestimmungen siehe Modul "Lizenz_History")
 '**************************************************************************************************
 
 '===============================================================================
@@ -102,7 +102,7 @@ Private oRibbon As IRibbonUI
     
 ' End Region
 
-' Region "ComboBox"
+' Region "FmtOptPrecisionNumber ComboBox"
     
     ' Anzahl NK-Stellen wurde via GUI geändert.
     Sub FmtOptPrecisionNumberChange(control As IRibbonControl, text As String)
@@ -111,12 +111,55 @@ Private oRibbon As IRibbonUI
         On Error Goto 0
     End Sub
     
-    'Callback for FmtOptPrecisionNumber getLabel
+    'Callback for FmtOptPrecisionNumber getText.
     Sub GetTextFmtOptPrecisionNumber(control As IRibbonControl, ByRef returnedVal)
         On Error Resume Next
         returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl
         On Error Goto 0
     End Sub
+    
+' End Region
+
+' Region "EditorDropdown"
+    
+    ' siehe https://www.contextures.com/excelribbonmacrostab.html#download
+    
+    ' Init EditorDropdown (part 1).
+    Sub EditorDropdownGetItemCount(ByVal control As IRibbonControl, ByRef count)
+        count = ubound(ThisWorkbook.SysTools.Editoren, 1) + 1
+    End Sub
+    
+    ' Init EditorDropdown (part 2).
+    Sub EditorDropdownGetItemID(ByVal control As IRibbonControl, Index As Integer, ByRef ItemID)
+        Dim Editors as Variant
+        Editors = ThisWorkbook.SysTools.Editoren
+        ItemID  = Editors(Index, 1)
+    End Sub
+    
+    ' Init EditorDropdown (part 3).
+    Sub EditorDropdownGetItemLabel(ByVal control As IRibbonControl, Index As Integer, ByRef ItemLabel)
+        Dim Editors as Variant
+        Editors   = ThisWorkbook.SysTools.Editoren
+        ItemLabel = Editors(Index, 1)
+    End Sub
+    
+    ' Select appropriate item.
+    Sub EditorDropdownGetSelectedItemID(ByVal control As IRibbonControl, ByRef ItemID)
+        ItemID = ThisWorkbook.SysTools.Editor
+    End Sub
+    
+    ' Response to a click on an EditorDropdown Item.
+    Sub EditorDropdownAction(ByVal control As IRibbonControl, selectedID As String, selectedIndex As Integer)
+        On Error Resume Next
+        ThisWorkbook.SysTools.Editor = selectedID
+        On Error Goto 0
+    End Sub
+    
+    ' Verfügbar, wenn mindestens ein unterstützter Editor gefunden worden ist.
+    Sub EditorDropdownGetEnabled(control As IRibbonControl, ByRef returnedVal)
+        returnedVal = (not (ThisWorkbook.SysTools.Editor = ThisWorkbook.SysTools.cKeinEditor))
+    End Sub
+    
     
 ' End Region
 

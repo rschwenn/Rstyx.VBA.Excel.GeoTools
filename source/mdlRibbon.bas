@@ -102,25 +102,28 @@ Private oRibbon As IRibbonUI
     
 ' End Region
 
-' Region "FmtOptPrecisionNumber ComboBox"
+' Region "Precision Dropdown"
+    
+    ' siehe https://www.contextures.com/excelribbonmacrostab.html#download
+    
+    ' Select appropriate item.
+    Sub PrecisionDropdownGetSelectedItemIndex(ByVal control As IRibbonControl, ByRef ItemIndex)
+        On Error Resume Next
+        ItemIndex = ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl
+        On Error Goto 0
+    End Sub
     
     ' Anzahl NK-Stellen wurde via GUI geändert.
-    Sub FmtOptPrecisionNumberChange(control As IRibbonControl, text As String)
+    Sub PrecisionDropdownAction(ByVal control As IRibbonControl, selectedID As String, selectedIndex As Integer)
         On Error Resume Next
-        ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl = cInt(text)
+        ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl = selectedIndex
         On Error Goto 0
     End Sub
     
-    'Callback for FmtOptPrecisionNumber getText.
-    Sub GetTextFmtOptPrecisionNumber(control As IRibbonControl, ByRef returnedVal)
-        On Error Resume Next
-        returnedVal = ThisWorkbook.AktiveTabelle.FormatDatenNKStellenAnzahl
-        On Error Goto 0
-    End Sub
     
 ' End Region
 
-' Region "EditorDropdown"
+' Region "Editor Dropdown"
     
     ' siehe https://www.contextures.com/excelribbonmacrostab.html#download
     
@@ -148,7 +151,7 @@ Private oRibbon As IRibbonUI
         ItemID = ThisWorkbook.SysTools.Editor
     End Sub
     
-    ' Response to a click on an EditorDropdown Item.
+    ' Editor wurde via GUI geändert.
     Sub EditorDropdownAction(ByVal control As IRibbonControl, selectedID As String, selectedIndex As Integer)
         On Error Resume Next
         ThisWorkbook.SysTools.Editor = selectedID

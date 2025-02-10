@@ -134,14 +134,14 @@
                     keytip="n"
                     imageMso="CalculatedNumber" />
             
-            <comboBox id="FmtOptPrecisionNumber"
+            <dropDown id="PrecisionDropdown"
                     label="Anzahl der NK-Stellen"
                     showLabel="false"
-                    sizeString="auto"
                     screentip="Formatierungsoption: Anzahl der NK-Stellen"
                     supertip="Einstellung für Formatierungsoption 'Änderung der NK-Stellen'."
-                    onChange="FmtOptPrecisionNumberChange"
-                    getText="GetTextFmtOptPrecisionNumber"
+                    sizeString="AA"
+                    getSelectedItemIndex="PrecisionDropdownGetSelectedItemIndex"
+                    onAction="PrecisionDropdownAction"
                     getEnabled="GetEnabledFloatingPoint"
                     >
                       <item id="FmtOptPrecision0" label="0"/>
@@ -153,8 +153,7 @@
                       <item id="FmtOptPrecision6" label="6"/>
                       <item id="FmtOptPrecision7" label="7"/>
                       <item id="FmtOptPrecision8" label="8"/>
-                      <item id="FmtOptPrecision9" label="9"/>
-            </comboBox>
+            </dropDown>
           </box>
           
           <separator id="DataRegionSeparator1" />

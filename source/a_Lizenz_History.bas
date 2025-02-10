@@ -38,11 +38,12 @@ Attribute VB_Name = "a_Lizenz_History"
 '
 'Versionshistorie:
 '=================
-'09.02.2025 v3.4.2  - CdatDatenpuffer.Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x".
+'10.02.2025 v3.4.2  - CdatDatenpuffer.Parse_iTC(): Trennzeichen zwischen Code und Text ist neben "#" auch wieder "x".
 '                   - CToolsSystem: Unterstützung für Notepad++ als Editor
 '                   - CToolsSystem: Unterstützung für jEdit 5.7 (Aufruf und Fehlerliste).
 '                   - CToolsSystem: Eigener Registry-Eintrag für GeoTools-Editor (zwecks Abkopplung von vbs)
 '                   - Ribbon: Neues DropDown zur Auswahl des aktiven Editors.
+'                   - Ribbon: Auswahl NKS jetzt als DropDown statt ComboBox.
 '21.01.2024 v3.4.1  - Performance: CdatExpim.GetQuelldaten_*() vermeidet Datenpuffer.Daten_AddSpalte().
 '21.01.2024 v3.4.0  - CimpTrassenkoo: Unterstützung für Feld S.Tra.BasisUeb (Import aus A0-Kopf)
 '                   - CdatDatenpuffer: Transformationen Tk <-> Gls berücksichtigen nun auch die
